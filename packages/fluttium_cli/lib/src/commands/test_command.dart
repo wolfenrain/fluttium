@@ -49,9 +49,11 @@ class TestCommand extends Command<int> {
   /// [ArgResults] for the current command.
   ArgResults get results => testArgResults ?? argResults!;
 
-  bool get _watch => results['watch'] as bool;
+  /// Indicates whether the `--watch` flag was passed.
+  bool get watch => results['watch'] as bool;
 
-  File get _flowFile {
+  /// The file of the flow to run.
+  File get flowFile {
     if (results.arguments.isEmpty || results.arguments.first.isEmpty) {
       usageException('No flow file specified.');
     }
@@ -62,8 +64,14 @@ class TestCommand extends Command<int> {
     return file;
   }
 
-  Directory get _projectDirectory {
-    var projectDir = _flowFile.parent.absolute;
+  /// The flow itself.
+  FluttiumFlow get flow => FluttiumFlow(flowFile.readAsStringSync());
+
+  /// The project directory to run in.
+  Directory get projectDirectory {
+    if (_projectDirectory != null) return _projectDirectory!;
+
+    var projectDir = flowFile.parent.absolute;
     while (projectDir.listSync().firstWhereOrNull(
               (file) => basename(file.path) == 'pubspec.yaml',
             ) ==
@@ -73,8 +81,10 @@ class TestCommand extends Command<int> {
       }
       projectDir = projectDir.parent;
     }
-    return projectDir;
+    return _projectDirectory ??= projectDir;
   }
+
+  Directory? _projectDirectory;
 
   Future<FlutterDevice> getDevice(String workingDirectory) async {
     final devices = await _getDevices(workingDirectory);
@@ -110,19 +120,125 @@ class TestCommand extends Command<int> {
     return devices.cast<Map<String, dynamic>>().map(FlutterDevice.new).toList();
   }
 
+  late List<bool?> stepStates = [];
+
+  MasonGenerator? _generator;
+
   @override
   Future<int> run() async {
-    final flowFile = _flowFile;
-    final projectDir = _projectDirectory;
+    final projectDir = projectDirectory;
     final device = await getDevice(projectDir.path);
 
     final tempDir = Directory(join(Directory.current.path, 'temp'))
       ..deleteAndCreateSync();
-    final generator = await MasonGenerator.fromBundle(fluttiumTestBundle);
 
-    final flow = FluttiumFlow(flowFile.readAsStringSync());
+    await _generate(tempDir, withHooks: true);
+
+    final startingUpTestDriver = _logger.progress('Starting up test driver');
+    final process = await Process.start(
+      'flutter',
+      ['run', 'fluttium_test.dart', '-d', device.id],
+      runInShell: true,
+      workingDirectory: tempDir.path,
+    );
+
+    var isCompleted = false;
+    final buffer = StringBuffer();
+    process.stdout.listen((event) async {
+      final data = utf8.decode(event).trim();
+      buffer.write(data);
+
+      // Skip until we see the first line of the test output.
+      if (!isCompleted && data.startsWith('flutter: ')) {
+        startingUpTestDriver.complete();
+        isCompleted = true;
+      }
+
+      // Skip until the driver is ready.
+      if (!isCompleted) {
+        return;
+      }
+
+      final regex = RegExp('fluttium:(start|fail|done|screenshot):(.*?);');
+      final matches = regex.allMatches(buffer.toString());
+
+      // If matches is not empty, clear the buffer and check if the last match
+      // is the end of the buffer. If it is not, we add what is left back to
+      // the buffer.
+      if (matches.isNotEmpty) {
+        final content = buffer.toString();
+        final lastMatch = matches.last;
+
+        buffer.clear();
+        if (content.length > lastMatch.end) {
+          buffer.write(content.substring(lastMatch.end));
+        }
+      }
+
+      // For each action we have received, update the step states
+      for (final match in matches) {
+        final action = match.group(1);
+        switch (action) {
+          case 'start':
+            stepStates.add(null);
+            break;
+          case 'fail':
+            stepStates.last = false;
+            break;
+          case 'done':
+            stepStates.last = true;
+            break;
+          case 'screenshot':
+            final step = flow.steps[stepStates.length - 1];
+            final bytes = match.group(2)!.split(',').map(int.parse).toList();
+            File(join(projectDir.path, 'screenshots', '${step.text}.png'))
+              ..createSync(recursive: true)
+              ..writeAsBytesSync(bytes);
+            break;
+          default:
+            throw Exception('Unknown action: $action');
+        }
+      }
+
+      _showCurrentFlowState();
+
+      // If we have completed all the steps, or if we have failed, exit the
+      // process unless we are in watch mode.
+      if (!watch &&
+          (stepStates.length == flow.steps.length ||
+              stepStates.any((e) => e == false))) {
+        process.stdin.write('q');
+      }
+    });
+
+    if (watch) {
+      final projectWatcher = DirectoryWatcher(projectDir.path);
+      projectWatcher.events.listen((event) {
+        if (event.path.endsWith('.dart')) {
+          stepStates.clear();
+          process.stdin.write('R');
+        }
+      });
+
+      final flowWatcher = FileWatcher(flowFile.path);
+      flowWatcher.events.listen((event) async {
+        await _generate(tempDir);
+        stepStates.clear();
+        process.stdin.write('R');
+      });
+    }
+
+    await process.exitCode;
+    tempDir.deleteSync(recursive: true);
+    _logger.info('');
+    return ExitCode.success.code;
+  }
+
+  Future<void> _generate(Directory tempDir, {bool withHooks = false}) async {
+    _generator ??= await MasonGenerator.fromBundle(fluttiumTestBundle);
+
     final vars = <String, dynamic>{
-      'projectPath': projectDir.path,
+      'projectPath': projectDirectory.path,
       'flowDescription': flow.description,
       'flowSteps': flow.steps
           .map((e) {
@@ -142,136 +258,57 @@ class TestCommand extends Command<int> {
           .map((e) => {'step': e})
           .toList(),
     };
-    await generator.hooks.preGen(vars: vars, workingDirectory: tempDir.path);
-    await generator.generate(DirectoryGeneratorTarget(tempDir), vars: vars);
+    if (withHooks) {
+      await _generator!.hooks.preGen(
+        vars: vars,
+        workingDirectory: tempDir.path,
+      );
+    }
+    await _generator!.generate(DirectoryGeneratorTarget(tempDir), vars: vars);
+  }
 
-    final startingUpTestDriver = _logger.progress('Starting up test driver');
-    final process = await Process.start(
-      'flutter',
-      ['run', 'fluttium_test.dart', '-d', device.id],
-      runInShell: true,
-      workingDirectory: tempDir.path,
-    );
-
-    var isCompleted = false;
-    var stepIndex = -1;
-    final stepStates = flow.steps.map((e) => -1).toList();
-
-    final buffer = StringBuffer();
-    process.stdout.listen((event) async {
-      final data = utf8.decode(event).trim();
-      buffer.write(data);
-
-      if (!isCompleted && data.startsWith('flutter: ')) {
-        startingUpTestDriver.complete();
-        isCompleted = true;
-      }
-      if (!isCompleted) {
-        return;
-      }
-
-      final regex = RegExp('fluttium:(start|fail|done|screenshot):(.*?);');
-      final matches = regex.allMatches(buffer.toString());
-      if (matches.isNotEmpty) {
-        final content = buffer.toString();
-        final lastMatch = matches.last;
-
-        buffer.clear();
-        if (content.length > lastMatch.end) {
-          buffer.write(content.substring(lastMatch.end));
-        }
-      }
-
-      for (final match in matches) {
-        final action = match.group(1);
-        switch (action) {
-          case 'start':
-            stepIndex++;
-            break;
-          case 'fail':
-            stepStates[stepIndex] = 0;
-            break;
-          case 'done':
-            stepStates[stepIndex] = 1;
-            break;
-          case 'screenshot':
-            final step = flow.steps[stepIndex];
-            final bytes = match.group(2)!.split(',').map(int.parse).toList();
-            File(join(projectDir.path, 'screenshots', '${step.text}.png'))
-              ..createSync(recursive: true)
-              ..writeAsBytesSync(bytes);
-            break;
-          default:
-            throw Exception('Unknown action: $action');
-        }
-      }
-
-      _logger.info('''
+  void _showCurrentFlowState() {
+    // Reset the cursor to the top of the screen and clear the screen.
+    _logger.info('''
 \u001b[0;0H\u001b[0J
   ${styleBold.wrap(flow.description)}
 ''');
 
-      for (var i = 0; i < flow.steps.length; i++) {
-        final step = flow.steps[i];
-        final stepState = stepStates[i];
+    for (var i = 0; i < flow.steps.length; i++) {
+      final step = flow.steps[i];
 
-        final String actionDescription;
-        switch (step.action) {
-          case FluttiumAction.expectVisible:
-            actionDescription = 'Expect visible "${step.text}"';
-            break;
-          case FluttiumAction.expectNotVisible:
-            actionDescription = 'Expect not visible "${step.text}"';
-            break;
-          case FluttiumAction.tapOn:
-            actionDescription = 'Tap on "${step.text}"';
-            break;
-          case FluttiumAction.inputText:
-            actionDescription = 'Input text "${step.text}"';
-            break;
-          case FluttiumAction.takeScreenshot:
-            actionDescription = 'Screenshot "${step.text}"';
-            break;
-        }
-
-        switch (stepState) {
-          case -1:
-            if (i == stepIndex) {
-              _logger.info('  ⏳  $actionDescription');
-            } else {
-              _logger.info('  🔲  $actionDescription');
-            }
-            break;
-          case 0:
-            _logger.info('  ❌  $actionDescription');
-            break;
-          case 1:
-            _logger.info('  ✅  $actionDescription');
-            break;
-        }
+      final String actionDescription;
+      switch (step.action) {
+        case FluttiumAction.expectVisible:
+          actionDescription = 'Expect visible "${step.text}"';
+          break;
+        case FluttiumAction.expectNotVisible:
+          actionDescription = 'Expect not visible "${step.text}"';
+          break;
+        case FluttiumAction.tapOn:
+          actionDescription = 'Tap on "${step.text}"';
+          break;
+        case FluttiumAction.inputText:
+          actionDescription = 'Input text "${step.text}"';
+          break;
+        case FluttiumAction.takeScreenshot:
+          actionDescription = 'Screenshot "${step.text}"';
+          break;
       }
 
-      if ((stepIndex + 1 == flow.steps.length ||
-              stepStates.any((e) => e == 0)) &&
-          !_watch) {
-        process.stdin.write('q');
-      }
-    });
-
-    if (_watch) {
-      final watcher = DirectoryWatcher(projectDir.path);
-      watcher.events.listen((event) {
-        if (event.path.endsWith('.dart')) {
-          stepIndex = -1;
-          process.stdin.write('R');
+      if (i < stepStates.length) {
+        final state = stepStates[i];
+        if (state == null) {
+          _logger.info('  ⏳  $actionDescription');
+        } else if (state) {
+          _logger.info('  ✅  $actionDescription');
+        } else {
+          _logger.info('  ❌  $actionDescription');
         }
-      });
+      } else {
+        _logger.info('  🔲  $actionDescription');
+      }
     }
-
-    await process.exitCode;
-    tempDir.deleteSync(recursive: true);
-    _logger.info('');
-    return ExitCode.success.code;
   }
 }
 
