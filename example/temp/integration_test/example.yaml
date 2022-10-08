@@ -1,0 +1,14 @@
+description: tap on the floating action button, verify counter
+---
+- expectVisible: "0"
+- tapOn: "Increment"
+- expectVisible: "1"
+- tapOn: "Increment"
+- expectVisible: "2"
+- tapOn: "Increment"
+- expectNotVisible: "4"
+- tapOn: "Increment"
+- expectVisible: "4"
+# - takeScreenshot: "Current State"
+- tapOn: "Increment"
+- expectVisible: "5"

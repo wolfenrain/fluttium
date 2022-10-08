@@ -1,0 +1,6 @@
+name: example end-to-end test
+description: tap on the floating action button, verify counter
+---
+- expectVisible: "0"
+- tapOn: "Increment"
+- expectVisible: "1"
