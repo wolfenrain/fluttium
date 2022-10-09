@@ -1,2 +1,2 @@
-export 'test_command.dart';
+export 'test/test.dart';
 export 'update_command.dart';
