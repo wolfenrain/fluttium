@@ -7,7 +7,10 @@ Future<void> run(HookContext context) async {
   final projectDir = Directory(context.vars['projectPath']);
 
   final syncingFiles = context.logger.progress('Syncing project');
-  for (final file in projectDir.listSync(recursive: true).whereType<File>()) {
+  for (final file in projectDir
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((f) => !f.path.endsWith('.dart'))) {
     final relative = file.path.replaceFirst('${projectDir.path}/', '');
 
     // Write to target file

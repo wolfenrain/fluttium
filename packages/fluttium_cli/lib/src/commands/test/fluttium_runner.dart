@@ -137,7 +137,7 @@ class FluttiumRunner {
     final tempDir = Directory.systemTemp.createTempSync('fluttium');
     await _generate(tempDir, withHooks: true);
 
-    // final startingUpTestDriver = logger.progress('Starting up test driver');
+    final startingUpTestDriver = logger.progress('Starting up test driver');
     final process = await Process.start(
       'flutter',
       ['run', 'fluttium_test.dart', '-d', device.id],
@@ -154,7 +154,7 @@ class FluttiumRunner {
       // Skip until we see the first line of the test output.
       if (!isCompleted &&
           data.startsWith(RegExp(r'^[I/]*flutter[\s*\(\s*\d+\)]*: '))) {
-        // startingUpTestDriver.complete();
+        startingUpTestDriver.complete();
         isCompleted = true;
       }
 
