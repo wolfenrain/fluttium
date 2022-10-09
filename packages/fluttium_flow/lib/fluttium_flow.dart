@@ -1,4 +1,4 @@
-/// TODO:
+/// The flow definitions of the Fluttium UI testing framework.
 library fluttium_flow;
 
 export 'src/fluttium_action.dart';

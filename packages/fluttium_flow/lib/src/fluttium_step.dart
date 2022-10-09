@@ -1,8 +1,11 @@
-import 'package:fluttium_flow/src/fluttium_action.dart';
+import 'package:fluttium_flow/fluttium_flow.dart';
 import 'package:yaml/yaml.dart';
 
 /// {@template fluttium_step}
-/// TODO:
+/// A [FluttiumStep] is a single step in a [FluttiumFlow].
+///
+/// The [action] is the action to perform. While the other properties are
+/// optional and are used to configure the action.
 /// {@endtemplate}
 class FluttiumStep {
   /// {@macro fluttium_step}
@@ -23,7 +26,10 @@ class FluttiumStep {
     }
   }
 
+  /// The action to perform.
   late final FluttiumAction action;
 
+  /// Depending on the action this is the text or label to select by or the
+  /// text to type.
   late final String text;
 }
