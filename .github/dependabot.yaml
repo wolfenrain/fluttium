@@ -6,6 +6,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
-    directory: "/"
+    directory: "/example"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/packages/fluttium_flow"
     schedule:
       interval: "daily"

@@ -29,7 +29,7 @@ enum FluttiumAction {
       case 'takeScreenshot':
         return FluttiumAction.takeScreenshot;
       default:
-        throw Exception('Unknown action: $action');
+        throw UnimplementedError('$action is not implemented');
     }
   }
 }

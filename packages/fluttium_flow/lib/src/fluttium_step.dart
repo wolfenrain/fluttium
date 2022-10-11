@@ -11,7 +11,7 @@ class FluttiumStep {
   /// {@macro fluttium_step}
   FluttiumStep(YamlNode step) {
     if (step is! YamlMap) {
-      throw Exception('Step must be a map');
+      throw UnsupportedError('Step must be a map');
     }
     final map = step;
     final actionName = map.keys.first;
