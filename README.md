@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-<a href="https://github.com//wolfenrain/fluttium/actions"><img src="https://github.com//wolfenrain/fluttium/workflows/mason/badge.svg" alt="mason"></a>
-<a href="https://github.com//wolfenrain/fluttium/actions"><img src="https://raw.githubusercontent.com//wolfenrain/fluttium/main/packages/fluttium/coverage_badge.svg" alt="coverage"></a>
+<a href="https://github.com//wolfenrain/fluttium/actions"><img src="https://github.com//wolfenrain/fluttium/workflows/fluttium/badge.svg" alt="fluttium"></a>
+<a href="https://github.com//wolfenrain/fluttium/actions"><img src="https://raw.githubusercontent.com/wolfenrain/fluttium/main/coverage_badge.svg" alt="coverage"></a>
 <a href="https://pub.dev/packages/very_good_analysis"><img src="https://img.shields.io/badge/style-very_good_analysis-B22C89.svg" alt="style: very good analysis"></a>
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
 </p>
@@ -17,12 +17,11 @@ Fluttium, the UI testing tool for Flutter.
 
 ## Packages
 
-| Package                                                                             | Pub                                                                                                    |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| [mason](https://github.com/felangel/mason/tree/master/packages/mason)               | [![pub package](https://img.shields.io/pub/v/mason.svg)](https://pub.dev/packages/mason)               |
-| [mason_api](https://github.com/felangel/mason/tree/master/packages/mason_api)       | [![pub package](https://img.shields.io/pub/v/mason_api.svg)](https://pub.dev/packages/mason_api)       |
-| [mason_cli](https://github.com/felangel/mason/tree/master/packages/mason_cli)       | [![pub package](https://img.shields.io/pub/v/mason_cli.svg)](https://pub.dev/packages/mason_cli)       |
-| [mason_logger](https://github.com/felangel/mason/tree/master/packages/mason_logger) | [![pub package](https://img.shields.io/pub/v/mason_logger.svg)](https://pub.dev/packages/mason_logger) |
+| Package                                                                                        | Pub                                                                                                       |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [fluttium_cli](https://github.com/wolfenrain/fluttium/tree/master/packages/fluttium_cli)       | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_cli)    |
+| [fluttium_flow](https://github.com/wolfenrain/fluttium/tree/master/packages/fluttium_flow)     | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_flow)   |
+| [fluttium_runner](https://github.com/wolfenrain/fluttium/tree/master/packages/fluttium_runner) | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_runner) |
 
 ## Quick Start
 

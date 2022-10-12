@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/vsDark');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Fluttium',
-  tagline: 'The UI automation tool for Flutter',
+  tagline: 'The UI testing tool for Flutter',
   url: 'https://fluttium.dev',
   baseUrl: '/',
   onBrokenLinks: 'throw',

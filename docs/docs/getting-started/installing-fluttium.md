@@ -15,11 +15,11 @@ We recommend installing the `fluttium_cli` from [pub.dev](https://pub.dev):
 flutter pub global activate fluttium_cli
 ```
 
-Once you have succesfully installed the `fluttium_cli` you can verify that it works by running the
+Once you have successfully installed the `fluttium_cli` you can verify that it works by running the
 `fluttium` command in your terminal. You should see the following output:
 
 ```shell
-Fluttium, the UI automation tool for Flutter.
+Fluttium, the UI testing tool for Flutter.
 
 Usage: fluttium <command> [arguments]
 
