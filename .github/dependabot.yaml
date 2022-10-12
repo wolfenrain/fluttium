@@ -5,11 +5,23 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "pub"
     directory: "/example"
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
+    directory: "/packages/fluttium_cli"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
     directory: "/packages/fluttium_flow"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/packages/fluttium_runner"
     schedule:
       interval: "daily"

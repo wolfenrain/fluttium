@@ -1,10 +1,3 @@
-// Copyright (c) 2022, Very Good Ventures
-// https://verygood.ventures
-//
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file or at
-// https://opensource.org/licenses/MIT.
-
 import 'package:fluttium_cli/src/command_runner.dart';
 import 'package:fluttium_cli/src/version.dart';
 import 'package:mason_logger/mason_logger.dart';
