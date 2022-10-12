@@ -1,0 +1,10 @@
+{
+    "label": "Fluttium CLI",
+    "position": 3,
+    "link": {
+        "title": "🖥 Fluttium CLI",
+        "type": "generated-index",
+        "description": "Learn all about the commands that Fluttium CLI provides.",
+        "slug": "cli"
+    }
+}

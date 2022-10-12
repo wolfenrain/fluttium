@@ -7,7 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import '{{{projectPath}}}/lib/main.dart' as app;
+import 'package:{{{projectName}}}/main.dart' as app;
 
 late IntegrationTestWidgetsFlutterBinding binding;
 late FluttiumManager manager;
@@ -30,11 +30,12 @@ void main() {
 
 extension on WidgetTester {
   Finder _findByText(String text) {
-    var finder = find.bySemanticsLabel(text);
+    final regexp = RegExp('^$text\$');
+    var finder = find.bySemanticsLabel(regexp);
     if (finder.evaluate().isEmpty) {
       finder = find.byTooltip(text);
       if (finder.evaluate().isEmpty) {
-        finder = find.text(text);
+        finder = find.textContaining(regexp);
       }
     }
     return finder;
@@ -65,7 +66,6 @@ extension on WidgetTester {
     await manager.done();
   }
 
-  // TODO: missing web support
   Future<void> takeScreenshot(String name) async {
     await manager.start();
     final RenderRepaintBoundary boundary =
@@ -79,8 +79,12 @@ extension on WidgetTester {
 
   Future<void> inputText(String text) async {
     await manager.start();
-    testTextInput.enterText(text);
-    await idle();
+    var chars = [];
+    for (final char in text.split('')) {
+      chars.add(char);
+      testTextInput.enterText(chars.join());
+      await pumpAndSettle();
+    }
     await manager.done();
   }
 }

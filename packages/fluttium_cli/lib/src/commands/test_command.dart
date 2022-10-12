@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
-import 'package:fluttium_cli/src/commands/test/fluttium_runner.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_flow/fluttium_flow.dart';
+import 'package:fluttium_runner/fluttium_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
@@ -83,12 +83,22 @@ class TestCommand extends Command<int> {
     Progress progress,
   ) async {
     final devices = await _getDevices(workingDirectory);
-    progress.cancel();
     if (devices.length == 1) {
+      progress.complete();
       return devices.first;
     }
+    if (devices.isEmpty) {
+      progress.fail();
+      usageException('No devices found.');
+    }
+    final optionalDeviceId = results['device-id'] as String?;
+    if (optionalDeviceId != null) {
+      progress.complete();
+    } else {
+      progress.cancel();
+    }
 
-    final deviceId = (results['device-id'] as String?) ??
+    final deviceId = optionalDeviceId ??
         _logger.chooseOne(
           'Choose a device:',
           choices: devices.map((d) => d.name).toList(),
@@ -111,9 +121,23 @@ class TestCommand extends Command<int> {
       runInShell: true,
       workingDirectory: workingDirectory,
     );
-    final devices = jsonDecode(result.stdout as String) as List<dynamic>;
+    final devices = (jsonDecode(result.stdout as String) as List<dynamic>)
+        .cast<Map<String, dynamic>>()
+        .map(FlutterDevice.new)
+        .toList();
 
-    return devices.cast<Map<String, dynamic>>().map(FlutterDevice.new).toList();
+    return devices.where((device) {
+      if (device.targetPlatform.startsWith('web')) {
+        return Directory(join(workingDirectory, 'web')).existsSync();
+      } else if (device.targetPlatform.startsWith('darwin')) {
+        return Directory(join(workingDirectory, 'macos')).existsSync();
+      } else if (device.targetPlatform.startsWith('ios')) {
+        return Directory(join(workingDirectory, 'ios')).existsSync();
+      } else if (device.targetPlatform.startsWith('android')) {
+        return Directory(join(workingDirectory, 'android')).existsSync();
+      }
+      return false;
+    }).toList();
   }
 
   @override
@@ -127,7 +151,7 @@ class TestCommand extends Command<int> {
     final runner = FluttiumRunner(
       flowFile: flowFile,
       projectDirectory: projectDir,
-      device: device,
+      deviceId: device.id,
       logger: _logger,
     );
 

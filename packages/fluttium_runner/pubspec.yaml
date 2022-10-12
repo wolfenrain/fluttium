@@ -1,5 +1,5 @@
-name: fluttium_flow
-description: The flow definitions of the Fluttium UI testing framework
+name: fluttium_runner
+description: A runner for executing Fluttium flow tests
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 version: 0.1.0+1
@@ -8,9 +8,15 @@ publish_to: none
 environment:
   sdk: ">=2.18.0 <3.0.0"
 
+dependencies:
+  fluttium_flow:
+    path: ../fluttium_flow
+  mason: ^0.1.0-dev.33
+  path: ^1.8.2
+  process: ^4.2.4
+  watcher: ^1.0.1
+
 dev_dependencies:
   mocktail: ^0.3.0
   test: ^1.19.2
   very_good_analysis: ^3.1.0
-dependencies:
-  yaml: ^3.1.1

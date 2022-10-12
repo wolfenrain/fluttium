@@ -1,0 +1,10 @@
+{
+    "label": "Actions",
+    "position": 4,
+    "link": {
+        "title": "💥 Actions",
+        "type": "generated-index",
+        "description": "Learn all about the actions that Fluttium provides for writing test flows.",
+        "slug": "actions"
+    }
+}
