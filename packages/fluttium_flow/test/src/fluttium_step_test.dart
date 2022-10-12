@@ -6,8 +6,25 @@ import 'package:yaml/yaml.dart';
 
 void main() {
   group('FluttiumStep', () {
-    test('can construct from a short-hand yaml node', () {
+    test('can be instantiated', () {
       final step = FluttiumStep(
+        FluttiumAction.expectNotVisible,
+        text: 'findByText',
+      );
+
+      expect(
+        step.action,
+        equals(FluttiumAction.expectNotVisible),
+      );
+
+      expect(
+        step.text,
+        equals('findByText'),
+      );
+    });
+
+    test('can construct from a short-hand yaml node', () {
+      final step = FluttiumStep.fromYaml(
         YamlMap.wrap({
           'expectVisible': 'findByText',
         }),
@@ -25,7 +42,7 @@ void main() {
     });
 
     test('can construct from a yaml node', () {
-      final step = FluttiumStep(
+      final step = FluttiumStep.fromYaml(
         YamlMap.wrap({
           'expectVisible': {
             'text': 'findByText',
@@ -46,8 +63,23 @@ void main() {
 
     test('throws exception when the node is not a map', () {
       expect(
-        () => FluttiumStep(YamlList.wrap([])),
+        () => FluttiumStep.fromYaml(YamlList.wrap([])),
         throwsUnsupportedError,
+      );
+    });
+
+    test('toJson', () {
+      final step = FluttiumStep(
+        FluttiumAction.expectNotVisible,
+        text: 'findByText',
+      );
+
+      expect(
+        step.toJson(),
+        equals({
+          'action': 'expectNotVisible',
+          'text': 'findByText',
+        }),
       );
     });
   });

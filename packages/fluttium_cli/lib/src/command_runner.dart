@@ -45,6 +45,7 @@ class FluttiumCliCommandRunner extends CommandRunner<int> {
       );
 
     // Add sub commands
+    addCommand(CreateCommand(logger: _logger));
     addCommand(TestCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: _pubUpdater));
   }
@@ -126,7 +127,7 @@ class FluttiumCliCommandRunner extends CommandRunner<int> {
           ..info(
             '''
 ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
-Run ${lightCyan.wrap('fluttium_cli update')} to update''',
+Run ${lightCyan.wrap('$executableName update')} to update''',
           );
       }
     } catch (_) {}

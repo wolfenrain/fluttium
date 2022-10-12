@@ -29,7 +29,7 @@ class TestCommand extends Command<int> {
   }
 
   @override
-  String get description => 'A sample sub command that just prints one joke';
+  String get description => 'Run a FluttiumFlow test.';
 
   @override
   String get name => 'test';
@@ -92,25 +92,23 @@ class TestCommand extends Command<int> {
       usageException('No devices found.');
     }
     final optionalDeviceId = results['device-id'] as String?;
+    FlutterDevice? optionalDevice;
     if (optionalDeviceId != null) {
       progress.complete();
+      optionalDevice = devices.firstWhereOrNull(
+        (device) => device.id == optionalDeviceId,
+      );
     } else {
       progress.cancel();
     }
 
-    final deviceId = optionalDeviceId ??
-        _logger.chooseOne(
+    final device = optionalDevice ??
+        _logger.chooseOne<FlutterDevice>(
           'Choose a device:',
-          choices: devices.map((d) => d.name).toList(),
+          choices: devices,
+          display: (device) => '${device.name} (${device.id})',
         );
 
-    final device = devices.firstWhereOrNull(
-      (device) =>
-          device.id.startsWith(deviceId) || device.name.startsWith(deviceId),
-    );
-    if (device == null) {
-      usageException('Device "$deviceId" not found.');
-    }
     return device;
   }
 
@@ -153,9 +151,74 @@ class TestCommand extends Command<int> {
       projectDirectory: projectDir,
       deviceId: device.id,
       logger: _logger,
+      renderer: (flow, stepStates) {
+        // Reset the cursor to the top of the screen and clear the screen.
+        _logger.info('''
+\u001b[0;0H\u001b[0J
+  ${styleBold.wrap(flow.description)}
+''');
+
+        for (var i = 0; i < flow.steps.length; i++) {
+          final step = flow.steps[i];
+
+          final String actionDescription;
+          switch (step.action) {
+            case FluttiumAction.expectVisible:
+              actionDescription = 'Expect visible "${step.text}"';
+              break;
+            case FluttiumAction.expectNotVisible:
+              actionDescription = 'Expect not visible "${step.text}"';
+              break;
+            case FluttiumAction.tapOn:
+              actionDescription = 'Tap on "${step.text}"';
+              break;
+            case FluttiumAction.inputText:
+              actionDescription = 'Input text "${step.text}"';
+              break;
+            case FluttiumAction.takeScreenshot:
+              actionDescription = 'Screenshot "${step.text}"';
+              break;
+          }
+
+          if (i < stepStates.length) {
+            final state = stepStates[i];
+            if (state == null) {
+              _logger.info('  ⏳  $actionDescription');
+            } else if (state) {
+              _logger.info('  ✅  $actionDescription');
+            } else {
+              _logger.info('  ❌  $actionDescription');
+            }
+          } else {
+            _logger.info('  🔲  $actionDescription');
+          }
+        }
+        _logger.info('');
+        if (watch) {
+          _logger.info('''
+  ${styleDim.wrap('Press')} r ${styleDim.wrap('to restart the test.')}
+  ${styleDim.wrap('Press')} q ${styleDim.wrap('to quit.')}''');
+        }
+      },
     );
 
+    stdin.lineMode = false;
+
+    stdin.listen((event) {
+      final key = utf8.decode(event).trim();
+      switch (key) {
+        case 'q':
+          runner.quit();
+          break;
+        case 'r':
+          runner.restart();
+          break;
+      }
+    });
+
     await runner.run(watch: watch);
+
+    stdin.lineMode = true;
 
     return ExitCode.success.code;
   }

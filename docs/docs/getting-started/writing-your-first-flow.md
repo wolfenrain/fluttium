@@ -12,12 +12,11 @@ description: The description of your flow test
 - tapOn: "The text or a semantic label on the screen"
 ```
 
-Or you can use the `create` command, which is able to ?? (can we generate tests for someone based 
-on where they click?)
+Or you can use the `create` command, which will generate a initial test file for you.
 
 ```shell
-# ✨ Magically create a new flow test file
-fluttium create ??
+# 🖥 Create a test flow file
+fluttium create my_flow.yaml --desc "The description of your flow test"
 ```
 
 For more information on actions that you can use in a flow test, see the 

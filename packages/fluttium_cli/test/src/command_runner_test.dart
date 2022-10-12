@@ -21,7 +21,7 @@ const latestVersion = '0.0.0';
 
 final updatePrompt = '''
 ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
-Run ${lightCyan.wrap('fluttium_cli update')} to update''';
+Run ${lightCyan.wrap('fluttium update')} to update''';
 
 void main() {
   group('FluttiumCliCommandRunner', () {
@@ -112,17 +112,17 @@ void main() {
       test('enables verbose logging for sub commands', () async {
         final result = await commandRunner.run([
           '--verbose',
-          'sample',
-          '--cyan',
+          'test',
+          '-d macOS',
         ]);
         expect(result, equals(ExitCode.success.code));
 
         verify(() => logger.detail('Argument information:')).called(1);
         verify(() => logger.detail('  Top level options:')).called(1);
         verify(() => logger.detail('  - verbose: true')).called(1);
-        verify(() => logger.detail('  Command: sample')).called(1);
+        verify(() => logger.detail('  Command: test')).called(1);
         verify(() => logger.detail('    Command options:')).called(1);
-        verify(() => logger.detail('    - cyan: true')).called(1);
+        verify(() => logger.detail('    - device-id: macOS')).called(1);
       });
     });
   });

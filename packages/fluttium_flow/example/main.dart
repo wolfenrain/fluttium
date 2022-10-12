@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fluttium_flow/fluttium_flow.dart';
 
 void main() {
@@ -10,5 +12,5 @@ description: 'A simple flow'
 - expectNotVisible: 'findByText'
 ''');
 
-  print(flow.description);
+  stdout.write(flow.description);
 }

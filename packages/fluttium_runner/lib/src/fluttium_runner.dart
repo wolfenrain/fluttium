@@ -8,6 +8,8 @@ import 'package:path/path.dart';
 import 'package:process/process.dart';
 import 'package:watcher/watcher.dart';
 
+typedef FlowRenderer = void Function(FluttiumFlow flow, List<bool?> stepStates);
+
 /// {@template fluttium_runner}
 /// A runner for executing Fluttium flow tests.
 /// {@endtemplate}
@@ -17,11 +19,13 @@ class FluttiumRunner {
     required this.flowFile,
     required this.projectDirectory,
     required this.deviceId,
+    required FlowRenderer renderer,
     Logger? logger,
     ProcessManager? processManager,
   })  : _logger = logger ?? Logger(),
         _driver = File(join(projectDirectory.path, '.fluttium_driver.dart')),
-        _processManager = processManager ?? const LocalProcessManager();
+        _processManager = processManager ?? const LocalProcessManager(),
+        _renderer = renderer;
 
   /// The flow file to run.
   final File flowFile;
@@ -50,6 +54,10 @@ class FluttiumRunner {
   final Map<String, dynamic> _vars = {};
 
   final ProcessManager _processManager;
+
+  Process? _process;
+
+  final FlowRenderer _renderer;
 
   /// Execute the given [action].
   void _executeAction(String action, String? data) {
@@ -185,51 +193,6 @@ class FluttiumRunner {
     );
   }
 
-  void _renderFlowState() {
-    // Reset the cursor to the top of the screen and clear the screen.
-    _logger.info('''
-\u001b[0;0H\u001b[0J
-  ${styleBold.wrap(flow!.description)}
-''');
-
-    for (var i = 0; i < flow!.steps.length; i++) {
-      final step = flow!.steps[i];
-
-      final String actionDescription;
-      switch (step.action) {
-        case FluttiumAction.expectVisible:
-          actionDescription = 'Expect visible "${step.text}"';
-          break;
-        case FluttiumAction.expectNotVisible:
-          actionDescription = 'Expect not visible "${step.text}"';
-          break;
-        case FluttiumAction.tapOn:
-          actionDescription = 'Tap on "${step.text}"';
-          break;
-        case FluttiumAction.inputText:
-          actionDescription = 'Input text "${step.text}"';
-          break;
-        case FluttiumAction.takeScreenshot:
-          actionDescription = 'Screenshot "${step.text}"';
-          break;
-      }
-
-      if (i < _stepStates.length) {
-        final state = _stepStates[i];
-        if (state == null) {
-          _logger.info('  ⏳  $actionDescription');
-        } else if (state) {
-          _logger.info('  ✅  $actionDescription');
-        } else {
-          _logger.info('  ❌  $actionDescription');
-        }
-      } else {
-        _logger.info('  🔲  $actionDescription');
-      }
-    }
-    _logger.info('');
-  }
-
   /// Runs the flow.
   ///
   /// If [watch] is true, the flow will be re-run whenever the flow file
@@ -239,7 +202,7 @@ class FluttiumRunner {
     await _generateDriver();
 
     final startingUpTestDriver = _logger.progress('Starting up test driver');
-    final process = await _processManager.start(
+    _process = await _processManager.start(
       ['flutter', 'run', '.fluttium_driver.dart', '-d', deviceId],
       runInShell: true,
       workingDirectory: projectDirectory.path,
@@ -247,7 +210,7 @@ class FluttiumRunner {
 
     var isCompleted = false;
     final buffer = StringBuffer();
-    process.stdout.listen((event) async {
+    _process?.stdout.listen((event) async {
       final data = utf8.decode(event).trim();
       buffer.write(data);
 
@@ -281,19 +244,19 @@ class FluttiumRunner {
         _executeAction(match.group(1)!, match.group(2));
       }
 
-      _renderFlowState();
+      _renderer(flow!, _stepStates);
 
       // If we have completed all the steps, or if we have failed, exit the
       // process unless we are in watch mode.
       if (!watch &&
           (_stepStates.length == flow!.steps.length ||
               _stepStates.any((e) => e == false))) {
-        process.stdin.write('q');
+        _process?.stdin.write('q');
       }
     });
 
     final stderrBuffer = StringBuffer();
-    process.stderr.listen((event) {
+    _process?.stderr.listen((event) {
       stderrBuffer.write(utf8.decode(event));
     });
 
@@ -305,8 +268,7 @@ class FluttiumRunner {
       final projectWatcher = DirectoryWatcher(projectDirectory.path);
       projectWatcher.events.listen((event) {
         if (event.path.endsWith('.dart')) {
-          _stepStates.clear();
-          process.stdin.write('R');
+          restart();
         }
       });
 
@@ -315,27 +277,27 @@ class FluttiumRunner {
       final flowWatcher = FileWatcher(flowFile.path);
       flowWatcher.events.listen((event) async {
         await _generateDriver();
-        _stepStates.clear();
-        process.stdin.write('R');
+        restart();
       });
     }
 
-    // Watching if our process gets killed, and if it does, we clean up the
-    // project and exit the flutter process.
-    final onSigintSubscription = ProcessSignal.sigint.watch().listen(
-      (signal) async {
-        process.stdin.write('q');
-        await _cleanupProject();
-      },
-    );
-
     // Wait for the process to exit, and then clean up the project.
-    await process.exitCode;
-    await onSigintSubscription.cancel();
-    await _cleanupProject();
+    await _process!.exitCode;
+    _process = null;
+    await quit();
 
-    if (stderrBuffer.isNotEmpty) {
-      _logger.err(stderrBuffer.toString());
-    }
+    // if (stderrBuffer.isNotEmpty) {
+    //   _logger.err(stderrBuffer.toString());
+    // }
+  }
+
+  void restart() {
+    _stepStates.clear();
+    _process?.stdin.write('R');
+  }
+
+  Future<void> quit() async {
+    _process?.stdin.write('q');
+    await _cleanupProject();
   }
 }

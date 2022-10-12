@@ -119,6 +119,7 @@ description: test
             deviceId: 'deviceId',
             logger: logger,
             processManager: processManager,
+            renderer: (flow, stepStates) {},
           );
 
           await fluttiumRunner.run();

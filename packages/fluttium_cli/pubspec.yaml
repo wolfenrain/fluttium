@@ -23,6 +23,13 @@ dependencies:
   watcher: ^1.0.1
   yaml: ^3.1.1
 
+dependency_overrides: 
+  mason_logger:
+    git: 
+      url: https://github.com/felangel/mason
+      ref: feat/make-choose-one-and-choose-any-mappable
+      path: packages/mason_logger
+
 dev_dependencies:
   build_runner: ^2.0.0
   build_verify: ^3.0.0

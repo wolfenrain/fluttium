@@ -9,7 +9,12 @@ import 'package:yaml/yaml.dart';
 /// {@endtemplate}
 class FluttiumStep {
   /// {@macro fluttium_step}
-  FluttiumStep(YamlNode step) {
+  FluttiumStep(this.action, {required this.text});
+
+  /// {@macro fluttium_step}
+  ///
+  /// Creates one from a [YamlNode].
+  FluttiumStep.fromYaml(YamlNode step) {
     if (step is! YamlMap) {
       throw UnsupportedError('Step must be a map');
     }
@@ -32,4 +37,10 @@ class FluttiumStep {
   /// Depending on the action this is the text or label to select by or the
   /// text to type.
   late final String text;
+
+  /// Returns a map representation of this step.
+  Map<String, dynamic> toJson() => {
+        'action': action.name,
+        'text': text,
+      };
 }

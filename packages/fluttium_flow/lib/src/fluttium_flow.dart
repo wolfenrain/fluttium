@@ -13,7 +13,9 @@ class FluttiumFlow {
     description = metaData['description'] as String? ?? '';
 
     final rawSteps = loadYaml(documents.last) as YamlList;
-    steps = [for (final step in rawSteps) FluttiumStep(step as YamlNode)];
+    steps = [
+      for (final step in rawSteps) FluttiumStep.fromYaml(step as YamlNode)
+    ];
   }
 
   /// The description of the flow.
