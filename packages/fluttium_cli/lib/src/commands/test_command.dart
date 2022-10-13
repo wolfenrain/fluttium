@@ -7,7 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_flow/fluttium_flow.dart';
 import 'package:fluttium_runner/fluttium_runner.dart' as fluttium;
-import 'package:mason/mason.dart';
+import 'package:mason_logger/mason_logger.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:process/process.dart';

@@ -5,7 +5,8 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:fluttium_cli/src/bundles/fluttium_flow_bundle.dart';
 import 'package:fluttium_flow/fluttium_flow.dart';
-import 'package:mason/mason.dart';
+import 'package:mason/mason.dart' hide Logger;
+import 'package:mason_logger/mason_logger.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 
