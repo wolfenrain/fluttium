@@ -445,7 +445,10 @@ void main() {
                   'isSupported': true,
                   'targetPlatform': 'darwin',
                 });
-                final display = invocation.namedArguments[#display](device);
+                final display =
+                    (invocation.namedArguments[#display] as String Function(
+                  FlutterDevice,
+                ))(device);
                 expect(display, equals('macOS (macos)'));
 
                 return device;

@@ -109,7 +109,9 @@ void main() {
       ).thenAnswer(
         (invocation) {
           expect(
-            invocation.namedArguments[#display]!(FluttiumAction.expectVisible),
+            (invocation.namedArguments[#display] as String Function(
+              FluttiumAction,
+            ))(FluttiumAction.expectVisible),
             equals('expectVisible'),
           );
           return FluttiumAction.expectVisible;
