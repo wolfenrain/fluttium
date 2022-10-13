@@ -2,7 +2,7 @@ name: fluttium_cli
 description: The CLI for Fluttium, a UI testing framework for Flutter
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
-version: 0.0.1
+version: 0.1.0-dev.1
 publish_to: none
 
 environment:

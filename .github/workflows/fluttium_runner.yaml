@@ -1,0 +1,28 @@
+name: fluttium_runner
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/fluttium_runner.yaml"
+      - "packages/fluttium_runner/lib/**"
+      - "packages/fluttium_runner/test/**"
+      - "packages/fluttium_runner/pubspec.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/fluttium_runner.yaml"
+      - "packages/fluttium_runner/lib/**"
+      - "packages/fluttium_runner/test/**"
+      - "packages/fluttium_runner/pubspec.yaml"
+
+jobs:
+  build:
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
+    with:
+      working_directory: packages/fluttium_runner
+
+  pana:
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v1
+    with:
+      working_directory: packages/fluttium_runner
