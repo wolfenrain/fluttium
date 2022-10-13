@@ -8,6 +8,7 @@ import 'package:path/path.dart';
 import 'package:process/process.dart';
 import 'package:watcher/watcher.dart';
 
+///
 typedef FlowRenderer = void Function(FluttiumFlow flow, List<bool?> stepStates);
 
 /// {@template fluttium_runner}
@@ -291,11 +292,13 @@ class FluttiumRunner {
     // }
   }
 
+  /// Restart the runner and it's driver.
   void restart() {
     _stepStates.clear();
     _process?.stdin.write('R');
   }
 
+  /// Quit the runner and it's driver.
   Future<void> quit() async {
     _process?.stdin.write('q');
     await _cleanupProject();

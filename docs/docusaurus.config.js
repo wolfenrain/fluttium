@@ -14,10 +14,8 @@ const config = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'wolfenrain', // Usually your GitHub org/user name.
-  projectName: 'fluttium', // Usually your repo name.
+  organizationName: 'wolfenrain',
+  projectName: 'fluttium',
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -34,7 +32,6 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
             'https://github.com/wolfenrain/docs/tree/main/docs/',
@@ -56,12 +53,6 @@ const config = {
           src: 'img/logo.svg',
         },
         items: [
-          // {
-          //   type: 'doc',
-          //   docId: 'overview',
-          //   position: 'left',
-          //   label: 'Overview',
-          // },
           {
             href: 'https://github.com/wolfenrain/fluttium',
             position: 'right',
