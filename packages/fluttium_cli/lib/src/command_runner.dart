@@ -7,7 +7,7 @@ import 'package:pub_updater/pub_updater.dart';
 
 const executableName = 'fluttium';
 const packageName = 'fluttium_cli';
-const description = 'Fluttium, the UI testing tool for Flutter.';
+const description = 'Fluttium, a user flow testing tool for Flutter.';
 
 /// {@template fluttium_command_runner}
 /// A [CommandRunner] for the CLI.
