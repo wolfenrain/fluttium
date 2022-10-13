@@ -4,10 +4,10 @@ sidebar_position: 1
 
 # Why Fluttium
 
-While there are many app automation frameworks (Appiun, Maestro, UIAutomator, XCTest) out there,
-none of them provide full automation across all the platforms Flutter supports. Fluttium on the
-other hand is build on top of the tooling provided by the Flutter framework, it is able to support
-any and all platforms that Flutter supports.
+While there are many app automation frameworks (Appium, Maestro, UIAutomator, XCTest) out there,
+none of them provide full automation across all the platforms that Flutter supports. Fluttium on
+the other hand is build on top of the tooling provided by the Flutter framework, it is able to
+support any and all platforms that Flutter supports.
 
 Out of the box Fluttium provides the following:
 
