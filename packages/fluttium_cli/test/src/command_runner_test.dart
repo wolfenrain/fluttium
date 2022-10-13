@@ -17,10 +17,10 @@ ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u219
 Run ${lightCyan.wrap('fluttium update')} to update''';
 
 void main() {
-  group('FluttiumCliCommandRunner', () {
+  group('FluttiumCommandRunner', () {
     late PubUpdater pubUpdater;
     late Logger logger;
-    late FluttiumCliCommandRunner commandRunner;
+    late FluttiumCommandRunner commandRunner;
 
     setUp(() {
       pubUpdater = MockPubUpdater();
@@ -31,7 +31,7 @@ void main() {
 
       logger = MockLogger();
 
-      commandRunner = FluttiumCliCommandRunner(
+      commandRunner = FluttiumCommandRunner(
         logger: logger,
         pubUpdater: pubUpdater,
       );
@@ -49,7 +49,7 @@ void main() {
 
     test('can be instantiated without an explicit analytics/logger instance',
         () {
-      final commandRunner = FluttiumCliCommandRunner();
+      final commandRunner = FluttiumCommandRunner();
       expect(commandRunner, isNotNull);
     });
 
@@ -108,14 +108,14 @@ void main() {
           'test',
           '-d macOS',
         ]);
-        expect(result, equals(ExitCode.success.code));
+        expect(result, equals(ExitCode.usage.code));
 
         verify(() => logger.detail('Argument information:')).called(1);
         verify(() => logger.detail('  Top level options:')).called(1);
         verify(() => logger.detail('  - verbose: true')).called(1);
         verify(() => logger.detail('  Command: test')).called(1);
         verify(() => logger.detail('    Command options:')).called(1);
-        verify(() => logger.detail('    - device-id: macOS')).called(1);
+        verify(() => logger.detail('    - device-id:  macOS')).called(1);
       });
     });
   });

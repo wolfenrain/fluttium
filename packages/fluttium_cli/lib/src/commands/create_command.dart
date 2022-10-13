@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -8,6 +9,10 @@ import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 
+typedef GeneratorBuilder = FutureOr<MasonGenerator> Function(
+  MasonBundle specification,
+);
+
 /// {@template create_command}
 /// `fluttium create` command which creates a [FluttiumFlow] test.
 /// {@endtemplate}
@@ -15,7 +20,9 @@ class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
     required Logger logger,
-  }) : _logger = logger {
+    GeneratorBuilder? generator,
+  })  : _logger = logger,
+        _generator = generator ?? MasonGenerator.fromBundle {
     argParser.addOption(
       'desc',
       abbr: 'd',
@@ -43,8 +50,10 @@ class CreateCommand extends Command<int> {
   /// [ArgResults] for the current command.
   ArgResults get results => testArgResults ?? argResults!;
 
+  final GeneratorBuilder _generator;
+
   /// The file to write too.
-  File get outputFile {
+  File? get _outputFile {
     if (results.arguments.isEmpty || results.arguments.first.isEmpty) {
       usageException('No output file specified.');
     }
@@ -53,7 +62,7 @@ class CreateCommand extends Command<int> {
       final answer = _logger.confirm('File already exists. Overwrite?');
       if (!answer) {
         _logger.err('Aborting.');
-        exit(ExitCode.cantCreate.code);
+        return null;
       }
     }
     return file;
@@ -71,6 +80,10 @@ class CreateCommand extends Command<int> {
 
   @override
   Future<int> run() async {
+    final outputFile = _outputFile;
+    if (outputFile == null) {
+      return ExitCode.cantCreate.code;
+    }
     final description = _description;
 
     final steps = <FluttiumStep>[];
@@ -89,16 +102,17 @@ class CreateCommand extends Command<int> {
       steps.add(FluttiumStep(action, text: value));
     }
 
-    final generator = await MasonGenerator.fromBundle(fluttiumFlowBundle);
+    final generator = await _generator(fluttiumFlowBundle);
 
     await generator.generate(
       DirectoryGeneratorTarget(Directory.current),
       vars: {
         'name': basenameWithoutExtension(outputFile.path),
         'description': description,
-        'steps': steps.map((e) => e.toJson()),
+        'steps': steps.map((e) => e.toJson()).toList(),
       },
       fileConflictResolution: FileConflictResolution.prompt,
+      logger: _logger,
     );
 
     return ExitCode.success.code;

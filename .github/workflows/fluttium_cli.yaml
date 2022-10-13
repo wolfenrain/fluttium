@@ -1,0 +1,57 @@
+name: fluttium_cli
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/fluttium_cli.yaml"
+      - "packages/fluttium_cli/e2e/**"
+      - "packages/fluttium_cli/lib/**"
+      - "packages/fluttium_cli/test/**"
+      - "packages/fluttium_cli/pubspec.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/fluttium_cli.yaml"
+      - "packages/fluttium_cli/e2e/**"
+      - "packages/fluttium_cli/lib/**"
+      - "packages/fluttium_cli/test/**"
+      - "packages/fluttium_cli/pubspec.yaml"
+
+jobs:
+  build:
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
+    with:
+      working_directory: packages/fluttium_cli
+
+  e2e:
+    defaults:
+      run:
+        working-directory: packages/fluttium_cli/e2e
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: 📦 Install Dependencies
+        run: |
+          dart pub global activate --source path ../
+          dart pub get
+
+      - name: 🧪 Run E2E Tests
+        run: dart test -j 1
+
+  pana:
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v1
+    with:
+      working_directory: packages/fluttium_cli

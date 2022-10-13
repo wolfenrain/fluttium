@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:fluttium_cli/src/command_runner.dart';
 
 Future<void> main(List<String> args) async {
-  await _flushThenExit(await FluttiumCliCommandRunner().run(args));
+  await _flushThenExit(await FluttiumCommandRunner().run(args));
 }
 
 /// Flushes the stdout and stderr streams, then exits the program with the given

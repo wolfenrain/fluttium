@@ -6,10 +6,20 @@ import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_flow/fluttium_flow.dart';
-import 'package:fluttium_runner/fluttium_runner.dart';
+import 'package:fluttium_runner/fluttium_runner.dart' as fluttium;
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
+import 'package:process/process.dart';
+
+typedef FluttiumRunner = fluttium.FluttiumRunner Function({
+  required File flowFile,
+  required Directory projectDirectory,
+  required String deviceId,
+  required fluttium.FlowRenderer renderer,
+  Logger? logger,
+  ProcessManager? processManager,
+});
 
 /// {@template test_command}
 /// `fluttium test` command which runs a [FluttiumFlow] test.
@@ -18,7 +28,11 @@ class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({
     required Logger logger,
-  }) : _logger = logger {
+    ProcessManager? processManager,
+    FluttiumRunner? runner,
+  })  : _logger = logger,
+        _process = processManager ?? const LocalProcessManager(),
+        _fluttiumRunner = runner ?? fluttium.FluttiumRunner.new {
     argParser
       ..addFlag('watch', abbr: 'w', help: 'Watch for file changes.')
       ..addOption(
@@ -41,6 +55,10 @@ class TestCommand extends Command<int> {
 
   final Logger _logger;
 
+  final ProcessManager _process;
+
+  final FluttiumRunner _fluttiumRunner;
+
   /// [ArgResults] used for testing purposes only.
   @visibleForTesting
   ArgResults? testArgResults;
@@ -52,7 +70,7 @@ class TestCommand extends Command<int> {
   bool get watch => results['watch'] as bool;
 
   /// The file of the flow to run.
-  File get flowFile {
+  File get _flowFile {
     if (results.arguments.isEmpty || results.arguments.first.isEmpty) {
       usageException('No flow file specified.');
     }
@@ -64,21 +82,21 @@ class TestCommand extends Command<int> {
   }
 
   /// The project directory to run in.
-  Directory get projectDirectory {
-    var projectDir = flowFile.parent.absolute;
+  Directory? get _projectDirectory {
+    var projectDir = _flowFile.parent.absolute;
     while (projectDir.listSync().firstWhereOrNull(
               (file) => basename(file.path) == 'pubspec.yaml',
             ) ==
         null) {
       if (projectDir.parent == projectDir) {
-        usageException('Could not find pubspec.yaml in parent directories.');
+        return null;
       }
       projectDir = projectDir.parent;
     }
     return projectDir;
   }
 
-  Future<FlutterDevice> getDevice(
+  Future<FlutterDevice?> getDevice(
     String workingDirectory,
     Progress progress,
   ) async {
@@ -89,33 +107,30 @@ class TestCommand extends Command<int> {
     }
     if (devices.isEmpty) {
       progress.fail();
-      usageException('No devices found.');
+      return null;
     }
     final optionalDeviceId = results['device-id'] as String?;
     FlutterDevice? optionalDevice;
     if (optionalDeviceId != null) {
       progress.complete();
       optionalDevice = devices.firstWhereOrNull(
-        (device) => device.id == optionalDeviceId,
+        (device) => device.id == optionalDeviceId.trim(),
       );
     } else {
       progress.cancel();
     }
 
-    final device = optionalDevice ??
+    return optionalDevice ??
         _logger.chooseOne<FlutterDevice>(
           'Choose a device:',
           choices: devices,
           display: (device) => '${device.name} (${device.id})',
         );
-
-    return device;
   }
 
   Future<List<FlutterDevice>> _getDevices(String workingDirectory) async {
-    final result = await Process.run(
-      'flutter',
-      ['devices', '--machine'],
+    final result = await _process.run(
+      ['flutter', 'devices', '--machine'],
       runInShell: true,
       workingDirectory: workingDirectory,
     );
@@ -140,17 +155,27 @@ class TestCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final projectDir = projectDirectory;
+    final flowFile = _flowFile;
+    final projectDirectory = _projectDirectory;
+    if (projectDirectory == null) {
+      _logger.err('Could not find pubspec.yaml in parent directories.');
+      return ExitCode.unavailable.code;
+    }
     final device = await getDevice(
-      projectDir.path,
+      projectDirectory.path,
       _logger.progress('Retrieving devices'),
     );
+    if (device == null) {
+      _logger.err('No devices found.');
+      return ExitCode.unavailable.code;
+    }
 
-    final runner = FluttiumRunner(
+    final runner = _fluttiumRunner(
       flowFile: flowFile,
-      projectDirectory: projectDir,
+      projectDirectory: projectDirectory,
       deviceId: device.id,
       logger: _logger,
+      processManager: _process,
       renderer: (flow, stepStates) {
         // Reset the cursor to the top of the screen and clear the screen.
         _logger.info('''
@@ -202,23 +227,27 @@ class TestCommand extends Command<int> {
       },
     );
 
-    stdin.lineMode = false;
+    if (watch) {
+      stdin.lineMode = false;
 
-    stdin.listen((event) {
-      final key = utf8.decode(event).trim();
-      switch (key) {
-        case 'q':
-          runner.quit();
-          break;
-        case 'r':
-          runner.restart();
-          break;
-      }
-    });
+      stdin.listen((event) {
+        final key = utf8.decode(event).trim();
+        switch (key) {
+          case 'q':
+            runner.quit();
+            break;
+          case 'r':
+            runner.restart();
+            break;
+        }
+      });
+    }
 
     await runner.run(watch: watch);
 
-    stdin.lineMode = true;
+    if (watch) {
+      stdin.lineMode = true;
+    }
 
     return ExitCode.success.code;
   }

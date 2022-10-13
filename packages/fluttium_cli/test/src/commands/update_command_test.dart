@@ -22,14 +22,14 @@ void main() {
   group('update', () {
     late PubUpdater pubUpdater;
     late Logger logger;
-    late FluttiumCliCommandRunner commandRunner;
+    late FluttiumCommandRunner commandRunner;
 
     setUp(() {
       final progress = MockProgress();
       final progressLogs = <String>[];
       pubUpdater = MockPubUpdater();
       logger = MockLogger();
-      commandRunner = FluttiumCliCommandRunner(
+      commandRunner = FluttiumCommandRunner(
         logger: logger,
         pubUpdater: pubUpdater,
       );

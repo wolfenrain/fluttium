@@ -3,26 +3,29 @@ import 'package:args/command_runner.dart';
 import 'package:fluttium_cli/src/commands/commands.dart';
 import 'package:fluttium_cli/src/version.dart';
 import 'package:mason_logger/mason_logger.dart';
+import 'package:process/process.dart';
 import 'package:pub_updater/pub_updater.dart';
 
 const executableName = 'fluttium';
 const packageName = 'fluttium_cli';
 const description = 'Fluttium, the UI testing tool for Flutter.';
 
-/// {@template fluttium_cli_command_runner}
+/// {@template fluttium_command_runner}
 /// A [CommandRunner] for the CLI.
 ///
 /// ```
 /// $ fluttium --version
 /// ```
 /// {@endtemplate}
-class FluttiumCliCommandRunner extends CommandRunner<int> {
-  /// {@macro fluttium_cli_command_runner}
-  FluttiumCliCommandRunner({
+class FluttiumCommandRunner extends CommandRunner<int> {
+  /// {@macro fluttium_command_runner}
+  FluttiumCommandRunner({
     Logger? logger,
     PubUpdater? pubUpdater,
+    ProcessManager? processManager,
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
+        _process = processManager ?? const LocalProcessManager(),
         super(executableName, description) {
     // Add root options and flags
     argParser
@@ -39,12 +42,13 @@ class FluttiumCliCommandRunner extends CommandRunner<int> {
 
     // Add sub commands
     addCommand(CreateCommand(logger: _logger));
-    addCommand(TestCommand(logger: _logger));
+    addCommand(TestCommand(logger: _logger, processManager: _process));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: _pubUpdater));
   }
 
   final Logger _logger;
   final PubUpdater _pubUpdater;
+  final ProcessManager _process;
 
   @override
   Future<int> run(Iterable<String> args) async {
