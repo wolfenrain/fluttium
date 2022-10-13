@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Installing Fluttium CLI
 
-:::info 
+:::info
 In order to install Fluttium CLI you must have the Flutter SDK installed on your machine.
 :::
 

@@ -33,8 +33,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/wolfenrain/docs/tree/main/docs/',
+          editUrl: 'https://github.com/wolfenrain/docs/tree/main/docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -93,8 +92,8 @@ const config = {
               },
               {
                 label: 'Sponsor the Project',
-                href: 'https://github.com/sponsors/wolfenrain'
-              }
+                href: 'https://github.com/sponsors/wolfenrain',
+              },
             ],
           },
         ],

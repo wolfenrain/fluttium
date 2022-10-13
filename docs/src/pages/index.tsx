@@ -38,10 +38,16 @@ export default function Home(): JSX.Element {
 function HomepageCTA() {
   return (
     <div className={styles.width}>
-      <Link className="button button--primary button--lg" to="/docs/getting-started">
+      <Link
+        className="button button--primary button--lg"
+        to="/docs/getting-started"
+      >
         Get Started
       </Link>
-      <Link className="button button--secondary button--lg" to="/docs/action-references">
+      <Link
+        className="button button--secondary button--lg"
+        to="/docs/action-references"
+      >
         Learn More
       </Link>
     </div>
@@ -56,8 +62,8 @@ function HomepageHeroImage() {
       src={colorMode == 'dark' ? 'img/hero.gif' : 'img/hero.gif'}
       alt="Hero"
       style={{
-        borderRadius: "var(--ifm-button-border-radius)",
-        margin: "2em 0"
+        borderRadius: 'var(--ifm-button-border-radius)',
+        margin: '2em 0',
       }}
     />
   );
@@ -73,8 +79,8 @@ const FeatureList: FeatureItem[] = [
     title: 'Fast Iteration',
     description: (
       <>
-        Fluttium is able to monitor both your test file and your app code, so you 
-        can see your changes reflected in your tests immediately.
+        Fluttium is able to monitor both your test file and your app code, so
+        you can see your changes reflected in your tests immediately.
       </>
     ),
   },
@@ -82,9 +88,9 @@ const FeatureList: FeatureItem[] = [
     title: 'Powerful Declarative Syntax',
     description: (
       <>
-        Fluttium's syntax is designed to be as declarative as possible, allowing you to
-        write tests that are easy to read and understand. Inspired by frameworks 
-        like <a href="https://maestro.mobile.dev">Maestro</a>.
+        Fluttium's syntax is designed to be as declarative as possible, allowing
+        you to write tests that are easy to read and understand. Inspired by
+        frameworks like <a href="https://maestro.mobile.dev">Maestro</a>.
       </>
     ),
   },
@@ -92,8 +98,9 @@ const FeatureList: FeatureItem[] = [
     title: 'Cross-platform',
     description: (
       <>
-        Fluttium is built on top of <a href="https://flutter.dev/">Flutter</a>, so it can run on any
-        platform that Flutter supports and is able to automatically wait until an action is completed.
+        Fluttium is built on top of <a href="https://flutter.dev/">Flutter</a>,
+        so it can run on any platform that Flutter supports and is able to
+        automatically wait until an action is completed.
       </>
     ),
   },
