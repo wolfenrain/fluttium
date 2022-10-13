@@ -6,7 +6,7 @@ description: The Fluttium test command.
 # Test command
 
 The `test` command is the core of the Fluttium CLI, it allows you to run your flow tests directly
-on your devices. 
+on your devices.
 
 ## Usage
 

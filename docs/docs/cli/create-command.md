@@ -5,7 +5,7 @@ description: The Fluttium create command.
 
 # Create command
 
-The `create` command helps you in writing your flow tests. It will go step by step through the 
+The `create` command helps you in writing your flow tests. It will go step by step through the
 actions you want to perform and then generates a flow test file for you.
 
 ## Usage
