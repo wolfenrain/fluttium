@@ -1,7 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:fluttium_cli/src/command_runner.dart';
-import 'package:fluttium_cli/src/version.dart';
-import 'package:mason_logger/mason_logger.dart';
+import 'package:mason/mason.dart';
 import 'package:pub_updater/pub_updater.dart';
 
 /// {@template update_command}
