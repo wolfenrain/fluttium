@@ -44,10 +44,7 @@ function HomepageCTA() {
       >
         Get Started
       </Link>
-      <Link
-        className="button button--secondary button--lg"
-        to="/docs/action-references"
-      >
+      <Link className="button button--secondary button--lg" to="/docs/actions">
         Learn More
       </Link>
     </div>

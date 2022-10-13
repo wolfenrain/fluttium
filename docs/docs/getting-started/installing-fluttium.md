@@ -31,4 +31,4 @@ Global options:
 Available commands: ...
 ```
 
-For more information on the CLI, see the [Fluttium CLI](/docs/fluttium-cli) documentation.
+For more information on the CLI, see the [Fluttium CLI](/docs/cli) documentation.
