@@ -1,0 +1,10 @@
+dependency_overrides: 
+  fluttium_flow:
+    path: ../fluttium_flow
+  fluttium_runner:
+    path: ../fluttium_runner
+  mason_logger:
+    git: 
+      url: https://github.com/felangel/mason
+      ref: feat/make-choose-one-and-choose-any-mappable
+      path: packages/mason_logger

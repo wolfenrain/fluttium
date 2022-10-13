@@ -3,14 +3,12 @@ description: A runner for executing Fluttium flow tests
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 version: 0.1.0-dev.1
-publish_to: none
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
 
 dependencies:
-  fluttium_flow:
-    path: ../fluttium_flow
+  fluttium_flow: ^0.1.0-dev.1
   mason: ^0.1.0-dev.33
   path: ^1.8.2
   process: ^4.2.4
