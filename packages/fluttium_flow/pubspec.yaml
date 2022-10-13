@@ -1,5 +1,5 @@
 name: fluttium_flow
-description: The flow definitions of the Fluttium UI testing framework
+description: The flow definitions of the Fluttium testing framework
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 version: 0.1.0-dev.1

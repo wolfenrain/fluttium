@@ -1,4 +1,4 @@
-/// The flow definitions of the Fluttium UI testing framework.
+/// The flow definitions of the Fluttium testing framework.
 library fluttium_flow;
 
 export 'src/fluttium_action.dart';

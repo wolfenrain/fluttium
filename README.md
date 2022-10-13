@@ -11,7 +11,7 @@
 
 ---
 
-Fluttium, the UI testing tool for Flutter.
+Fluttium, the user flow testing tool for Flutter.
 
 ![Fluttium Demo][fluttium_demo]
 

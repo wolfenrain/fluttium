@@ -19,7 +19,7 @@ Once you have successfully installed the `fluttium_cli` you can verify that it w
 `fluttium` command in your terminal. You should see the following output:
 
 ```shell
-Fluttium, the UI testing tool for Flutter.
+Fluttium, the user flow testing tool for Flutter.
 
 Usage: fluttium <command> [arguments]
 
