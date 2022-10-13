@@ -1,4 +1,4 @@
-/// fluttium_cli, the CLI for Fluttium, a UI testing framework for Flutter.
+/// fluttium_cli the CLI for Fluttium, a user flow testing framework for Flutter
 ///
 /// ```sh
 /// # activate fluttium_cli
