@@ -45,6 +45,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      image: 'img/meta/open_graph.png',
       navbar: {
         title: 'Fluttium',
         logo: {
