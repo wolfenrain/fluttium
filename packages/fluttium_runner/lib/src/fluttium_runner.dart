@@ -287,9 +287,13 @@ class FluttiumRunner {
     _process = null;
     await quit();
 
-    // if (stderrBuffer.isNotEmpty) {
-    //   _logger.err(stderrBuffer.toString());
-    // }
+    if (stderrBuffer.isNotEmpty) {
+      _logger
+        ..detail('Received the following information on stderr:')
+        ..detail(stderrBuffer.toString());
+    } else {
+      _logger.detail('No information received on stderr.');
+    }
   }
 
   /// Restart the runner and it's driver.
