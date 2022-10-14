@@ -1,3 +1,7 @@
+# 0.1.0-dev.3
+
+- fix: using wrong `packageVersion` for the update command
+
 # 0.1.0-dev.2
 
 - chore: upgrade `mason` to `0.1.0-dev.34`
