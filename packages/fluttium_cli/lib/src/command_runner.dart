@@ -1,7 +1,8 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:fluttium_cli/src/commands/commands.dart';
-import 'package:mason/mason.dart';
+import 'package:fluttium_cli/src/version.dart';
+import 'package:mason/mason.dart' hide packageVersion;
 import 'package:process/process.dart';
 import 'package:pub_updater/pub_updater.dart';
 
