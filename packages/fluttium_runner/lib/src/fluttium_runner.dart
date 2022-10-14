@@ -209,21 +209,21 @@ class FluttiumRunner {
       workingDirectory: projectDirectory.path,
     );
 
-    var isCompleted = false;
+    var isAttached = false;
     final buffer = StringBuffer();
     _process?.stdout.listen((event) async {
       final data = utf8.decode(event).trim();
       buffer.write(data);
 
       // Skip until we see the first line of the test output.
-      if (!isCompleted &&
+      if (!isAttached &&
           data.startsWith(RegExp(r'^[I/]*flutter[\s*\(\s*\d+\)]*: '))) {
         startingUpTestDriver.complete();
-        isCompleted = true;
+        isAttached = true;
       }
 
       // Skip until the driver is ready.
-      if (!isCompleted) return;
+      if (!isAttached) return;
 
       final regex = RegExp('fluttium:(start|fail|done|screenshot):(.*?);');
       final matches = regex.allMatches(buffer.toString());
@@ -285,11 +285,15 @@ class FluttiumRunner {
     // Wait for the process to exit, and then clean up the project.
     await _process!.exitCode;
     _process = null;
-    await quit();
 
-    // if (stderrBuffer.isNotEmpty) {
-    //   _logger.err(stderrBuffer.toString());
-    // }
+    // If it exited without correctly attaching to the application, we
+    // output the errors.
+    if (!isAttached) {
+      startingUpTestDriver.fail('Failed to start test driver');
+      _logger.err(stderrBuffer.toString());
+    }
+
+    await quit();
   }
 
   /// Restart the runner and it's driver.
