@@ -51,5 +51,5 @@ echo "# ${new_version}\n\nTODO: entries\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
 echo "CHANGELOG for $package_name generated, add entries here: $(pwd)/CHANGELOG.md"
 
 echo "Creating git branch for $package_name@$new_version"
-git checkout -b "chore/$package_name-$new_version" > /dev/null
+git checkout -b "chore($package_name)/$new_version" > /dev/null
 
