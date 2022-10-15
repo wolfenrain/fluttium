@@ -106,16 +106,16 @@ void main() {
         final result = await commandRunner.run([
           '--verbose',
           'test',
-          '-d macOS',
+          '--help',
         ]);
-        expect(result, equals(ExitCode.usage.code));
+        expect(result, equals(ExitCode.success.code));
 
         verify(() => logger.detail('Argument information:')).called(1);
         verify(() => logger.detail('  Top level options:')).called(1);
         verify(() => logger.detail('  - verbose: true')).called(1);
         verify(() => logger.detail('  Command: test')).called(1);
         verify(() => logger.detail('    Command options:')).called(1);
-        verify(() => logger.detail('    - device-id:  macOS')).called(1);
+        verify(() => logger.detail('    - help: true')).called(1);
       });
     });
   });

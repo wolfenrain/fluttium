@@ -22,9 +22,27 @@ const expectedUsage = [
       '-h, --help          Print this usage information.\n'
       '-w, --[no-]watch    Watch for file changes.\n'
       '-d, --device-id     Target device id or name (prefixes allowed).\n'
+      '    --flavor        Build a custom app flavor as defined by platform-specific build setup.\n'
+      '                    This will be passed to the --flavor option of flutter run.\n'
+      '-t, --target        The main entry-point file of the application, as run on the device.\n'
+      '                    (defaults to "lib/main.dart")\n'
       '\n'
       'Run "fluttium help" to see global options.'
 ];
+
+FluttiumRunner _fluttiumRunner(fluttium.FluttiumRunner runner) {
+  return ({
+    required File flowFile,
+    required Directory projectDirectory,
+    required String deviceId,
+    required fluttium.FlowRenderer renderer,
+    required File mainEntry,
+    String? flavor,
+    Logger? logger,
+    ProcessManager? processManager,
+  }) =>
+      runner;
+}
 
 class _FakeLogger extends Fake implements Logger {}
 
@@ -60,6 +78,7 @@ void main() {
     late ProcessResult flutterDevicesResult;
     late Directory projectDirectory;
     late File flowFile;
+    late File targetFile;
     late Directory platformDirectory;
     late Stdin stdin;
     late ArgResults argResults;
@@ -72,6 +91,7 @@ void main() {
       argResults = _MockArgResults();
       when(() => argResults.arguments).thenReturn(['test_flow.yaml']);
       when(() => argResults['watch']).thenReturn(false);
+      when(() => argResults['target']).thenReturn('lib/main.dart');
 
       progressLogs = <String>[];
 
@@ -118,6 +138,11 @@ void main() {
       flowFile = _MockFile();
       when(flowFile.existsSync).thenReturn(true);
       when(() => flowFile.parent).thenReturn(projectDirectory);
+      when(() => flowFile.path).thenReturn('project/test_flow.yaml');
+
+      targetFile = _MockFile();
+      when(targetFile.existsSync).thenReturn(true);
+      when(() => targetFile.path).thenReturn('project/lib/main.dart');
 
       platformDirectory = _MockDirectory();
       when(platformDirectory.existsSync).thenReturn(true);
@@ -147,15 +172,7 @@ void main() {
       final command = TestCommand(
         logger: logger,
         processManager: processManager,
-        runner: ({
-          required File flowFile,
-          required Directory projectDirectory,
-          required String deviceId,
-          required fluttium.FlowRenderer renderer,
-          Logger? logger,
-          ProcessManager? processManager,
-        }) =>
-            fluttiumRunner,
+        runner: _fluttiumRunner(fluttiumRunner),
       )..testArgResults = argResults;
 
       await IOOverrides.runZoned(
@@ -163,7 +180,7 @@ void main() {
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
         },
-        createFile: (path) => flowFile,
+        createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
         createDirectory: (path) {
           if (path.endsWith('macos')) {
             return platformDirectory;
@@ -187,15 +204,7 @@ void main() {
       final command = TestCommand(
         logger: logger,
         processManager: processManager,
-        runner: ({
-          required File flowFile,
-          required Directory projectDirectory,
-          required String deviceId,
-          required fluttium.FlowRenderer renderer,
-          Logger? logger,
-          ProcessManager? processManager,
-        }) =>
-            fluttiumRunner,
+        runner: _fluttiumRunner(fluttiumRunner),
       )..testArgResults = argResults;
 
       await IOOverrides.runZoned(
@@ -203,7 +212,7 @@ void main() {
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
         },
-        createFile: (path) => flowFile,
+        createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
         createDirectory: (path) {
           if (path.endsWith('macos')) {
             return platformDirectory;
@@ -213,50 +222,123 @@ void main() {
       );
     });
 
-    test('exits early if no pubspec was found in parent directories', () async {
-      final fluttiumRunner = _MockFluttiumRunner();
-      when(fluttiumRunner.run).thenAnswer((invocation) async {});
+    group('exits early', () {
+      test(
+        'if no flow file is given',
+        withRunner((commandRunner, logger, printLogs, processManager) async {
+          final result = await commandRunner.run(['test']);
 
-      when(() => projectDirectory.listSync()).thenReturn([]);
-      when(() => projectDirectory.parent).thenReturn(projectDirectory);
+          expect(result, equals(ExitCode.usage.code));
+        }),
+      );
 
-      final command = TestCommand(
-        logger: logger,
-        processManager: processManager,
-        runner: ({
-          required File flowFile,
-          required Directory projectDirectory,
-          required String deviceId,
-          required fluttium.FlowRenderer renderer,
-          Logger? logger,
-          ProcessManager? processManager,
-        }) =>
-            fluttiumRunner,
-      )..testArgResults = argResults;
+      test('if the given flow file does not exists', () async {
+        final fluttiumRunner = _MockFluttiumRunner();
+        when(fluttiumRunner.run).thenAnswer((invocation) async {});
 
-      await IOOverrides.runZoned(
-        () async {
-          final result = await command.run();
-          expect(result, equals(ExitCode.unavailable.code));
+        when(flowFile.existsSync).thenReturn(false);
 
-          verify(
-            () => logger.err(
-              any(
-                that: equals(
-                  'Could not find pubspec.yaml in parent directories.',
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          runner: _fluttiumRunner(fluttiumRunner),
+        )..testArgResults = argResults;
+
+        await IOOverrides.runZoned(
+          () async {
+            final result = await command.run();
+            expect(result, equals(ExitCode.unavailable.code));
+
+            verify(
+              () => logger.err(
+                any(
+                  that: equals('Flow file "project/test_flow.yaml" not found.'),
                 ),
               ),
-            ),
-          ).called(1);
-        },
-        createFile: (path) => flowFile,
-        createDirectory: (path) {
-          if (path.endsWith('macos')) {
-            return platformDirectory;
-          }
-          return projectDirectory;
-        },
-      );
+            ).called(1);
+          },
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
+          createDirectory: (path) {
+            if (path.endsWith('macos')) {
+              return platformDirectory;
+            }
+            return projectDirectory;
+          },
+        );
+      });
+
+      test('if no pubspec was found in parent directories', () async {
+        final fluttiumRunner = _MockFluttiumRunner();
+        when(fluttiumRunner.run).thenAnswer((invocation) async {});
+
+        when(() => projectDirectory.listSync()).thenReturn([]);
+        when(() => projectDirectory.parent).thenReturn(projectDirectory);
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          runner: _fluttiumRunner(fluttiumRunner),
+        )..testArgResults = argResults;
+
+        await IOOverrides.runZoned(
+          () async {
+            final result = await command.run();
+            expect(result, equals(ExitCode.unavailable.code));
+
+            verify(
+              () => logger.err(
+                any(
+                  that: equals(
+                    'Could not find pubspec.yaml in parent directories.',
+                  ),
+                ),
+              ),
+            ).called(1);
+          },
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
+          createDirectory: (path) {
+            if (path.endsWith('macos')) {
+              return platformDirectory;
+            }
+            return projectDirectory;
+          },
+        );
+      });
+
+      test('if the target file does not exist', () async {
+        final fluttiumRunner = _MockFluttiumRunner();
+        when(fluttiumRunner.run).thenAnswer((invocation) async {});
+
+        when(targetFile.existsSync).thenReturn(false);
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          runner: _fluttiumRunner(fluttiumRunner),
+        )..testArgResults = argResults;
+
+        await IOOverrides.runZoned(
+          () async {
+            final result = await command.run();
+            expect(result, equals(ExitCode.unavailable.code));
+
+            verify(
+              () => logger.err(
+                any(
+                  that: equals('Target file "lib/main.dart" not found.'),
+                ),
+              ),
+            ).called(1);
+          },
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
+          createDirectory: (path) {
+            if (path.endsWith('macos')) {
+              return platformDirectory;
+            }
+            return projectDirectory;
+          },
+        );
+      });
     });
 
     test('validates all platforms', () async {
@@ -283,15 +365,7 @@ void main() {
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          runner: ({
-            required File flowFile,
-            required Directory projectDirectory,
-            required String deviceId,
-            required fluttium.FlowRenderer renderer,
-            Logger? logger,
-            ProcessManager? processManager,
-          }) =>
-              fluttiumRunner,
+          runner: _fluttiumRunner(fluttiumRunner),
         )..testArgResults = argResults;
 
         await IOOverrides.runZoned(
@@ -313,7 +387,7 @@ void main() {
 
             expect(result, equals(ExitCode.success.code));
           },
-          createFile: (path) => flowFile,
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
           createDirectory: (path) {
             if (path.endsWith(platform.key)) {
               return platformDirectory;
@@ -351,15 +425,7 @@ void main() {
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          runner: ({
-            required File flowFile,
-            required Directory projectDirectory,
-            required String deviceId,
-            required fluttium.FlowRenderer renderer,
-            Logger? logger,
-            ProcessManager? processManager,
-          }) =>
-              fluttiumRunner,
+          runner: _fluttiumRunner(fluttiumRunner),
         )..testArgResults = argResults;
 
         await IOOverrides.runZoned(
@@ -380,7 +446,7 @@ void main() {
               ),
             );
           },
-          createFile: (path) => flowFile,
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
           createDirectory: (path) {
             if (path.endsWith('macos') || path.endsWith('ios')) {
               return platformDirectory;
@@ -391,10 +457,6 @@ void main() {
       });
 
       test('prompts user which device to run on', () async {
-        final argResults = _MockArgResults();
-        when(() => argResults.arguments).thenReturn(['test_flow.yaml']);
-        when(() => argResults['watch']).thenReturn(false);
-
         final fluttiumRunner = _MockFluttiumRunner();
         when(fluttiumRunner.run).thenAnswer((invocation) async {});
 
@@ -418,15 +480,7 @@ void main() {
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          runner: ({
-            required File flowFile,
-            required Directory projectDirectory,
-            required String deviceId,
-            required fluttium.FlowRenderer renderer,
-            Logger? logger,
-            ProcessManager? processManager,
-          }) =>
-              fluttiumRunner,
+          runner: _fluttiumRunner(fluttiumRunner),
         )..testArgResults = argResults;
 
         await IOOverrides.runZoned(
@@ -472,7 +526,7 @@ void main() {
               ),
             ).called(1);
           },
-          createFile: (path) => flowFile,
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
           createDirectory: (path) {
             if (path.endsWith('macos') || path.endsWith('ios')) {
               return platformDirectory;
@@ -493,15 +547,7 @@ void main() {
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          runner: ({
-            required File flowFile,
-            required Directory projectDirectory,
-            required String deviceId,
-            required fluttium.FlowRenderer renderer,
-            Logger? logger,
-            ProcessManager? processManager,
-          }) =>
-              fluttiumRunner,
+          runner: _fluttiumRunner(fluttiumRunner),
         )..testArgResults = argResults;
 
         await IOOverrides.runZoned(
@@ -527,7 +573,7 @@ void main() {
               () => logger.err(any(that: equals('No devices found.'))),
             ).called(1);
           },
-          createFile: (path) => flowFile,
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
           createDirectory: (path) {
             if (path.endsWith('macos')) {
               return platformDirectory;
@@ -537,15 +583,6 @@ void main() {
         );
       });
     });
-
-    test(
-      'shows usage if file is not found',
-      withRunner((commandRunner, logger, printLogs, processManager) async {
-        final result = await commandRunner.run(['test']);
-
-        expect(result, equals(ExitCode.usage.code));
-      }),
-    );
 
     test('renders as expected for all steps', () async {
       final fluttiumRunner = _MockFluttiumRunner();
@@ -559,6 +596,8 @@ void main() {
           required Directory projectDirectory,
           required String deviceId,
           required fluttium.FlowRenderer renderer,
+          required File mainEntry,
+          String? flavor,
           Logger? logger,
           ProcessManager? processManager,
         }) {
@@ -610,7 +649,7 @@ void main() {
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
         },
-        createFile: (path) => flowFile,
+        createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
         createDirectory: (path) {
           if (path.endsWith('macos')) {
             return platformDirectory;
@@ -654,6 +693,8 @@ void main() {
             required Directory projectDirectory,
             required String deviceId,
             required fluttium.FlowRenderer renderer,
+            required File mainEntry,
+            String? flavor,
             Logger? logger,
             ProcessManager? processManager,
           }) {
@@ -681,7 +722,7 @@ void main() {
             verify(fluttiumRunner.restart).called(1);
             verify(fluttiumRunner.quit).called(1);
           },
-          createFile: (path) => flowFile,
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
           createDirectory: (path) {
             if (path.endsWith('macos')) {
               return platformDirectory;
@@ -705,6 +746,8 @@ void main() {
             required Directory projectDirectory,
             required String deviceId,
             required fluttium.FlowRenderer renderer,
+            required File mainEntry,
+            String? flavor,
             Logger? logger,
             ProcessManager? processManager,
           }) {
@@ -729,7 +772,7 @@ void main() {
             final result = await command.run();
             expect(result, equals(ExitCode.success.code));
           },
-          createFile: (path) => flowFile,
+          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
           createDirectory: (path) {
             if (path.endsWith('macos')) {
               return platformDirectory;

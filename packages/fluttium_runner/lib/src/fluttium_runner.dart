@@ -20,19 +20,17 @@ class FluttiumRunner {
     required this.flowFile,
     required this.projectDirectory,
     required this.deviceId,
-    required FlowRenderer renderer,
+    required this.renderer,
+    required this.mainEntry,
+    this.flavor,
     Logger? logger,
     ProcessManager? processManager,
   })  : _logger = logger ?? Logger(),
         _driver = File(join(projectDirectory.path, '.fluttium_driver.dart')),
-        _processManager = processManager ?? const LocalProcessManager(),
-        _renderer = renderer;
+        _processManager = processManager ?? const LocalProcessManager();
 
   /// The flow file to run.
   final File flowFile;
-
-  /// The parsed flow file.
-  FluttiumFlow? flow;
 
   /// The project directory to run in.
   final Directory projectDirectory;
@@ -40,7 +38,22 @@ class FluttiumRunner {
   /// The device id to run on.
   final String deviceId;
 
+  /// The renderer to use.
+  final FlowRenderer renderer;
+
+  /// The main entry file to run.
+  ///
+  /// Defaults to `lib/main.dart`.
+  final File mainEntry;
+
+  /// The flavor to run.
+  final String? flavor;
+
   final Logger _logger;
+  final ProcessManager _processManager;
+
+  /// The parsed flow file.
+  FluttiumFlow? flow;
 
   MasonGenerator? _generator;
 
@@ -54,11 +67,7 @@ class FluttiumRunner {
 
   final Map<String, dynamic> _vars = {};
 
-  final ProcessManager _processManager;
-
   Process? _process;
-
-  final FlowRenderer _renderer;
 
   /// Execute the given [action].
   void _executeAction(String action, String? data) {
@@ -108,6 +117,10 @@ class FluttiumRunner {
   }
 
   Future<void> _setupProject() async {
+    if (!mainEntry.existsSync()) {
+      throw Exception('Could not find main entry file: $mainEntry');
+    }
+
     Future<bool> installSDKDeps(
       List<String> dependencies,
       String dependency,
@@ -116,7 +129,7 @@ class FluttiumRunner {
         await _processManager.run(
           ['flutter', 'pub', 'add', dependency, '--sdk=flutter', '--dev'],
           runInShell: true,
-          workingDirectory: Directory.current.path,
+          workingDirectory: projectDirectory.path,
         );
         return true;
       }
@@ -128,7 +141,7 @@ class FluttiumRunner {
     final dependencyData = await _processManager.run(
       ['flutter', 'pub', 'deps', '--json'],
       runInShell: true,
-      workingDirectory: Directory.current.path,
+      workingDirectory: projectDirectory.path,
     );
 
     final projectData = jsonDecode(dependencyData.stdout as String) as Map;
@@ -136,6 +149,8 @@ class FluttiumRunner {
         .cast<Map<String, dynamic>>()
         .firstWhere((e) => e['name'] == projectData['root']);
 
+    _vars['mainEntry'] =
+        mainEntry.path.replaceFirst(join(projectDirectory.path, 'lib/'), '');
     _vars['projectName'] = projectData['root'];
     _vars['addedIntegrationTests'] = await installSDKDeps(
       (project['dependencies'] as List).cast<String>(),
@@ -149,7 +164,7 @@ class FluttiumRunner {
     await _processManager.run(
       ['flutter', 'pub', 'get'],
       runInShell: true,
-      workingDirectory: Directory.current.path,
+      workingDirectory: projectDirectory.path,
     );
 
     installingDeps.complete();
@@ -184,7 +199,7 @@ class FluttiumRunner {
       await _processManager.run(
         ['flutter', 'pub', 'remove', 'flutter_test'],
         runInShell: true,
-        workingDirectory: Directory.current.path,
+        workingDirectory: projectDirectory.path,
       );
     }
     await _generator!.hooks.postGen(
@@ -204,7 +219,14 @@ class FluttiumRunner {
 
     final startingUpTestDriver = _logger.progress('Starting up test driver');
     _process = await _processManager.start(
-      ['flutter', 'run', '.fluttium_driver.dart', '-d', deviceId],
+      [
+        'flutter',
+        'run',
+        '.fluttium_driver.dart',
+        '-d',
+        deviceId,
+        if (flavor != null) ...['--flavor', flavor!],
+      ],
       runInShell: true,
       workingDirectory: projectDirectory.path,
     );
@@ -245,7 +267,7 @@ class FluttiumRunner {
         _executeAction(match.group(1)!, match.group(2));
       }
 
-      _renderer(flow!, _stepStates);
+      renderer(flow!, _stepStates);
 
       // If we have completed all the steps, or if we have failed, exit the
       // process unless we are in watch mode.

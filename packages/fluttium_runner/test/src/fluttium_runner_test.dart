@@ -27,6 +27,7 @@ class MockProcessResult extends Mock implements ProcessResult {}
 void main() {
   group('FluttiumRunner', () {
     late File flowFile;
+    late File mainEntry;
     late Directory projectDirectory;
     late File driver;
     late Logger logger;
@@ -37,6 +38,9 @@ void main() {
     late Completer<int> processExitCode;
 
     setUp(() {
+      mainEntry = MockFile();
+      when(() => mainEntry.path).thenReturn('lib/main.dart');
+
       flowFile = MockFile();
       when(() => flowFile.readAsStringSync()).thenReturn('''
 description: test
@@ -117,9 +121,10 @@ description: test
             flowFile: File('flow.yaml'),
             projectDirectory: Directory('project_directory'),
             deviceId: 'deviceId',
+            renderer: (flow, stepStates) {},
+            mainEntry: mainEntry,
             logger: logger,
             processManager: processManager,
-            renderer: (flow, stepStates) {},
           );
 
           await fluttiumRunner.run();
