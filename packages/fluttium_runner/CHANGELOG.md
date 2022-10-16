@@ -1,3 +1,7 @@
+# 0.1.0-dev.3
+
+- fix: last action not executed 
+
 # 0.1.0-dev.2
 
 - feat: proper error output when the driver does not attach correctly
