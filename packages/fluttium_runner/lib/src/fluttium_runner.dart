@@ -272,7 +272,7 @@ class FluttiumRunner {
       // If we have completed all the steps, or if we have failed, exit the
       // process unless we are in watch mode.
       if (!watch &&
-          (_stepStates.length == flow!.steps.length ||
+          (_stepStates.whereType<bool>().length == flow!.steps.length ||
               _stepStates.any((e) => e == false))) {
         _process?.stdin.write('q');
       }
