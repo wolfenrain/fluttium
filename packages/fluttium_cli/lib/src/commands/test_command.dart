@@ -147,7 +147,7 @@ This will be passed to the --flavor option of flutter run.''',
 
   Future<List<FlutterDevice>> _getDevices(String workingDirectory) async {
     final result = await _process.run(
-      ['flutter', 'devices', '--machine'],
+      ['flutter', '--no-version-check', 'devices', '--machine'],
       runInShell: true,
       workingDirectory: workingDirectory,
     );

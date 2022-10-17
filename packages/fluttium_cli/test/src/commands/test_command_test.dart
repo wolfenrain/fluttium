@@ -122,7 +122,16 @@ void main() {
 
       when(
         () => processManager.run(
-          any(that: equals(['flutter', 'devices', '--machine'])),
+          any(
+            that: equals(
+              [
+                'flutter',
+                '--no-version-check',
+                'devices',
+                '--machine',
+              ],
+            ),
+          ),
           runInShell: any(named: 'runInShell'),
           workingDirectory: any(named: 'workingDirectory'),
         ),
