@@ -1,37 +1,33 @@
 name: docs
 
-on:
-  workflow_call:
-    inputs:
-      working-directory:
-        description: 'The working directory for the docs job'
-        required: true
-        type: string
+inputs:
+  working-directory:
+    description: 'The working directory for the docs job'
+    required: true
+    type: string
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+runs:
+  using: "composite"
+  steps:
+    - name: 📚 Git Checkout
+      uses: actions/checkout@v3
+    - name: ⚙️ Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: yarn
+        cache-dependency-path: docs/yarn.lock
 
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
+    - name: Change working directory
+      run: cd ${{ inputs.working-directory }}
+    - name: 📦 Install Dependencies
+      run: yarn install --frozen-lockfile
 
-    steps:
-      - name: ⚙️ Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: yarn
-          cache-dependency-path: docs/yarn.lock
+    - name: ✨ Check Format
+      run: yarn run format:check
 
-      - name: 📦 Install Dependencies
-        run: yarn install --frozen-lockfile
+    - name: 🧹 Lint
+      run: yarn run lint
 
-      - name: ✨ Check Format
-        run: yarn run format:check
-
-      - name: 🧹 Lint
-        run: yarn run lint
-
-      - name: 👷 Build website
-        run: yarn build
+    - name: 👷 Build website
+      run: yarn build
