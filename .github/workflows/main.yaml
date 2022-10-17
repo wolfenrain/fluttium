@@ -6,9 +6,24 @@ on:
       - main
 
 jobs:
-  build:
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml@v1
+  docs:
+    runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: docs
+
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            docs:
+              - '.github/workflows/docs.yaml
+              - 'docs/**'
+      - uses: .github/workflows/docs.yaml
+        if: steps.changes.outputs.docs == 'true'
+  
   pana:
     runs-on: ubuntu-latest
     steps:
