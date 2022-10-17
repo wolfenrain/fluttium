@@ -83,7 +83,7 @@ extension on WidgetTester {
     for (final char in text.split('')) {
       chars.add(char);
       testTextInput.enterText(chars.join());
-      await pumpAndSettle();
+      await pump(Duration(milliseconds: 100));
     }
     await manager.done();
   }
