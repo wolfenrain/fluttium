@@ -19,7 +19,7 @@ jobs:
         with:
           filters: |
             docs:
-              - '.github/workflows/docs.yaml
+              - '.github/workflows/docs.yaml'
               - 'docs/**'
       - uses: ./.github/workflows/docs.yaml
         if: steps.changes.outputs.docs == 'true'
