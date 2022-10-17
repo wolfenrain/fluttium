@@ -1,3 +1,8 @@
+# 0.1.0-dev.4
+
+- fix: sanitize text representations
+- feat: support flavor and custom target file
+
 # 0.1.0-dev.3
 
 - fix: last action not executed 
