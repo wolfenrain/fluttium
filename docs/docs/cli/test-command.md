@@ -19,4 +19,10 @@ fluttium test your_flow.yaml -d macos
 
 # Test the given flow while watching both the flow and application code.
 fluttium test your_flow.yaml --watch
+
+# Test the given flow using a different target entry file.
+fluttium test your_flow.yaml --target lib/main_development.dart
+
+# Test the given flow using a different flavor of your application
+fluttium test your_flow.yaml --flavor development
 ```
