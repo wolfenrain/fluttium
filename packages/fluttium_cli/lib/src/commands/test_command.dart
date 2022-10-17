@@ -17,6 +17,8 @@ typedef FluttiumRunner = fluttium.FluttiumRunner Function({
   required Directory projectDirectory,
   required String deviceId,
   required fluttium.FlowRenderer renderer,
+  required File mainEntry,
+  String? flavor,
   Logger? logger,
   ProcessManager? processManager,
 });
@@ -39,6 +41,19 @@ class TestCommand extends Command<int> {
         'device-id',
         abbr: 'd',
         help: 'Target device id or name (prefixes allowed).',
+      )
+      ..addOption(
+        'flavor',
+        help: '''
+Build a custom app flavor as defined by platform-specific build setup.
+This will be passed to the --flavor option of flutter run.''',
+      )
+      ..addOption(
+        'target',
+        abbr: 't',
+        help:
+            '''The main entry-point file of the application, as run on the device.''',
+        defaultsTo: 'lib/main.dart',
       );
   }
 
@@ -74,16 +89,12 @@ class TestCommand extends Command<int> {
     if (results.arguments.isEmpty || results.arguments.first.isEmpty) {
       usageException('No flow file specified.');
     }
-    final file = File(results.arguments.first);
-    if (!file.existsSync()) {
-      usageException('Flow file "${file.path} does not exist.');
-    }
-    return file;
+    return File(results.arguments.first);
   }
 
   /// The project directory to run in.
-  Directory? get _projectDirectory {
-    var projectDir = _flowFile.parent.absolute;
+  Directory? _getProjectDirectory(File file) {
+    var projectDir = file.parent.absolute;
     while (projectDir.listSync().firstWhereOrNull(
               (file) => basename(file.path) == 'pubspec.yaml',
             ) ==
@@ -94,6 +105,12 @@ class TestCommand extends Command<int> {
       projectDir = projectDir.parent;
     }
     return projectDir;
+  }
+
+  /// The target file to run.
+  File _getTarget(Directory directory) {
+    final target = results['target'] as String;
+    return File(join(directory.path, target));
   }
 
   Future<FlutterDevice?> getDevice(
@@ -156,11 +173,23 @@ class TestCommand extends Command<int> {
   @override
   Future<int> run() async {
     final flowFile = _flowFile;
-    final projectDirectory = _projectDirectory;
+    if (!flowFile.existsSync()) {
+      _logger.err('Flow file "${flowFile.path}" not found.');
+      return ExitCode.unavailable.code;
+    }
+
+    final projectDirectory = _getProjectDirectory(flowFile);
     if (projectDirectory == null) {
       _logger.err('Could not find pubspec.yaml in parent directories.');
       return ExitCode.unavailable.code;
     }
+
+    final target = _getTarget(projectDirectory);
+    if (!target.existsSync()) {
+      _logger.err('Target file "${results['target']}" not found.');
+      return ExitCode.unavailable.code;
+    }
+
     final device = await getDevice(
       projectDirectory.path,
       _logger.progress('Retrieving devices'),
@@ -176,6 +205,8 @@ class TestCommand extends Command<int> {
       deviceId: device.id,
       logger: _logger,
       processManager: _process,
+      flavor: results['flavor'] as String?,
+      mainEntry: target,
       renderer: (flow, stepStates) {
         // Reset the cursor to the top of the screen and clear the screen.
         _logger.info('''
