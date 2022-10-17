@@ -1,3 +1,8 @@
+# 0.1.0-dev.7
+
+- fix: sanitize text representations
+- feat: support flavor and custom target file
+
 # 0.1.0-dev.6
 
 - chore: upgrade fluttium_runner to v0.1.0-dev.3
