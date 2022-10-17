@@ -22,9 +22,9 @@ jobs:
               - '.github/workflows/docs.yaml'
               - 'docs/**'
       - uses: ./.github/workflows/docs.yaml
-          with: 
-            working-directory: docs/
-          if: steps.changes.outputs.docs == 'true'
+        with: 
+          working-directory: docs/
+        if: steps.changes.outputs.docs == 'true'
   
   pana:
     runs-on: ubuntu-latest
