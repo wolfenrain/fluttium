@@ -44,3 +44,12 @@ fluttium create my_flow.yaml --desc "My cool flow"
 # 🧪 Run a test flow file
 fluttium test your_flow.yaml
 ```
+
+## Other awesome Flutter testing tools
+
+Fluttium isn't the first, and hopefully not the last, tool made for making user flow test in Flutter
+easier. So here is a list of other awesome open source packages that, while having different goals,
+try to make these kind of tests easier in Flutter:
+
+- [Patrol](https://patrol.leancode.co/) by LeanCode
+- [Honey](https://github.com/clickup/honey) by ClickUp
