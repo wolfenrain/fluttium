@@ -36,3 +36,9 @@ jobs:
 
       - name: 👷 Build website
         run: yarn build
+
+  pana:
+    runs-on: ubuntu-latest
+    steps:
+      - name: noop
+        run: echo 'noop'
