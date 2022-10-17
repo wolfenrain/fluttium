@@ -45,6 +45,22 @@ fluttium create my_flow.yaml --desc "My cool flow"
 fluttium test your_flow.yaml
 ```
 
+## Supported Platforms
+
+Fluttium technically can support all platforms that Flutter supports but right now only a few are 
+tested and therefore only allowed. Here is a full overview of all the platforms and their current
+states:
+
+| Android | iOS | Web | macOS | Windows | Linux | 
+| ------- | --- | --- | ----- | ------- | ----- |
+| ✅      | ✅  | ❓  | ✅    | ❌      | ❌   |
+
+<small>
+✅ supported and tested<br></br>
+❓ supported but untested <br></br>
+❌ unsupported
+</small>
+
 ## Other awesome Flutter testing tools
 
 Fluttium isn't the first, and hopefully not the last, tool made for making user flow test in Flutter
