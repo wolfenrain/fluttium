@@ -18,11 +18,20 @@ final fluttiumDriverBundle = MasonBundle.fromJson(<String, dynamic>{
   "version": "0.1.0+1",
   "environment": {"mason": ">=0.1.0-dev.26 <0.1.0"},
   "vars": {
-    "name": {
+    "projectName": {
       "type": "string",
-      "description": "Your name",
-      "default": "Dash",
-      "prompt": "What is your name?"
+      "description": "The project name",
+      "prompt": "What is the project name?"
+    },
+    "flowDescription": {
+      "type": "string",
+      "description": "The flow description",
+      "prompt": "What is the flow description?"
+    },
+    "flowSteps": {
+      "type": "string",
+      "description": "The flow steps",
+      "prompt": "What are the flow steps (encoded as a list)?"
     }
   }
 });
