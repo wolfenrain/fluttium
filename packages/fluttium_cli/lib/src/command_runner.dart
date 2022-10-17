@@ -51,6 +51,9 @@ class FluttiumCommandRunner extends CommandRunner<int> {
   final ProcessManager _process;
 
   @override
+  void printUsage() => _logger.info(usage);
+
+  @override
   Future<int> run(Iterable<String> args) async {
     try {
       final topLevelResults = parse(args);
