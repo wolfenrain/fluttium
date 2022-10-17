@@ -11,7 +11,6 @@ jobs:
 
   pana:
     runs-on: ubuntu-latest
-    name: build/pana
     steps:
       - name: noop
         run: echo 'noop'
