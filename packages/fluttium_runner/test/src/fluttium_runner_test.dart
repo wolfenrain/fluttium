@@ -40,6 +40,7 @@ void main() {
     setUp(() {
       mainEntry = MockFile();
       when(() => mainEntry.path).thenReturn('lib/main.dart');
+      when(mainEntry.existsSync).thenReturn(true);
 
       flowFile = MockFile();
       when(() => flowFile.readAsStringSync()).thenReturn('''
