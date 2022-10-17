@@ -228,6 +228,9 @@ This will be passed to the --flavor option of flutter run.''',
             case FluttiumAction.tapOn:
               actionDescription = 'Tap on "${step.text}"';
               break;
+            case FluttiumAction.longTapOn:
+              actionDescription = 'Long tap on "${step.text}"';
+              break;
             case FluttiumAction.inputText:
               actionDescription = 'Input text "${step.text}"';
               break;

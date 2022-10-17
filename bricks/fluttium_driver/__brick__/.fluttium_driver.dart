@@ -22,8 +22,7 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
       {{#flowSteps}}
-      {{{step}}}
-      {{/flowSteps}}
+      {{{step}}}{{/flowSteps}}
     },
   );
 }
@@ -66,10 +65,17 @@ extension on WidgetTester {
     await manager.done();
   }
 
+  Future<void> longTapOn(String text) async {
+    await manager.start();
+    await longPress(_findByText(text));
+    await pumpAndSettle();
+    await manager.done();
+  }
+
   Future<void> takeScreenshot(String name) async {
     await manager.start();
-    final RenderRepaintBoundary boundary =
-        firstRenderObject(find.byType(RepaintBoundary));
+    final boundary = firstRenderObject(find.byType(RepaintBoundary))
+        as RenderRepaintBoundary;
     final image = await boundary.toImage();
     final byteData = await image.toByteData(format: ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();

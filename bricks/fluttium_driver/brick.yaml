@@ -1,5 +1,5 @@
 name: fluttium_driver
-description: A new brick created with the Mason CLI.
+description: The driver that runs the Fluttium Flow.
 version: 0.1.0+1
 
 environment:

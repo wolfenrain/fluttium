@@ -4,3 +4,17 @@ version: 0.1.0+1
 
 environment:
   mason: ">=0.1.0-dev.26 <0.1.0"
+
+vars:
+  name:
+    type: string
+    description: The name of the flow file.
+    default: "my_flow"
+  description:
+    type: string
+    description: The flow description
+    prompt: What is the flow description?
+  steps:  
+    type: string
+    description: The flow steps
+    prompt: What are the flow steps (encoded as a list)?

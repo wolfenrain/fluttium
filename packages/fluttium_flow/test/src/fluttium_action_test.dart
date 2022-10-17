@@ -18,5 +18,11 @@ void main() {
         throwsUnimplementedError,
       );
     });
+
+    test('is able to resolve all enum values', () {
+      for (final action in FluttiumAction.values) {
+        expect(FluttiumAction.resolve(action.name), equals(action));
+      }
+    });
   });
 }
