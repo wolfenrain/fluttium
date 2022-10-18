@@ -26,7 +26,7 @@ jobs:
         uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
   
-  package:
+  build:
     strategy:
       matrix:
         package: [fluttium_cli]
@@ -46,8 +46,34 @@ jobs:
               - '.github/actions/dart_package/action.yaml'
               - 'packages/${{ matrix.package }}/**'
 
-      - name: ⌨️ Format, Lint and Test Fluttium CLI
+      - name: ✨ Format, Analyze and Test (${{ matrix.package }})
         uses: ./.github/actions/dart_package
+        with:
+          working_directory: packages/${{ matrix.package }}
+        if: steps.changes.outputs.${{ matrix.package }} == 'true'
+
+  pana:
+    strategy:
+      matrix:
+        package: [fluttium_cli]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: ☕️ Setup Change Filters
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            ${{ matrix.package }}:
+              - '.github/actions/pana/action.yaml'
+              - 'packages/${{ matrix.package }}/**'
+
+      - name: 📊 Verify Pana Score (${{ matrix.package }})
+        uses: ./.github/actions/pana
         with:
           working_directory: packages/${{ matrix.package }}
         if: steps.changes.outputs.${{ matrix.package }} == 'true'
@@ -55,7 +81,8 @@ jobs:
   ci:
     needs:
       - docs
-      - package
+      - build
+      - pana
     runs-on: ubuntu-latest
     steps:
       - name: noop
