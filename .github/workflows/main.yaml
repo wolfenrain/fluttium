@@ -17,7 +17,8 @@ jobs:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
 
-      - uses: dorny/paths-filter@v2
+      - name: ☕️ Setup Change Filters
+        uses: dorny/paths-filter@v2
         id: changes
         with:
           filters: |
