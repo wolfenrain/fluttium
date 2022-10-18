@@ -39,7 +39,7 @@ jobs:
         with:
           filters: |
             fluttium_cli:
-              - '.github/actions/fluttium_cli/action.yaml'
+              - '.github/actions/dart_package/action.yaml'
               - 'packages/fluttium_cli/**'
 
       - name: 📑 ???
