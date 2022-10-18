@@ -6,33 +6,34 @@ inputs:
     description: 'The working directory for the docs job'
     required: true
     type: string
+    default: docs
+  shell:
+    description: 'The shell to use for the docs job'
+    required: false
+    type: string
+    default: bash
 
 runs:
   using: "composite"
   steps:
-    - name: ⚙️ Setup Node
-      uses: actions/setup-node@v3
+    - uses: actions/setup-node@v3
       with:
         node-version: 16.x
         cache: yarn
         cache-dependency-path: docs/yarn.lock
 
-    - name: 📦 Install Dependencies
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working-directory }}
+      shell: ${{ inputs.shell }}
       run: yarn install --frozen-lockfile
 
-    - name: ✨ Check Format
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working-directory }}
+      shell: ${{ inputs.shell }}
       run: yarn run format:check
 
-    - name: 🧹 Lint
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working-directory }}
+      shell: ${{ inputs.shell }}
       run: yarn run lint
 
-    - name: 👷 Build website
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working-directory }}
+      shell: ${{ inputs.shell }}
       run: yarn build

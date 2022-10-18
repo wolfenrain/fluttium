@@ -16,6 +16,7 @@ jobs:
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
+
       - uses: dorny/paths-filter@v2
         id: changes
         with:
@@ -23,9 +24,9 @@ jobs:
             docs:
               - '.github/actions/docs/action.yaml'
               - 'docs/**'
-      - uses: ./.github/actions/docs
-        with:
-          working-directory: docs
+
+      - name: 📑 Format, Lint and Build Docs
+        uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
   
   pana:
