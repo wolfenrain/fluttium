@@ -12,21 +12,18 @@ inputs:
     required: false
     type: string
     default: "."
-  dart_sdk:
-    required: false
-    type: string
-    default: "stable"
 
 runs:
   using: "composite"
   steps:
-    - uses: dart-lang/setup-dart@v1
+    - uses: subosito/flutter-action@v2
       with:
-        sdk: ${{inputs.dart_sdk}}
+        channel: stable
+        cache: true
 
     - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
-      run: dart pub global activate pana ${{inputs.pana_version}}
+      run: flutter pub global activate pana ${{inputs.pana_version}}
 
     - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
