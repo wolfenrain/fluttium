@@ -19,9 +19,9 @@ jobs:
         with:
           filters: |
             docs:
-              - '.github/actions/docs.yaml'
+              - '.github/actions/docs/action.yaml'
               - 'docs/**'
-      - uses: ./.github/actions/docs.yaml
+      - uses: ./.github/actions/docs
         with:
           working-directory: docs
         if: steps.changes.outputs.docs == 'true'
