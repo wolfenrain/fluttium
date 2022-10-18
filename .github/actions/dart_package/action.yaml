@@ -63,7 +63,7 @@ runs:
       shell: ${{ inputs.shell }}
       run: dart analyze --fatal-infos --fatal-warnings ${{inputs.analyze_directories}}
 
-    -   working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working-directory }}
       shell: ${{ inputs.shell }}
       run: |
         dart pub global activate coverage 1.2.0
