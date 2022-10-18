@@ -17,18 +17,22 @@ runs:
         cache: yarn
         cache-dependency-path: docs/yarn.lock
 
-    - name: Change working directory
-      shell: bash
-      run: cd ${{ inputs.working-directory }}
-
     - name: 📦 Install Dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: yarn install --frozen-lockfile
 
     - name: ✨ Check Format
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: yarn run format:check
 
     - name: 🧹 Lint
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: yarn run lint
 
     - name: 👷 Build website
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: yarn build
