@@ -16,7 +16,6 @@ YAML syntax of this action is as followed:
 ```yaml
 - expectVisible:
     text: 'Your Text' # An optional text regexp that is used to find a widget by semantic labels and visible text
-    key: 'Your Key' # An optional key that is used to find an widget that has the given key
 ```
 
 The short-hand syntax for this action is:
