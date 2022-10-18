@@ -18,6 +18,7 @@ runs:
         cache-dependency-path: docs/yarn.lock
 
     - name: Change working directory
+      shell: bash
       run: cd ${{ inputs.working-directory }}
 
     - name: 📦 Install Dependencies
