@@ -21,7 +21,7 @@ action is as followed:
 The short-hand syntax for this action is:
 
 ```yaml
-- tapOn: 'Your Text or Key' # It will try to find by key first, if none is found it will try semantic labels and visible text
+- tapOn: 'Your Text' # It will try to find by semantic labels and visible text
 ```
 
 ## Long press
