@@ -1,4 +1,4 @@
-name: docs
+name: 📑 Format, Lint and Build Docs
 description: 'Format, lint, and build the docs'
 
 inputs:
