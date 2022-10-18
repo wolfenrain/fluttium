@@ -76,9 +76,9 @@ const FeatureList: FeatureItem[] = [
     title: 'Focus On What Matters',
     description: (
       <>
-        Fluttium focusses on the users of your application. Each step in
-        the user flow is executed as if it was a real user interacting with
-        your application.
+        Fluttium focusses on the users of your application. Each step in the
+        user flow is executed as if it was a real user interacting with your
+        application.
       </>
     ),
   },

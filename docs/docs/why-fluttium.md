@@ -20,7 +20,7 @@ A user in the real world can navigate and use an application by seeing it with t
 using a screen reader that reads the semantic labels that an application has defined. And that is
 exactly where Fluttium comes into play.
 
-Fluttium focuses on the real user, the tests a developer writes with Fluttium are a direct 
+Fluttium focuses on the real user, the tests a developer writes with Fluttium are a direct
 representation of the actions that an user of an application would perform. Fluttium exposes a set
 of actions that a developer can use to write a user flow test.
 
@@ -28,12 +28,12 @@ These user flow tests are powered by the integration testing framework from Flut
 Fluttium to optimize the execution of the actions, for example by automatically waiting till an
 action is truly completed.
 
-And because of this focus on the real user, Fluttium does not support certain features that a 
-Flutter developer would expect. For instance, Fluttium does not provide an API to search by a 
-[Key](https://api.flutter.dev/flutter/foundation/Key-class.html). A real user of an application 
+And because of this focus on the real user, Fluttium does not support certain features that a
+Flutter developer would expect. For instance, Fluttium does not provide an API to search by a
+[Key](https://api.flutter.dev/flutter/foundation/Key-class.html). A real user of an application
 would not be able to see or read a key, so why should the user flow test be aware of it.
 
-Fluttium indirectly forces developers to think about the accessibility of their applications. 
+Fluttium indirectly forces developers to think about the accessibility of their applications.
 Adding self-defined semantic labels that makes sense for the action of a button or icon becomes the
 norm when using Fluttium for user flow tests.
 
