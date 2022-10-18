@@ -1,4 +1,5 @@
 name: docs
+description: 'Format, lint, and build the docs'
 
 inputs:
   working-directory:
@@ -18,6 +19,7 @@ runs:
 
     - name: Change working directory
       run: cd ${{ inputs.working-directory }}
+
     - name: 📦 Install Dependencies
       run: yarn install --frozen-lockfile
 
