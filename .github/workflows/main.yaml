@@ -42,8 +42,10 @@ jobs:
               - '.github/actions/dart_package/action.yaml'
               - 'packages/fluttium_cli/**'
 
-      - name: 📑 ???
+      - name: ⌨️ Format, Lint and Test Fluttium CLI
         uses: ./.github/actions/dart_package
+        with:
+          working_directory: packages/fluttium_cli
         if: steps.changes.outputs.fluttium_cli == 'true'
 
   ci:

@@ -1,5 +1,5 @@
 inputs:
-  working-directory:
+  working_directory:
     description: 'The working directory for the docs job'
     required: true
     type: string
@@ -19,18 +19,18 @@ runs:
         cache: yarn
         cache-dependency-path: docs/yarn.lock
 
-    - working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
       run: yarn install --frozen-lockfile
 
-    - working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
       run: yarn run format:check
 
-    - working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
       run: yarn run lint
 
-    - working-directory: ${{ inputs.working-directory }}
+    - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
       run: yarn build
