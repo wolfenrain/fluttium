@@ -22,11 +22,12 @@ jobs:
               - '.github/actions/docs/action.yaml'
               - 'docs/**'
 
-      - name: 📑 Format, Lint and Build Docs
-        uses: ./.github/actions/docs
+      - uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
-  
-  pana:
+
+  ci:
+    needs:
+      - docs
     runs-on: ubuntu-latest
     steps:
       - name: noop
