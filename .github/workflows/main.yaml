@@ -26,7 +26,11 @@ jobs:
         uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
   
-  fluttium_cli:
+  package:
+    strategy:
+      matrix:
+        package: [fluttium_cli]
+
     runs-on: ubuntu-latest
 
     steps:
@@ -38,20 +42,20 @@ jobs:
         id: changes
         with:
           filters: |
-            fluttium_cli:
+            ${{ matrix.package }}:
               - '.github/actions/dart_package/action.yaml'
-              - 'packages/fluttium_cli/**'
+              - 'packages/${{ matrix.package }}/**'
 
       - name: ⌨️ Format, Lint and Test Fluttium CLI
         uses: ./.github/actions/dart_package
         with:
-          working_directory: packages/fluttium_cli
-        if: steps.changes.outputs.fluttium_cli == 'true'
+          working_directory: packages/${{ matrix.package }}
+        if: steps.changes.outputs.${{ matrix.package }} == 'true'
 
   ci:
     needs:
       - docs
-      - fluttium_cli
+      - package
     runs-on: ubuntu-latest
     steps:
       - name: noop
