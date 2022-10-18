@@ -1,0 +1,36 @@
+inputs:
+  working_directory:
+    description: 'The working directory for the docs job'
+    required: true
+    type: string
+    default: docs
+  shell:
+    description: 'The shell to use for the docs job'
+    required: false
+    type: string
+    default: bash
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: yarn
+        cache-dependency-path: docs/yarn.lock
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: yarn install --frozen-lockfile
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: yarn run format:check
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: yarn run lint
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: yarn build
