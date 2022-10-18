@@ -6,6 +6,9 @@ on:
       - main
 
 jobs:
+  semantic_pull_request:
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml@v1
+
   docs:
     runs-on: ubuntu-latest
 
@@ -79,7 +82,7 @@ jobs:
         if: steps.changes.outputs.${{ matrix.package }} == 'true'
 
   ci:
-    needs: [docs, build, pana]
+    needs: [semantic_pull_request, docs, build, pana]
     runs-on: ubuntu-latest
     steps:
       - name: noop
