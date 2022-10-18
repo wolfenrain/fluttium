@@ -8,7 +8,7 @@ There are quite a few app automation frameworks out there like [Appium](https://
 and [Maestro](https://maestro.mobile.dev), some are even dedicated to specific platforms, like
 [UIAutomator](https://developer.android.com/training/testing/other-components/ui-automator) and
 [XCTest](https://developer.apple.com/documentation/xctest). But they all have one thing in common,
-their main focus is not the Flutter ecosystem.
+their main focus is not the [Flutter](https://flutter.dev) ecosystem.
 
 Thankfully the Flutter community has already created a beautiful set of tools to fill in the gap of
 end-to-end testing in Flutter. Tools like [Patrol](https://patrol.leancode.co/) and
