@@ -28,7 +28,7 @@ These user flow tests are powered by the integration testing framework from Flut
 Fluttium to optimize the execution of the actions, for example by automatically waiting till an
 action is truly completed.
 
-And because of this focus on the real user, Fluttium does not support certain features that a
+As a result, Fluttium does not support certain features that a
 Flutter developer would expect. For instance, Fluttium does not provide an API to search by a
 [Key](https://api.flutter.dev/flutter/foundation/Key-class.html). A real user of an application
 would not be able to see or read a key, so why should the user flow test be aware of it.
