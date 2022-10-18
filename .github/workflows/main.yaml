@@ -79,10 +79,7 @@ jobs:
         if: steps.changes.outputs.${{ matrix.package }} == 'true'
 
   ci:
-    needs:
-      - docs
-      - build
-      - pana
+    needs: [docs, build, pana]
     runs-on: ubuntu-latest
     steps:
       - name: noop
