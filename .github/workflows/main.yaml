@@ -22,12 +22,34 @@ jobs:
               - '.github/actions/docs/action.yaml'
               - 'docs/**'
 
-      - uses: ./.github/actions/docs
+      - name: 📑 Format, Lint and Build Docs
+        uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
+  
+  fluttium_cli:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: ☕️ Setup Change Filters
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            fluttium_cli:
+              - '.github/actions/fluttium_cli/action.yaml'
+              - 'packages/fluttium_cli/**'
+
+      - name: 📑 ???
+        uses: ./.github/actions/dart_package
+        if: steps.changes.outputs.fluttium_cli == 'true'
 
   ci:
     needs:
       - docs
+      - fluttium_cli
     runs-on: ubuntu-latest
     steps:
       - name: noop

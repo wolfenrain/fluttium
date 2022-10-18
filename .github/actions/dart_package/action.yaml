@@ -1,0 +1,12 @@
+inputs:
+  working-directory:
+    description: 'The working directory for the docs job'
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
+      with:
+        working_directory: ${{ inputs.working-directory }}

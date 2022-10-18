@@ -1,6 +1,3 @@
-name: 📑 Format, Lint and Build Docs
-description: 'Format, lint, and build the docs'
-
 inputs:
   working-directory:
     description: 'The working directory for the docs job'
