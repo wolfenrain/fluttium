@@ -9,10 +9,6 @@ jobs:
   docs:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: docs
-
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3

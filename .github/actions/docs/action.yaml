@@ -22,14 +22,18 @@ runs:
         cache: yarn
         cache-dependency-path: docs/yarn.lock
 
-    - shell: ${{ inputs.shell }}
+    - working-directory: ${{ inputs.working-directory }}
+      shell: ${{ inputs.shell }}
       run: yarn install --frozen-lockfile
 
-    - shell: ${{ inputs.shell }}
+    - working-directory: ${{ inputs.working-directory }}
+      shell: ${{ inputs.shell }}
       run: yarn run format:check
 
-    - shell: ${{ inputs.shell }}
+    - working-directory: ${{ inputs.working-directory }}
+      shell: ${{ inputs.shell }}
       run: yarn run lint
 
-    - shell: ${{ inputs.shell }}
+    - working-directory: ${{ inputs.working-directory }}
+      shell: ${{ inputs.shell }}
       run: yarn build
