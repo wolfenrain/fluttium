@@ -43,6 +43,30 @@ jobs:
         uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
 
+  # Format, analyze, and test the example code. This job will always run but it will end
+  # early if the example code hasn't changed.
+  example:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: ☕️ Setup Change Filters
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            example:
+              - '.github/actions/flutter_package/action.yaml'
+              - 'example/**'
+
+      - name: 📑 Format, Analyze and Test Example
+        uses: ./.github/actions/flutter_package
+        if: steps.changes.outputs.example == 'true'
+        with: 
+          working_directory: example
+
   # Creates a list of packages that have changed and stores them in the 
   # outputs. Jobs like build and pana uses these values to determine which 
   # packages to build and test.

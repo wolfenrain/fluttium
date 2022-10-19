@@ -1,4 +1,4 @@
-name: Dart Package Workflow
+name: Flutter Package Workflow
 
 inputs:
   concurrency:
@@ -9,10 +9,14 @@ inputs:
     required: false
     type: string
     default: ""
-  dart_sdk:
+  flutter_channel:
     required: false
     type: string
     default: "stable"
+  flutter_version:
+    required: false
+    type: string
+    default: ""
   working_directory:
     required: false
     type: string
@@ -21,18 +25,14 @@ inputs:
     required: false
     type: number
     default: 100
-  analyze_directories:
+  test_optimization:
     required: false
-    type: string
-    default: "lib test"
-  report_on:
+    type: boolean
+    default: true
+  test_recursion:
     required: false
-    type: string
-    default: "lib"
-  platform:
-    required: false
-    type: string
-    default: "vm"
+    type: boolean
+    default: false
   shell:
     description: 'The shell to use for the docs job'
     required: false
@@ -42,29 +42,34 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: dart-lang/setup-dart@v1
+    - uses: subosito/flutter-action@v2
       with:
-        sdk: ${{inputs.dart_sdk}}
-
-    - working-directory: ${{ inputs.working_directory }}
-      shell: ${{ inputs.shell }}
-      run: dart pub get
-
-    - working-directory: ${{ inputs.working_directory }}
-      shell: ${{ inputs.shell }}
-      run: dart format --set-exit-if-changed .
-
-    - working-directory: ${{ inputs.working_directory }}
-      shell: ${{ inputs.shell }}
-      run: dart analyze --fatal-infos --fatal-warnings ${{inputs.analyze_directories}}
+        flutter-version: ${{inputs.flutter_version}}
+        channel: ${{inputs.flutter_channel}}
+        cache: true
 
     - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
       run: |
-        dart pub global activate coverage 1.2.0
-        dart test -j ${{inputs.concurrency}} --coverage=coverage --platform=${{inputs.platform}} && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=${{inputs.report_on}}
+        flutter pub global activate very_good_cli
+        very_good --analytics false
+        very_good packages get --recursive
 
-    - uses: VeryGoodOpenSource/very_good_coverage@v2
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: flutter format --set-exit-if-changed lib test
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: flutter analyze lib test
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: very_good test -j ${{inputs.concurrency}} ${{(inputs.test_recursion && '--recursive') || ''}} ${{(inputs.test_optimization && '--optimization') || '--no-optimization'}} --coverage --test-randomize-ordering-seed random
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      uses: VeryGoodOpenSource/very_good_coverage@v2
       with:
         path: ${{inputs.working_directory}}/coverage/lcov.info
         exclude: ${{inputs.coverage_excludes}}
