@@ -68,7 +68,7 @@ jobs:
         uses: ./.github/actions/dart_package
         with:
           working_directory: packages/${{ matrix.package }}
-        if: steps.changes.outputs.${{ matrix.package }} == 'true'
+        if: steps.changes.outputs[${{ matrix.package }}] == 'true'
 
   pana:
     strategy:
