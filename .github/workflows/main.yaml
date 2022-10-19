@@ -62,7 +62,7 @@ jobs:
       - name: Testing ${{ matrix.package }}
         run: |
           echo ${{ matrix.package }}
-          echo ${{ steps.changes.outputs }}
+          echo ${{ steps.changes.outputs.fluttium_runner }}
   
       - name: ✨ Format, Analyze and Test (${{ matrix.package }})
         uses: ./.github/actions/dart_package
