@@ -147,7 +147,9 @@ class FluttiumRunner {
       workingDirectory: projectDirectory.path,
     );
 
-    final projectData = jsonDecode(dependencyData.stdout as String) as Map;
+    final projectData = jsonDecodeSafely(
+      dependencyData.stdout as String,
+    ) as Map;
     final project = (projectData['packages'] as List)
         .cast<Map<String, dynamic>>()
         .firstWhere((e) => e['name'] == projectData['root']);

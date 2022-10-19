@@ -151,7 +151,7 @@ This will be passed to the --flavor option of flutter run.''',
       runInShell: true,
       workingDirectory: workingDirectory,
     );
-    final devices = (jsonDecode(result.stdout as String) as List<dynamic>)
+    final devices = (jsonDecodeSafely(result.stdout as String) as List<dynamic>)
         .cast<Map<String, dynamic>>()
         .map(FlutterDevice.new)
         .toList();
