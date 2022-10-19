@@ -6,66 +6,43 @@ import 'package:yaml/yaml.dart';
 
 void main() {
   group('FluttiumStep', () {
-    test('can be instantiated', () {
-      final step = FluttiumStep(
-        FluttiumAction.expectNotVisible,
-        text: 'findByText',
-      );
+    group('normal constructor', () {
+      test('text is correct', () {
+        final step = FluttiumStep(
+          FluttiumAction.expectNotVisible,
+          text: 'findByText',
+        );
 
-      expect(
-        step.action,
-        equals(FluttiumAction.expectNotVisible),
-      );
-
-      expect(
-        step.text,
-        equals('findByText'),
-      );
+        expect(step.text, equals('findByText'));
+      });
     });
 
-    test('can construct from a short-hand yaml node', () {
-      final step = FluttiumStep.fromYaml(
-        YamlMap.wrap({
-          'expectVisible': 'findByText',
-        }),
-      );
+    group('fromYaml', () {
+      test('throws an error if the yaml node is not a map', () {
+        expect(
+          () => FluttiumStep.fromYaml(YamlList.wrap(['expectVisible'])),
+          throwsUnsupportedError,
+        );
+      });
 
-      expect(
-        step.action,
-        equals(FluttiumAction.expectVisible),
-      );
+      test('can construct from a short-hand yaml node', () {
+        final step = FluttiumStep.fromYaml(
+          YamlMap.wrap({'expectVisible': 'findByText'}),
+        );
 
-      expect(
-        step.text,
-        equals('findByText'),
-      );
-    });
+        expect(step.action, equals(FluttiumAction.expectVisible));
+        expect(step.text, equals('findByText'));
+      });
 
-    test('can construct from a yaml node', () {
-      final step = FluttiumStep.fromYaml(
-        YamlMap.wrap({
-          'expectVisible': {
-            'text': 'findByText',
-          }
-        }),
-      );
+      test('maps the correct action', () {
+        final step = FluttiumStep.fromYaml(
+          YamlMap.wrap({
+            'expectVisible': {'text': 'findByText'}
+          }),
+        );
 
-      expect(
-        step.action,
-        equals(FluttiumAction.expectVisible),
-      );
-
-      expect(
-        step.text,
-        equals('findByText'),
-      );
-    });
-
-    test('throws exception when the node is not a map', () {
-      expect(
-        () => FluttiumStep.fromYaml(YamlList.wrap([])),
-        throwsUnsupportedError,
-      );
+        expect(step.action, equals(FluttiumAction.expectVisible));
+      });
     });
 
     test('toJson', () {

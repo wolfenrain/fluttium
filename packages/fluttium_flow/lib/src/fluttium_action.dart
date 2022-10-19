@@ -9,6 +9,9 @@ enum FluttiumAction {
   /// Tap on the given text or label or position.
   tapOn,
 
+  /// Long tap on the given text or label or position.
+  longTapOn,
+
   /// Input the given text.
   inputText,
 
@@ -24,6 +27,8 @@ enum FluttiumAction {
         return FluttiumAction.expectNotVisible;
       case 'tapOn':
         return FluttiumAction.tapOn;
+      case 'longTapOn':
+        return FluttiumAction.longTapOn;
       case 'inputText':
         return FluttiumAction.inputText;
       case 'takeScreenshot':

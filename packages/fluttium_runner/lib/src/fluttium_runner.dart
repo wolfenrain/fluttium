@@ -108,6 +108,8 @@ class FluttiumRunner {
                 return "await tester.expectNotVisible(r'$text');";
               case FluttiumAction.tapOn:
                 return "await tester.tapOn(r'$text');";
+              case FluttiumAction.longTapOn:
+                return "await tester.longTapOn(r'$text');";
               case FluttiumAction.inputText:
                 return "await tester.inputText(r'$text');";
               case FluttiumAction.takeScreenshot:

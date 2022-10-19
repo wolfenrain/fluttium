@@ -618,6 +618,7 @@ void main() {
             FluttiumStep(FluttiumAction.tapOn, text: 'text'),
             FluttiumStep(FluttiumAction.inputText, text: 'text'),
             FluttiumStep(FluttiumAction.takeScreenshot, text: 'text'),
+            FluttiumStep(FluttiumAction.longTapOn, text: 'text'),
           ]);
 
           renderer(flow, []);
@@ -628,6 +629,7 @@ void main() {
           verify(() => logger!.info('  🔲  Tap on "text"')).called(1);
           verify(() => logger!.info('  🔲  Input text "text"')).called(1);
           verify(() => logger!.info('  🔲  Screenshot "text"')).called(1);
+          verify(() => logger!.info('  🔲  Long tap on "text"')).called(1);
 
           renderer(flow, [true, null]);
           verify(() => logger!.info('  ✅  Expect visible "text"')).called(1);
@@ -636,6 +638,7 @@ void main() {
           verify(() => logger!.info('  🔲  Tap on "text"')).called(1);
           verify(() => logger!.info('  🔲  Input text "text"')).called(1);
           verify(() => logger!.info('  🔲  Screenshot "text"')).called(1);
+          verify(() => logger!.info('  🔲  Long tap on "text"')).called(1);
 
           renderer(flow, [true, false]);
           verify(() => logger!.info('  ✅  Expect visible "text"')).called(1);
@@ -644,6 +647,7 @@ void main() {
           verify(() => logger!.info('  🔲  Tap on "text"')).called(1);
           verify(() => logger!.info('  🔲  Input text "text"')).called(1);
           verify(() => logger!.info('  🔲  Screenshot "text"')).called(1);
+          verify(() => logger!.info('  🔲  Long tap on "text"')).called(1);
 
           verify(
             () => logger!.info(any(that: contains('description'))),
