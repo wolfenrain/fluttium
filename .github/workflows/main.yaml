@@ -63,12 +63,13 @@ jobs:
         run: |
           echo ${{ matrix.package }}
           echo ${{ steps.changes.outputs.fluttium_runner }}
+          echo ${{  toJSON(steps.changes.outputs) }}
   
       - name: ✨ Format, Analyze and Test (${{ matrix.package }})
         uses: ./.github/actions/dart_package
         with:
           working_directory: packages/${{ matrix.package }}
-        if: steps.changes.outputs[${{ matrix.package }}] == 'true'
+        if: toJSON(steps.changes.outputs) == "{${{ matrix.package }}: true}"
 
   pana:
     strategy:
