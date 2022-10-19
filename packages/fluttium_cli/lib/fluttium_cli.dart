@@ -5,6 +5,6 @@
 /// flutter pub global activate fluttium_cli
 ///
 /// # see usage
-/// flutt ium --help
+/// fluttium --help
 /// ```
 library fluttium_cli;

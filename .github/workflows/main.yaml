@@ -39,7 +39,7 @@ jobs:
         uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
   
-  changes:
+  package_changes:
     runs-on: ubuntu-latest
 
     permissions:
@@ -64,11 +64,11 @@ jobs:
               - packages/fluttium_runner/**
 
   build:
-    needs: changes
+    needs: package_changes
 
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.changes.outputs.packages) }}
+        package: ${{ fromJSON(needs.package_changes.outputs.packages) }}
 
     runs-on: ubuntu-latest
 
@@ -82,11 +82,11 @@ jobs:
           working_directory: packages/${{ matrix.package }}
 
   pana:
-    needs: changes
+    needs: package_changes
 
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.changes.outputs.packages) }}
+        package: ${{ fromJSON(needs.package_changes.outputs.packages) }}
 
     runs-on: ubuntu-latest
 
