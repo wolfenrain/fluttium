@@ -6,9 +6,23 @@ on:
       - main
 
 jobs:
+  # Ensures that every PR has a semantic title or commit.
   semantic_pull_request:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml@v1
 
+  # Enforces the spelling of words in the repository.
+  spell_check:
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1
+    with:
+      includes: |
+        **/*.{dart,md,yaml}
+        !.dart_tool/**/*.{dart,yaml}
+        .*/**/*.yml
+      runs_on: macos-latest
+      modified_files_only: false
+
+  # Format and build the docs. This job will always run but it will end early
+  # if the docs haven't changed.
   docs:
     runs-on: ubuntu-latest
 
@@ -28,37 +42,64 @@ jobs:
       - name: 📑 Format, Lint and Build Docs
         uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
-  
+
+  # Creates a list of packages that have changed and stores them in the 
+  # outputs. Jobs like build and pana uses these values to determine which 
+  # packages to build and test.
+  package_changes:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: read
+
+    outputs:
+      packages: ${{ steps.filter.outputs.changes }}
+
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            fluttium_cli:
+              - ./.github/actions/dart_package
+              - packages/fluttium_cli/**
+            fluttium_flow:
+              - ./.github/actions/dart_package
+              - packages/fluttium_flow/**
+            fluttium_runner:
+              - ./.github/actions/dart_package
+              - packages/fluttium_runner/**
+
+  # Build and test the packages that have changed.
+  #
+  # If the matrix is empty, no jobs will be created.
   build:
+    needs: package_changes
+
     strategy:
       matrix:
-        package: [fluttium_cli, fluttium_flow, fluttium_runner]
+        package: ${{ fromJSON(needs.package_changes.outputs.packages) }}
 
     runs-on: ubuntu-latest
 
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
-
-      - name: ☕️ Setup Change Filters
-        uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            ${{ matrix.package }}:
-              - '.github/actions/dart_package/action.yaml'
-              - 'packages/${{ matrix.package }}/**'
 
       - name: ✨ Format, Analyze and Test (${{ matrix.package }})
         uses: ./.github/actions/dart_package
         with:
           working_directory: packages/${{ matrix.package }}
-        if: steps.changes.outputs.${{ matrix.package }} == 'true'
 
+  # Run pana on the packages that have changed.
+  #
+  # If the matrix is empty, no jobs will be created.
   pana:
+    needs: package_changes
+
     strategy:
       matrix:
-        package: [fluttium_cli, fluttium_flow, fluttium_runner]
+        package: ${{ fromJSON(needs.package_changes.outputs.packages) }}
 
     runs-on: ubuntu-latest
 
@@ -66,24 +107,21 @@ jobs:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
 
-      - name: ☕️ Setup Change Filters
-        uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            ${{ matrix.package }}:
-              - '.github/actions/pana/action.yaml'
-              - 'packages/${{ matrix.package }}/**'
-
       - name: 📊 Verify Pana Score (${{ matrix.package }})
         uses: ./.github/actions/pana
         with:
           working_directory: packages/${{ matrix.package }}
-        if: steps.changes.outputs.${{ matrix.package }} == 'true'
 
+  # Simply exists to be the final job in the workflow. This is required to 
+  # ensure that the workflow fails if any of the needed jobs fail.
+  #
+  # The build and pana job might not spawn but as long as the other jobs 
+  # succeed this job will be considered successful through skipping.
   ci:
-    needs: [semantic_pull_request, docs, build, pana]
+    needs: [spell_check, semantic_pull_request, docs, build, pana]
+
     runs-on: ubuntu-latest
+
     steps:
       - name: noop
         run: echo 'noop'
