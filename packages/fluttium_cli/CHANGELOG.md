@@ -1,3 +1,8 @@
+# 0.1.0-dev.8
+
+- fix: run flutter without version check
+- refactor: use `Logger` instead of `print()` for CLI usage prompt
+
 # 0.1.0-dev.7
 
 - fix: sanitize text representations
