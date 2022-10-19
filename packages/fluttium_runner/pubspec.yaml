@@ -8,7 +8,7 @@ environment:
   sdk: ">=2.18.0 <3.0.0"
 
 dependencies:
-  fluttium_flow: ^0.1.0-dev.1
+  fluttium_flow: ^0.1.0-dev.2
   mason: ^0.1.0-dev.33
   path: ^1.8.2
   process: ^4.2.4
