@@ -13,4 +13,4 @@
 
 ---
 
-The flow definitions for the [Fluttium](https://fluttium.dev) testing framework.
+The flow definitions for the [Fluttium](https://fluttium.dev) user flow testing framework.
