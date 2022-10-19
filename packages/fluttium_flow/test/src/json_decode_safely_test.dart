@@ -41,6 +41,38 @@ Some output
       );
     });
 
+    test('safely decodes nested JSON from a malformed string', () {
+      const input = '''
+{
+  "a": [
+    1,
+    2,
+    3
+  ],
+  "b": {
+    "d": 5,
+    "e": 6,
+    "f": [7, 8, 9]
+  },
+  "c": 4
+}
+Some output
+''';
+      final output = jsonDecodeSafely(input);
+      expect(
+        output,
+        equals({
+          'a': [1, 2, 3],
+          'b': {
+            'd': 5,
+            'e': 6,
+            'f': [7, 8, 9]
+          },
+          'c': 4,
+        }),
+      );
+    });
+
     test('throws an error if no JSON is found', () {
       const input = 'some output';
 
