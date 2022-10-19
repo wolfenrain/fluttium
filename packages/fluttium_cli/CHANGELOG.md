@@ -1,3 +1,9 @@
+# 0.1.0-dev.9
+
+- fix: unexpected end of input error when running
+- chore: update `fluttium_flow` to v0.1.0-dev.2
+- chore: update `fluttium_runner` to v0.1.0-dev.5
+
 # 0.1.0-dev.8
 
 - fix: run flutter without version check
@@ -10,11 +16,11 @@
 
 # 0.1.0-dev.6
 
-- chore: upgrade fluttium_runner to v0.1.0-dev.3
+- chore: upgrade `fluttium_runner` to v0.1.0-dev.3
 
 # 0.1.0-dev.5
 
-- chore: upgrade fluttium_runner to v0.1.0-dev.2
+- chore: upgrade `fluttium_runner` to v0.1.0-dev.2
 
 # 0.1.0-dev.4
 
