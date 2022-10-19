@@ -73,11 +73,12 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Fast Iteration',
+    title: 'Focus On What Matters',
     description: (
       <>
-        Fluttium is able to monitor both your test file and your app code, so
-        you can see your changes reflected in your tests immediately.
+        Fluttium focuses on the users of your application. Each step in the user
+        flow is executed as if it was a real user interacting with your
+        application.
       </>
     ),
   },
