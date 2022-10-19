@@ -41,21 +41,31 @@ jobs:
   
   changes:
     runs-on: ubuntu-latest
+
     permissions:
       pull-requests: read
+
     outputs:
       packages: ${{ steps.filter.outputs.changes }}
+
     steps:
       - uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
-            fluttium_cli: packages/fluttium_cli/**
-            fluttium_flow: packages/fluttium_flow/**
-            fluttium_runner: packages/fluttium_runner/**
+            fluttium_cli:
+              - ./.github/actions/dart_package
+              - packages/fluttium_cli/**
+            fluttium_flow:
+              - ./.github/actions/dart_package
+              - packages/fluttium_flow/**
+            fluttium_runner:
+              - ./.github/actions/dart_package
+              - packages/fluttium_runner/**
 
   build:
     needs: changes
+
     strategy:
       matrix:
         package: ${{ fromJSON(needs.changes.outputs.packages) }}
@@ -73,6 +83,7 @@ jobs:
 
   pana:
     needs: changes
+
     strategy:
       matrix:
         package: ${{ fromJSON(needs.changes.outputs.packages) }}
@@ -90,7 +101,9 @@ jobs:
 
   ci:
     needs: [spell_check, semantic_pull_request, docs, build, pana]
+
     runs-on: ubuntu-latest
+
     steps:
       - name: noop
         run: echo 'noop'
