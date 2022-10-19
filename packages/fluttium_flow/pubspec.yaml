@@ -1,8 +1,8 @@
 name: fluttium_flow
-description: The flow definitions of the Fluttium testing framework
+description: The flow definitions of the Fluttium user flow testing framework
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
-version: 0.1.0-dev.1
+version: 0.1.0-dev.2
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
