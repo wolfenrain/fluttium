@@ -39,10 +39,26 @@ jobs:
         uses: ./.github/actions/docs
         if: steps.changes.outputs.docs == 'true'
   
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      packages: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            fluttium_cli: packages/fluttium_cli/**
+            fluttium_flow: packages/fluttium_flow/**
+            fluttium_runner: packages/fluttium_runner/**
+
   build:
+    needs: changes
     strategy:
       matrix:
-        package: [fluttium_cli, fluttium_flow, fluttium_runner]
+        package: ${{ fromJSON(needs.changes.outputs.packages) }}
 
     runs-on: ubuntu-latest
 
@@ -50,26 +66,10 @@ jobs:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
 
-      - name: ☕️ Setup Change Filters
-        uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            ${{ matrix.package }}:
-              - '.github/actions/dart_package/action.yaml'
-              - 'packages/${{ matrix.package }}/**'
-
-      - name: Testing ${{ matrix.package }}
-        run: |
-          echo ${{ matrix.package }}
-          echo ${{ steps.changes.outputs.fluttium_runner }}
-          echo ${{  toJSON(steps.changes.outputs) }}
-  
       - name: ✨ Format, Analyze and Test (${{ matrix.package }})
         uses: ./.github/actions/dart_package
         with:
           working_directory: packages/${{ matrix.package }}
-        if: toJSON(steps.changes.outputs) == "{${{ matrix.package }}: true}"
 
   pana:
     strategy:
