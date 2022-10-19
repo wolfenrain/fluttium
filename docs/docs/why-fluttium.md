@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+description: Fluttium focuses on the real user, the tests a developer writes with Fluttium are a direct representation of the actions that an user of an application would perform.
 ---
 
 # Why Fluttium
