@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:fluttium_cli/src/command_runner.dart';
 import 'package:fluttium_cli/src/version.dart';
@@ -9,6 +11,10 @@ import 'package:test/test.dart';
 class MockLogger extends Mock implements Logger {}
 
 class MockPubUpdater extends Mock implements PubUpdater {}
+
+class MockProgress extends Mock implements Progress {}
+
+class FakeProcessResult extends Fake implements ProcessResult {}
 
 const latestVersion = '0.0.0';
 
@@ -45,6 +51,34 @@ void main() {
       final result = await commandRunner.run(['--version']);
       expect(result, equals(ExitCode.success.code));
       verify(() => logger.info(updatePrompt)).called(1);
+    });
+
+    test('does not show update message when using the update command',
+        () async {
+      when(
+        () => pubUpdater.getLatestVersion(any()),
+      ).thenAnswer((_) async => latestVersion);
+      when(
+        () => pubUpdater.update(packageName: packageName),
+      ).thenAnswer((_) => Future.value(FakeProcessResult()));
+      when(
+        () => pubUpdater.isUpToDate(
+          packageName: any(named: 'packageName'),
+          currentVersion: any(named: 'currentVersion'),
+        ),
+      ).thenAnswer((_) => Future.value(true));
+
+      final progress = MockProgress();
+      final progressLogs = <String>[];
+      when(() => progress.complete(any())).thenAnswer((_) {
+        final message = _.positionalArguments.elementAt(0) as String?;
+        if (message != null) progressLogs.add(message);
+      });
+      when(() => logger.progress(any())).thenReturn(progress);
+
+      final result = await commandRunner.run(['update']);
+      expect(result, equals(ExitCode.success.code));
+      verifyNever(() => logger.info(updatePrompt));
     });
 
     test('can be instantiated without an explicit analytics/logger instance',
