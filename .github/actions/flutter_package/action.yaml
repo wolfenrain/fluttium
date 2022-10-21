@@ -67,9 +67,7 @@ runs:
       shell: ${{ inputs.shell }}
       run: very_good test -j ${{inputs.concurrency}} ${{(inputs.test_recursion && '--recursive') || ''}} ${{(inputs.test_optimization && '--optimization') || '--no-optimization'}} --coverage --test-randomize-ordering-seed random
 
-    - working-directory: ${{ inputs.working_directory }}
-      shell: ${{ inputs.shell }}
-      uses: VeryGoodOpenSource/very_good_coverage@v2
+    - uses: VeryGoodOpenSource/very_good_coverage@v2
       with:
         path: ${{inputs.working_directory}}/coverage/lcov.info
         exclude: ${{inputs.coverage_excludes}}

@@ -127,3 +127,4 @@ app.*.map.json
 !.idea/runConfigurations/
 
 pubspec.lock
+.fluttium_driver.dart
