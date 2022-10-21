@@ -77,7 +77,7 @@ Some output
       const input = 'some output';
 
       expect(
-        () => jsonDecodeSafely(input).toList(),
+        () => jsonDecodeSafely(input),
         throwsA(isA<FormatException>()),
       );
     });

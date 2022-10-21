@@ -1,3 +1,8 @@
+# 0.1.0-dev.5
+
+- fix: unexpected end of input error when running
+- chore: update fluttium_flow to v0.1.0-dev.2
+
 # 0.1.0-dev.4
 
 - fix: sanitize text representations

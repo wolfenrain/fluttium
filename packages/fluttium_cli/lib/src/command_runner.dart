@@ -110,7 +110,9 @@ class FluttiumCommandRunner extends CommandRunner<int> {
     } else {
       exitCode = await super.runCommand(topLevelResults);
     }
-    await _checkForUpdates();
+    if (topLevelResults.command?.name != UpdateCommand.commandName) {
+      await _checkForUpdates();
+    }
     return exitCode;
   }
 

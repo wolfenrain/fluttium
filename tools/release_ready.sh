@@ -45,10 +45,15 @@ if grep -q $new_version "CHANGELOG.md"; then
     exit 1
 fi
 
-# Add a new version entry.
-echo "# ${new_version}\n\nTODO: entries\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
+# Retrieving all the commits in the current directory since the last tag.
+previousTag="${package_name}-v${package_version}"
+raw_commits="$(git log --pretty=format:"%s" --no-merges --reverse $previousTag..HEAD -- .)"
+markdown_commits=$(echo "$raw_commits" | sed -En "s/\(#([0-9]+)\)/([#\1](https:\/\/github.com\/wolfenrain\/fluttium\/issues\/\1))/p")
+commits=$(echo "$markdown_commits" | sed -En "s/^/- /p")
 
-echo "CHANGELOG for $package_name generated, add entries here: $(pwd)/CHANGELOG.md"
+# Add a new version entry with the found commits to the CHANGELOG.md
+echo "# ${new_version}\n\n${commits}\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
+echo "CHANGELOG for $package_name generated, validate entries here: $(pwd)/CHANGELOG.md"
 
 echo "Creating git branch for $package_name@$new_version"
 git checkout -b "chore($package_name)/$new_version" > /dev/null
