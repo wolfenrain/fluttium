@@ -76,7 +76,7 @@ class TextDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = context.select((TextCubit cubit) => cubit.state);
+    final text = context.watch<TextCubit>().state;
     return Text('Result: $text');
   }
 }
