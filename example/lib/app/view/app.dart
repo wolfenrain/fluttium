@@ -1,4 +1,5 @@
 import 'package:example/counter/counter.dart';
+import 'package:example/text/text.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
@@ -29,6 +30,10 @@ class AppView extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.of(context).push(CounterPage.route()),
             child: const Text('Counter'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).push(TextPage.route()),
+            child: const Text('Text'),
           ),
         ],
       ),

@@ -16,4 +16,4 @@ description: Testing the counter page
 - expectVisible: 1
 # Return to the app page
 - tapOn: Back
-- expectVisible: "Environment: (Development|Staging|Production){1}"
+- expectVisible: "Environment: (Development|Staging|Production|None){1}"
