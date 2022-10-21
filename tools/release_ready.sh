@@ -66,7 +66,6 @@ echo "CHANGELOG for $package_name generated, validate entries here: $(pwd)/CHANG
 echo "Creating git branch for $package_name@$new_version"
 git checkout -b "chore($package_name)/$new_version" > /dev/null
 
-
 git add pubspec.yaml CHANGELOG.md 
 if [ -f lib/version.dart ]; then
   git add lib/version.dart
