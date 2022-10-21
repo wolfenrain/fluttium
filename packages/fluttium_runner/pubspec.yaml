@@ -2,7 +2,7 @@ name: fluttium_runner
 description: A runner for executing Fluttium flow tests
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
-version: 0.1.0-dev.5
+version: 0.1.0-dev.6
 
 environment:
   sdk: ">=2.18.0 <3.0.0"

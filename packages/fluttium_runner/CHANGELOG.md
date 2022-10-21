@@ -1,3 +1,7 @@
+# 0.1.0-dev.6
+
+- feat: running multiple flows at once ([#74](https://github.com/wolfenrain/fluttium/issues/74))
+
 # 0.1.0-dev.5
 
 - fix: unexpected end of input error when running
