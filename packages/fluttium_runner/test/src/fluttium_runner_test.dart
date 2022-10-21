@@ -56,7 +56,7 @@ description: test
       when(() => projectDirectory.path).thenReturn('project_directory');
       driver = MockFile();
       when(() => driver.path).thenReturn(
-        'project_directory/.fluttium_driver.dart',
+        'project_directory/.test_driver.dart',
       );
 
       logger = MockLogger();
@@ -74,7 +74,7 @@ description: test
         () => processManager.start(
           any(
             that: equals(
-              ['flutter', 'run', '.fluttium_driver.dart', '-d', 'deviceId'],
+              ['flutter', 'run', '.test_driver.dart', '-d', 'deviceId'],
             ),
           ),
           runInShell: any(named: 'runInShell'),
@@ -133,7 +133,7 @@ description: test
         createFile: (path) {
           if (path == 'flow.yaml') {
             return flowFile;
-          } else if (path == 'project_directory/.fluttium_driver.dart') {
+          } else if (path == 'project_directory/.test_driver.dart') {
             return driver;
           }
           throw UnimplementedError(path);

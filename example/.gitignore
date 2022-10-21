@@ -127,4 +127,6 @@ app.*.map.json
 !.idea/runConfigurations/
 
 pubspec.lock
-.fluttium_driver.dart
+
+# Ignore any driver files
+.*_driver.dart
