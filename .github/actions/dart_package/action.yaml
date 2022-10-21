@@ -29,10 +29,6 @@ inputs:
     required: false
     type: string
     default: "lib"
-  runs_on:
-    required: false
-    type: string
-    default: "ubuntu-latest"
   platform:
     required: false
     type: string

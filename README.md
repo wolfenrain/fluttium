@@ -42,3 +42,11 @@ fluttium test your_flow.yaml
 View the full documentation [here](https://fluttium.dev/).
 
 [fluttium_demo]: https://raw.githubusercontent.com/wolfenrain/fluttium/main/docs/static/img/hero.gif
+
+## Examples
+
+The [example](https://github.com/wolfenrain/fluttium/tree/main/example) directory contains 
+[example user flows](https://github.com/wolfenrain/fluttium/tree/main/example/flows) that are
+written for the example application.
+
+These tests are used for testing of new features and will be kept up to date.
