@@ -1,3 +1,8 @@
+# 0.1.0-dev.10
+
+- fix: update prompt on update ([#72](https://github.com/wolfenrain/fluttium/issues/72))
+- chore(fluttium_cli): update `fluttium_runner` to v0.1.0-dev.6 ([#77](https://github.com/wolfenrain/fluttium/issues/77))
+
 # 0.1.0-dev.9
 
 - fix: unexpected end of input error when running
