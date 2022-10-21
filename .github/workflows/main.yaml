@@ -142,7 +142,7 @@ jobs:
   # The build and pana job might not spawn but as long as the other jobs 
   # succeed this job will be considered successful through skipping.
   ci:
-    needs: [spell_check, semantic_pull_request, docs, build, pana]
+    needs: [spell_check, semantic_pull_request, docs, example, build, pana]
 
     runs-on: ubuntu-latest
 
