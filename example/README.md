@@ -54,7 +54,7 @@ $ genhtml coverage/lcov.info -o coverage/
 $ open coverage/index.html
 ```
 
-[coverage_badge]: coverage_badge.svg
+[coverage_badge]: https://raw.githubusercontent.com/wolfenrain/fluttium/main/coverage_badge.svg
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
