@@ -28,25 +28,26 @@ class TextView extends StatefulWidget {
 }
 
 class _TextViewState extends State<TextView> {
-  TextEditingController? _controller;
+  late TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
 
-    _controller!.addListener(_onChange);
+    _controller.addListener(_onChange);
   }
 
   @override
   void dispose() {
-    _controller!.removeListener(_onChange);
-    _controller!.dispose();
+    _controller
+      ..removeListener(_onChange)
+      ..dispose();
     super.dispose();
   }
 
   void _onChange() {
-    context.read<TextCubit>().change(_controller!.text);
+    context.read<TextCubit>().change(_controller.text);
   }
 
   @override

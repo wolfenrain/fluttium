@@ -38,7 +38,6 @@ void main() {
 
     testWidgets('calls change when text field changes', (tester) async {
       when(() => textCubit.state).thenReturn('');
-      when(() => textCubit.change(any())).thenReturn(null);
       await tester.pumpApp(
         BlocProvider.value(
           value: textCubit,
