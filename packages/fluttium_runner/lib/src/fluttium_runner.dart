@@ -296,9 +296,8 @@ class FluttiumRunner {
       final projectWatcher = DirectoryWatcher(projectDirectory.path);
       projectWatcher.events.listen(
         (event) {
-          if (event.path.endsWith('.dart')) {
-            restart();
-          }
+          if (!event.path.endsWith('.dart')) return;
+          restart();
         },
         onError: (Object err) {
           if (err is FileSystemException &&
