@@ -157,6 +157,8 @@ This will be passed to the --flavor option of flutter run.''',
         .toList();
 
     return devices.where((device) {
+      if (!device.isSupported) return false;
+
       if (device.targetPlatform.startsWith('web')) {
         return Directory(join(workingDirectory, 'web')).existsSync();
       } else if (device.targetPlatform.startsWith('darwin')) {
