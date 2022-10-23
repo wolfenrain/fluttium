@@ -7,6 +7,7 @@ import 'package:mason/mason.dart';
 import 'package:path/path.dart';
 import 'package:process/process.dart';
 import 'package:watcher/watcher.dart';
+import 'package:yaml/yaml.dart';
 
 ///
 typedef FlowRenderer = void Function(FluttiumFlow flow, List<bool?> stepStates);
@@ -102,15 +103,15 @@ class FluttiumRunner {
             final text = sanitize(e.text);
             switch (e.action) {
               case FluttiumAction.expectVisible:
-                return "await tester.expectVisible(r'$text');";
+                return "await worker.expectVisible(r'$text');";
               case FluttiumAction.expectNotVisible:
-                return "await tester.expectNotVisible(r'$text');";
+                return "await worker.expectNotVisible(r'$text');";
               case FluttiumAction.tapOn:
-                return "await tester.tapOn(r'$text');";
+                return "await worker.tapOn(r'$text');";
               case FluttiumAction.inputText:
-                return "await tester.inputText(r'$text');";
+                return "await worker.inputText(r'$text');";
               case FluttiumAction.takeScreenshot:
-                return "await tester.takeScreenshot(r'$text');";
+                return "await worker.takeScreenshot(r'$text');";
             }
           })
           .map((e) => {'step': e})
@@ -123,55 +124,13 @@ class FluttiumRunner {
       throw Exception('Could not find main entry file: $mainEntry');
     }
 
-    Future<bool> installSDKDeps(
-      List<String> dependencies,
-      String dependency,
-    ) async {
-      if (dependencies.where((e) => e == dependency).isEmpty) {
-        await _processManager.run(
-          ['flutter', 'pub', 'add', dependency, '--sdk=flutter', '--dev'],
-          runInShell: true,
-          workingDirectory: projectDirectory.path,
-        );
-        return true;
-      }
-      return false;
-    }
-
-    final installingDeps = _logger.progress('Installing dependencies');
-
-    final dependencyData = await _processManager.run(
-      ['flutter', 'pub', 'deps', '--json'],
-      runInShell: true,
-      workingDirectory: projectDirectory.path,
+    final pubspec = loadYaml(
+      File(join(projectDirectory.path, 'pubspec.yaml')).readAsStringSync(),
     );
-
-    final projectData = jsonDecodeSafely(
-      dependencyData.stdout as String,
-    ) as Map;
-    final project = (projectData['packages'] as List)
-        .cast<Map<String, dynamic>>()
-        .firstWhere((e) => e['name'] == projectData['root']);
 
     _vars['mainEntry'] =
         mainEntry.path.replaceFirst(join(projectDirectory.path, 'lib/'), '');
-    _vars['project_name'] = projectData['root'];
-    _vars['added_integration_tests'] = await installSDKDeps(
-      (project['dependencies'] as List).cast<String>(),
-      'integration_test',
-    );
-    _vars['addedFlutterTest'] = await installSDKDeps(
-      (project['dependencies'] as List).cast<String>(),
-      'flutter_test',
-    );
-
-    await _processManager.run(
-      ['flutter', 'pub', 'get'],
-      runInShell: true,
-      workingDirectory: projectDirectory.path,
-    );
-
-    installingDeps.complete();
+    _vars['project_name'] = pubspec['name'];
   }
 
   Future<void> _generateDriver() async {
@@ -192,21 +151,6 @@ class FluttiumRunner {
       _driver.deleteSync();
     }
 
-    if (_vars['added_integration_tests'] as bool? ?? false) {
-      await _processManager.run(
-        ['flutter', 'pub', 'remove', 'integration_test'],
-        runInShell: true,
-        workingDirectory: projectDirectory.path,
-      );
-    }
-
-    if (_vars['addedFlutterTest'] as bool? ?? false) {
-      await _processManager.run(
-        ['flutter', 'pub', 'remove', 'flutter_test'],
-        runInShell: true,
-        workingDirectory: projectDirectory.path,
-      );
-    }
     await _generator!.hooks.postGen(
       vars: _vars,
       workingDirectory: projectDirectory.path,
