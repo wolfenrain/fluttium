@@ -216,7 +216,10 @@ class FluttiumRunner {
         _executeAction(match.group(1)!, match.group(2));
       }
 
-      renderer(flow!, _stepStates);
+      // Only render if there was actions found.
+      if (matches.isNotEmpty) {
+        renderer(flow!, _stepStates);
+      }
 
       // If we have completed all the steps, or if we have failed, exit the
       // process unless we are in watch mode.
@@ -228,9 +231,7 @@ class FluttiumRunner {
     });
 
     final stderrBuffer = StringBuffer();
-    _process?.stderr.listen((event) {
-      stderrBuffer.write(utf8.decode(event));
-    });
+    _process?.stderr.listen((event) => stderrBuffer.write(utf8.decode(event)));
 
     // If we are in watch mode, we need to watch the flow file and the
     // application code for changes.
