@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:fluttium_runner/fluttium_runner.dart';
@@ -10,19 +9,19 @@ import 'package:mocktail/mocktail.dart';
 import 'package:process/process.dart';
 import 'package:test/test.dart';
 
-class MockFile extends Mock implements File {}
+class _MockFile extends Mock implements File {}
 
-class MockDirectory extends Mock implements Directory {}
+class _MockDirectory extends Mock implements Directory {}
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress {}
 
-class MockProcessManager extends Mock implements ProcessManager {}
+class _MockProcessManager extends Mock implements ProcessManager {}
 
-class MockProcess extends Mock implements Process {}
+class _MockProcess extends Mock implements Process {}
 
-class MockProcessResult extends Mock implements ProcessResult {}
+class _MockProcessResult extends Mock implements ProcessResult {}
 
 void main() {
   group('FluttiumRunner', () {
@@ -30,6 +29,7 @@ void main() {
     late File mainEntry;
     late Directory projectDirectory;
     late File driver;
+    late File pubspec;
     late Logger logger;
     late Progress progress;
     late ProcessManager processManager;
@@ -38,11 +38,11 @@ void main() {
     late Completer<int> processExitCode;
 
     setUp(() {
-      mainEntry = MockFile();
+      mainEntry = _MockFile();
       when(() => mainEntry.path).thenReturn('lib/main.dart');
       when(mainEntry.existsSync).thenReturn(true);
 
-      flowFile = MockFile();
+      flowFile = _MockFile();
       when(() => flowFile.readAsStringSync()).thenReturn('''
 description: test
 ---
@@ -52,20 +52,24 @@ description: test
 - inputText: "Text"
 - takeScreenshot: "Text"
 ''');
-      projectDirectory = MockDirectory();
+      projectDirectory = _MockDirectory();
       when(() => projectDirectory.path).thenReturn('project_directory');
-      driver = MockFile();
-      when(() => driver.path).thenReturn(
-        'project_directory/.test_driver.dart',
-      );
+      driver = _MockFile();
+      when(() => driver.path).thenReturn('project_directory/.test_driver.dart');
 
-      logger = MockLogger();
-      progress = MockProgress();
+      pubspec = _MockFile();
+      when(() => pubspec.path).thenReturn('project_directory/pubspec.yaml');
+      when(() => pubspec.readAsStringSync()).thenReturn('''
+name: test
+''');
+
+      logger = _MockLogger();
+      progress = _MockProgress();
       when(() => logger.progress(any())).thenReturn(progress);
 
-      processManager = MockProcessManager();
+      processManager = _MockProcessManager();
 
-      process = MockProcess();
+      process = _MockProcess();
       processExitCode = Completer<int>();
       when(() => process.exitCode).thenAnswer(
         (_) async => processExitCode.future,
@@ -88,36 +92,12 @@ description: test
           runInShell: any(named: 'runInShell'),
           workingDirectory: any(named: 'workingDirectory'),
         ),
-      ).thenAnswer((invocation) async => MockProcessResult());
-
-      flutterPubDepsResult = MockProcessResult();
-      when(
-        () => processManager.run(
-          any(that: equals(['flutter', 'pub', 'deps', '--json'])),
-          runInShell: any(named: 'runInShell'),
-          workingDirectory: any(named: 'workingDirectory'),
-        ),
-      ).thenAnswer((invocation) async => flutterPubDepsResult);
+      ).thenAnswer((invocation) async => _MockProcessResult());
     });
 
     test('can be instantiated', () {
       IOOverrides.runZoned(
         () async {
-          when(() => flutterPubDepsResult.stdout).thenReturn(
-            jsonEncode({
-              'root': 'project_name',
-              'packages': [
-                {
-                  'name': 'project_name',
-                  'version': '0.0.1',
-                  'kind': 'root',
-                  'source': 'root',
-                  'dependencies': <String>[],
-                }
-              ]
-            }),
-          );
-
           final fluttiumRunner = FluttiumRunner(
             flowFile: File('flow.yaml'),
             projectDirectory: Directory('project_directory'),
@@ -135,6 +115,8 @@ description: test
             return flowFile;
           } else if (path == 'project_directory/.test_driver.dart') {
             return driver;
+          } else if (path == 'project_directory/pubspec.yaml') {
+            return pubspec;
           }
           throw UnimplementedError(path);
         },
