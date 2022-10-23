@@ -163,6 +163,8 @@ This will be passed to the --flavor option of flutter run.''',
         return Directory(join(workingDirectory, 'web')).existsSync();
       } else if (device.targetPlatform.startsWith('darwin')) {
         return Directory(join(workingDirectory, 'macos')).existsSync();
+      } else if (device.targetPlatform.startsWith('windows')) {
+        return Directory(join(workingDirectory, 'windows')).existsSync();
       } else if (device.targetPlatform.startsWith('ios')) {
         return Directory(join(workingDirectory, 'ios')).existsSync();
       } else if (device.targetPlatform.startsWith('android')) {
@@ -261,6 +263,7 @@ This will be passed to the --flavor option of flutter run.''',
     );
 
     if (watch) {
+      stdin.echoMode = false;
       stdin.lineMode = false;
 
       stdin.listen((event) {
@@ -280,6 +283,7 @@ This will be passed to the --flavor option of flutter run.''',
 
     if (watch) {
       stdin.lineMode = true;
+      stdin.echoMode = true;
     }
 
     return ExitCode.success.code;
