@@ -26,7 +26,6 @@ class FluttiumRunner {
     Logger? logger,
     ProcessManager? processManager,
   })  : _logger = logger ?? Logger(),
-        _driver = File(join(projectDirectory.path, '.fluttium_driver.dart')),
         _processManager = processManager ?? const LocalProcessManager();
 
   /// The flow file to run.
@@ -63,7 +62,7 @@ class FluttiumRunner {
   /// success status of the step that matches the index in the list.
   final List<bool?> _stepStates = [];
 
-  final File _driver;
+  late File _driver;
 
   final Map<String, dynamic> _vars = {};
 
@@ -181,10 +180,11 @@ class FluttiumRunner {
     _convertFlowToVars();
 
     _generator ??= await MasonGenerator.fromBundle(fluttiumDriverBundle);
-    await _generator!.generate(
+    final result = await _generator!.generate(
       DirectoryGeneratorTarget(projectDirectory),
       vars: _vars,
     );
+    _driver = File(result.first.path);
   }
 
   Future<void> _cleanupProject() async {
@@ -227,7 +227,7 @@ class FluttiumRunner {
       [
         'flutter',
         'run',
-        '.fluttium_driver.dart',
+        _driver.path,
         '-d',
         deviceId,
         if (flavor != null) ...['--flavor', flavor!],
@@ -294,11 +294,20 @@ class FluttiumRunner {
       // If the application code changes, we clear the step states and
       // hot restart the application.
       final projectWatcher = DirectoryWatcher(projectDirectory.path);
-      projectWatcher.events.listen((event) {
-        if (event.path.endsWith('.dart')) {
+      projectWatcher.events.listen(
+        (event) {
+          if (!event.path.endsWith('.dart')) return;
           restart();
-        }
-      });
+        },
+        onError: (Object err) {
+          if (err is FileSystemException &&
+              err.message.contains('Failed to watch')) {
+            return _logger.detail(err.toString());
+          }
+          // ignore: only_throw_errors
+          throw err;
+        },
+      );
 
       // If the flow file changes, we clear the step states and re-generate
       // the driver before hot restarting the application.

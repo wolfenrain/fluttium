@@ -82,7 +82,7 @@ states:
 
 | Android | iOS | Web | macOS | Windows | Linux |
 | ------- | --- | --- | ----- | ------- | ----- |
-| ✅      | ✅  | ❓  | ✅    | ❌      | ❌    |
+| ✅      | ✅  | ❓  | ✅    | ✅      | ✅    |
 
 <small>
 ✅ supported and tested<br></br>

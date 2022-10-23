@@ -1,0 +1,74 @@
+name: Flutter Package Workflow
+
+inputs:
+  concurrency:
+    required: false
+    type: number
+    default: 4
+  coverage_excludes:
+    required: false
+    type: string
+    default: ""
+  flutter_channel:
+    required: false
+    type: string
+    default: "stable"
+  flutter_version:
+    required: false
+    type: string
+    default: ""
+  working_directory:
+    required: false
+    type: string
+    default: "."
+  min_coverage:
+    required: false
+    type: number
+    default: 100
+  test_optimization:
+    required: false
+    type: boolean
+    default: true
+  test_recursion:
+    required: false
+    type: boolean
+    default: false
+  shell:
+    description: 'The shell to use for the docs job'
+    required: false
+    type: string
+    default: bash
+
+runs:
+  using: "composite"
+  steps:
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{inputs.flutter_version}}
+        channel: ${{inputs.flutter_channel}}
+        cache: true
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: |
+        flutter pub global activate very_good_cli
+        very_good --analytics false
+        very_good packages get --recursive
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: flutter format --set-exit-if-changed lib test
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: flutter analyze lib test
+
+    - working-directory: ${{ inputs.working_directory }}
+      shell: ${{ inputs.shell }}
+      run: very_good test -j ${{inputs.concurrency}} ${{(inputs.test_recursion && '--recursive') || ''}} ${{(inputs.test_optimization && '--optimization') || '--no-optimization'}} --coverage --test-randomize-ordering-seed random
+
+    - uses: VeryGoodOpenSource/very_good_coverage@v2
+      with:
+        path: ${{inputs.working_directory}}/coverage/lcov.info
+        exclude: ${{inputs.coverage_excludes}}
+        min_coverage: ${{inputs.min_coverage}}

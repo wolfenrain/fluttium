@@ -41,3 +41,6 @@ app.*.map.json
 
 # Test related
 coverage
+
+!.vscode/launch.json
+!.idea/runConfigurations/

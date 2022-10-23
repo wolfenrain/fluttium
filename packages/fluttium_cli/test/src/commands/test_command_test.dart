@@ -359,6 +359,8 @@ void main() {
         const MapEntry('macos', 'darwin'),
         const MapEntry('android', 'android'),
         const MapEntry('ios', 'ios'),
+        const MapEntry('windows', 'windows'),
+        const MapEntry('linux', 'linux'),
       ]) {
         when(() => flutterDevicesResult.stdout).thenReturn(
           jsonEncode([
