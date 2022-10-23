@@ -1,3 +1,7 @@
+# 0.1.0-dev.7
+
+- feat: support linux platform ([#79](https://github.com/wolfenrain/fluttium/issues/79))
+
 # 0.1.0-dev.6
 
 - feat: running multiple flows at once ([#74](https://github.com/wolfenrain/fluttium/issues/74))
