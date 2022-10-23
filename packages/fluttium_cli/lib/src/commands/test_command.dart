@@ -163,6 +163,8 @@ This will be passed to the --flavor option of flutter run.''',
         return Directory(join(workingDirectory, 'web')).existsSync();
       } else if (device.targetPlatform.startsWith('darwin')) {
         return Directory(join(workingDirectory, 'macos')).existsSync();
+      } else if (device.targetPlatform.startsWith('linux')) {
+        return Directory(join(workingDirectory, 'linux')).existsSync();
       } else if (device.targetPlatform.startsWith('windows')) {
         return Directory(join(workingDirectory, 'windows')).existsSync();
       } else if (device.targetPlatform.startsWith('ios')) {

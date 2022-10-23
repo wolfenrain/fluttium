@@ -294,11 +294,20 @@ class FluttiumRunner {
       // If the application code changes, we clear the step states and
       // hot restart the application.
       final projectWatcher = DirectoryWatcher(projectDirectory.path);
-      projectWatcher.events.listen((event) {
-        if (event.path.endsWith('.dart')) {
+      projectWatcher.events.listen(
+        (event) {
+          if (!event.path.endsWith('.dart')) return;
           restart();
-        }
-      });
+        },
+        onError: (Object err) {
+          if (err is FileSystemException &&
+              err.message.contains('Failed to watch')) {
+            return _logger.detail(err.toString());
+          }
+          // ignore: only_throw_errors
+          throw err;
+        },
+      );
 
       // If the flow file changes, we clear the step states and re-generate
       // the driver before hot restarting the application.
