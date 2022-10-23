@@ -96,8 +96,8 @@ class FluttiumRunner {
     String sanitize(String text) => text.replaceAll("'", r"\'");
 
     _vars.addAll({
-      'flowDescription': sanitize(flow!.description),
-      'flowSteps': flow!.steps
+      'flow_description': sanitize(flow!.description),
+      'flow_steps': flow!.steps
           .map((e) {
             final text = sanitize(e.text);
             switch (e.action) {
@@ -155,8 +155,8 @@ class FluttiumRunner {
 
     _vars['mainEntry'] =
         mainEntry.path.replaceFirst(join(projectDirectory.path, 'lib/'), '');
-    _vars['projectName'] = projectData['root'];
-    _vars['addedIntegrationTests'] = await installSDKDeps(
+    _vars['project_name'] = projectData['root'];
+    _vars['added_integration_tests'] = await installSDKDeps(
       (project['dependencies'] as List).cast<String>(),
       'integration_test',
     );
@@ -192,7 +192,7 @@ class FluttiumRunner {
       _driver.deleteSync();
     }
 
-    if (_vars['addedIntegrationTests'] as bool? ?? false) {
+    if (_vars['added_integration_tests'] as bool? ?? false) {
       await _processManager.run(
         ['flutter', 'pub', 'remove', 'integration_test'],
         runInShell: true,

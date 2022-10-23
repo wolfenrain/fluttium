@@ -6,15 +6,15 @@ environment:
   mason: ">=0.1.0-dev.26 <0.1.0"
 
 vars:
-  projectName:
+  project_name:
     type: string
     description: The project name
     prompt: What is the project name?
-  flowDescription:
+  flow_description:
     type: string
     description: The flow description
     prompt: What is the flow description?
-  flowSteps:  
+  flow_steps:  
     type: string
     description: The flow steps
     prompt: What are the flow steps (encoded as a list)?

@@ -6,7 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'package:{{{projectName}}}/{{{mainEntry}}}' as app;
+import 'package:{{{project_name}}}/{{{mainEntry}}}' as app;
 
 late IntegrationTestWidgetsFlutterBinding binding;
 late FluttiumManager manager;
@@ -16,13 +16,13 @@ void main() {
   binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
-    '{{flowDescription}}',
+    '{{flow_description}}',
     (tester) async {
       app.main();
       await tester.pumpAndSettle();
-      {{#flowSteps}}
+      {{#flow_steps}}
       {{{step}}}
-      {{/flowSteps}}
+      {{/flow_steps}}
     },
   );
 }
