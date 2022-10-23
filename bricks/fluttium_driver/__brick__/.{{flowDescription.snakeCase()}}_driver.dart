@@ -68,10 +68,6 @@ extension on WidgetTester {
   Future<void> tapOn(String text) async {
     await manager.start();
     try {
-      final finder = await _findOrWait(text);
-      if (finder.evaluate().isEmpty) {
-        throw Exception('Could not find $text');
-      }
       await tap(await _findOrWait(text));
       await pumpAndSettle();
       await manager.done();
@@ -95,21 +91,24 @@ extension on WidgetTester {
     String text, {
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    final regexp = RegExp('^$text\$');
-    final finder = find.bySemanticOrText(regexp);
+    return TestAsyncUtils.guard(() async {
+      final regexp = RegExp(text);
+      final finder = find.bySemanticOrText(regexp);
 
-    // "Borrowed" from Patrol:
-    // https://github.com/leancodepl/patrol/blob/56cdba8a9abbfa76fe5603c82fbbb2143cf8e79c/packages/patrol/lib/src/custom_finders/patrol_tester.dart#L276
-    final end = binding.clock.now().add(timeout);
-    while (finder.hitTestable().evaluate().isEmpty) {
-      final now = binding.clock.now();
-      if (now.isAfter(end)) {
-        throw Exception('Timeout waiting for $text');
+      // "Borrowed" from Patrol:
+      // https://github.com/leancodepl/patrol/blob/56cdba8a9abbfa76fe5603c82fbbb2143cf8e79c/packages/patrol/lib/src/custom_finders/patrol_tester.dart#L276
+      final end = binding.clock.now().add(timeout);
+      while (finder.hitTestable().evaluate().isEmpty) {
+        final now = binding.clock.now();
+        if (now.isAfter(end)) {
+          throw Exception('Timeout waiting for $text');
+        }
+
+        await pump(const Duration(milliseconds: 100));
       }
 
-      await pump(const Duration(milliseconds: 100));
-    }
-    return finder;
+      return finder;
+    });
   }
 }
 
@@ -123,40 +122,7 @@ extension on CommonFinders {
       );
     }
 
-    return byElementPredicate(
-      (Element element) {
-        // Multiple elements can have the same renderObject, we want the "owner"
-        // of the renderObject, i.e. the RenderObjectElement.
-        if (element is! RenderObjectElement) return false;
-
-        var text = element.renderObject.debugSemantics?.label;
-        if (text == null) {
-          final widget = element.widget;
-          if (widget is Tooltip) {
-            text = widget.message;
-          } else if (widget is EditableText) {
-            text = widget.controller.text;
-          } else if (widget is Text) {
-            if (widget.data != null) {
-              text = widget.data;
-            } else {
-              assert(
-                widget.textSpan != null,
-                'Text widget must have data or textSpan',
-              );
-              text = widget.textSpan!.toPlainText();
-            }
-          } else if (widget is RichText) {
-            text = widget.text.toPlainText();
-          }
-
-          if (text == null) return false;
-        }
-
-        return pattern.hasMatch(text);
-      },
-      skipOffstage: skipOffstage,
-    );
+    return _FindBySemanticOrText(pattern, skipOffstage: skipOffstage);
   }
 }
 
@@ -187,5 +153,57 @@ class FluttiumManager {
       );
       debugPrint(piece);
     }
+  }
+}
+
+class _FindBySemanticOrText extends Finder {
+  _FindBySemanticOrText(
+    this.pattern, {
+    super.skipOffstage,
+  });
+
+  final RegExp pattern;
+
+  @override
+  String get description => 'semantic or text containing $pattern';
+
+  @override
+  Iterable<Element> apply(Iterable<Element> candidates) {
+    var foundMatch = false;
+
+    return candidates.where((Element element) {
+      // If we've already found a match, we can skip the rest of the elements.
+      if (foundMatch) return false;
+
+      // Multiple elements can have the same renderObject, we want the "owner"
+      // of the renderObject, i.e. the RenderObjectElement.
+      if (element is! RenderObjectElement) return false;
+
+      var text = element.renderObject.debugSemantics?.label;
+      if (text == null) {
+        final widget = element.widget;
+        if (widget is Tooltip) {
+          text = widget.message;
+        } else if (widget is EditableText) {
+          text = widget.controller.text;
+        } else if (widget is Text) {
+          if (widget.data != null) {
+            text = widget.data;
+          } else {
+            assert(
+              widget.textSpan != null,
+              'Text widget must have data or textSpan',
+            );
+            text = widget.textSpan!.toPlainText();
+          }
+        } else if (widget is RichText) {
+          text = widget.text.toPlainText();
+        }
+
+        if (text == null) return false;
+      }
+
+      return foundMatch = pattern.hasMatch(text);
+    });
   }
 }
