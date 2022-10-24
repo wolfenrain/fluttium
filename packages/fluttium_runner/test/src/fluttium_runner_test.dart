@@ -34,7 +34,6 @@ void main() {
     late Progress progress;
     late ProcessManager processManager;
     late Process process;
-    late ProcessResult flutterPubDepsResult;
     late Completer<int> processExitCode;
 
     setUp(() {

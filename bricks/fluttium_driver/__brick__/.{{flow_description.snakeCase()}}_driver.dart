@@ -188,29 +188,3 @@ class FluttiumWorker {
     return nodes;
   }
 }
-
-extension on SemanticsNode {
-  // "Borrowed" from Honey:
-  // https://github.com/clickup/honey/blob/0163a017b69526af0b9b3f877758dac2be64deb7/honey/lib/src/utils/semantics_extension.dart#L26
-  Offset get center {
-    var paintBounds = rect;
-    SemanticsNode? current = this;
-    while (current != null) {
-      final transform = current.transform;
-      if (transform != null) {
-        paintBounds = MatrixUtils.transformRect(transform, paintBounds);
-      }
-      current = current.parent;
-    }
-
-    final devicePixelRatio = WidgetsBinding.instance.window.devicePixelRatio;
-    return MatrixUtils.transformRect(
-      Matrix4.diagonal3Values(
-        1.0 / devicePixelRatio,
-        1.0 / devicePixelRatio,
-        1.0 / devicePixelRatio,
-      ),
-      paintBounds,
-    ).center;
-  }
-}

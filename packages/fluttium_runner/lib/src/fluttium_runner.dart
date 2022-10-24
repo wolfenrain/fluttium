@@ -124,13 +124,13 @@ class FluttiumRunner {
       throw Exception('Could not find main entry file: $mainEntry');
     }
 
-    final pubspec = loadYaml(
+    final projectData = loadYaml(
       File(join(projectDirectory.path, 'pubspec.yaml')).readAsStringSync(),
-    );
+    ) as YamlMap;
 
     _vars['mainEntry'] =
         mainEntry.path.replaceFirst(join(projectDirectory.path, 'lib/'), '');
-    _vars['project_name'] = pubspec['name'];
+    _vars['project_name'] = projectData['name'];
   }
 
   Future<void> _generateDriver() async {
