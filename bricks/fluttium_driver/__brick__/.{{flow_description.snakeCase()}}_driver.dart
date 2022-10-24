@@ -60,6 +60,8 @@ class FluttiumWorker {
 
   SemanticsOwner get semanticsOwner => binding.pipelineOwner.semanticsOwner!;
 
+  RenderObject get renderObject => binding.renderViewElement!.renderObject!;
+
   Future<void> tapOn(String text) async {
     await manager.start();
     try {
@@ -103,16 +105,27 @@ class FluttiumWorker {
     }
   }
 
-  // Future<void> takeScreenshot(String name) async {
-  //   await manager.start();
-  //   final boundary = tester.firstRenderObject(find.byType(RepaintBoundary))
-  //       as RenderRepaintBoundary;
-  //   final image = await boundary.toImage();
-  //   final byteData = await image.toByteData(format: ImageByteFormat.png);
-  //   final pngBytes = byteData!.buffer.asUint8List();
-  //   await manager.send('screenshot', pngBytes.join(','));
-  //   await manager.done();
-  // }
+  Future<void> takeScreenshot(String name) async {
+    await manager.start();
+
+    RenderRepaintBoundary? boundary;
+    void find(RenderObject element) {
+      if (boundary != null) return;
+
+      if (element is! RenderRepaintBoundary) {
+        return element.visitChildren(find);
+      }
+      boundary = element;
+    }
+
+    renderObject.visitChildren(find);
+
+    final image = await boundary!.toImage();
+    final byteData = await image.toByteData(format: ImageByteFormat.png);
+    final pngBytes = byteData!.buffer.asUint8List();
+    await manager.send('screenshot', pngBytes.join(','));
+    await manager.done();
+  }
 
   Future<void> _enterText(String text) async {
     final value = TextEditingValue(
@@ -128,7 +141,7 @@ class FluttiumWorker {
           <dynamic>[-1, value.toJSON()],
         ),
       ),
-      (ByteData? data) {/* ignored */},
+      (ByteData? data) {},
     );
   }
 
