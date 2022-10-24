@@ -93,24 +93,25 @@ class FluttiumRunner {
   }
 
   void _convertFlowToVars() {
-    String sanitize(String text) => text.replaceAll("'", r"\'");
+    String sanitizeText(String text) => text.replaceAll("'", r"\'");
+    String sanitizeRegExp(String text) => text.replaceAll("'''", r"\'''");
 
     _vars.addAll({
-      'flowDescription': sanitize(flow!.description),
+      'flowDescription': sanitizeText(flow!.description),
       'flowSteps': flow!.steps
           .map((e) {
-            final text = sanitize(e.text);
+            final text = sanitizeRegExp(e.text);
             switch (e.action) {
               case FluttiumAction.expectVisible:
-                return "await tester.expectVisible(r'$text');";
+                return "await tester.expectVisible(r'''$text''');";
               case FluttiumAction.expectNotVisible:
-                return "await tester.expectNotVisible(r'$text');";
+                return "await tester.expectNotVisible(r'''$text''');";
               case FluttiumAction.tapOn:
-                return "await tester.tapOn(r'$text');";
+                return "await tester.tapOn(r'''$text''');";
               case FluttiumAction.inputText:
-                return "await tester.inputText(r'$text');";
+                return "await tester.inputText(r'''$text''');";
               case FluttiumAction.takeScreenshot:
-                return "await tester.takeScreenshot(r'$text');";
+                return "await tester.takeScreenshot(r'''$text''');";
             }
           })
           .map((e) => {'step': e})
