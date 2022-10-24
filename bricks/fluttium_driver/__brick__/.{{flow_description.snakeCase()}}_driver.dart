@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:{{{project_name}}}/{{{mainEntry}}}' as app;
 import 'package:flutter/material.dart';
