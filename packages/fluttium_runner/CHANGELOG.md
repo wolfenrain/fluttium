@@ -1,3 +1,7 @@
+# 0.1.0-dev.8
+
+- fix(fluttium_runner): use multi-line string to safely escape patterns for actions ([#88](https://github.com/wolfenrain/fluttium/issues/88))
+
 # 0.1.0-dev.7
 
 - feat: support linux platform ([#79](https://github.com/wolfenrain/fluttium/issues/79))
