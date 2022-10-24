@@ -20,9 +20,9 @@ Fluttium, the user flow testing tool for Flutter.
 
 | Package                                                                                        | Pub                                                                                                       |
 | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [fluttium_cli](https://github.com/wolfenrain/fluttium/tree/master/packages/fluttium_cli)       | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_cli)    |
-| [fluttium_flow](https://github.com/wolfenrain/fluttium/tree/master/packages/fluttium_flow)     | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_flow)   |
-| [fluttium_runner](https://github.com/wolfenrain/fluttium/tree/master/packages/fluttium_runner) | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_runner) |
+| [fluttium_cli](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_cli)       | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_cli)    |
+| [fluttium_flow](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_flow)     | [![pub package](https://img.shields.io/pub/v/fluttium_flow.svg)](https://pub.dev/packages/fluttium_flow)   |
+| [fluttium_runner](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_runner) | [![pub package](https://img.shields.io/pub/v/fluttium_runner.svg)](https://pub.dev/packages/fluttium_runner) |
 
 ## Quick Start
 

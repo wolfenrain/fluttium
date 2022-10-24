@@ -1,3 +1,8 @@
+# 0.1.0-dev.12
+
+- chore: update `fluttium_runner` to v0.1.0-dev.8 ([#90](https://github.com/wolfenrain/fluttium/issues/90))
+- fix: use multi-line string to safely escape patterns for actions ([#88](https://github.com/wolfenrain/fluttium/issues/88))
+
 # 0.1.0-dev.11
 
 - feat: ensure only supported devices show up ([#81](https://github.com/wolfenrain/fluttium/issues/81))

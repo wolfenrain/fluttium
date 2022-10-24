@@ -2,7 +2,7 @@ name: fluttium_cli
 description: The CLI for Fluttium, a user flow testing framework for Flutter
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
-version: 0.1.0-dev.11
+version: 0.1.0-dev.12
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
@@ -11,7 +11,7 @@ dependencies:
   args: ^2.3.1
   collection: ^1.16.0
   fluttium_flow: ^0.1.0-dev.2
-  fluttium_runner: ^0.1.0-dev.7
+  fluttium_runner: ^0.1.0-dev.8
   mason: ^0.1.0-dev.34
   meta: ^1.8.0
   path: ^1.8.2
