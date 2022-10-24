@@ -1,16 +1,35 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:fluttium_flow/fluttium_flow.dart';
 import 'package:fluttium_runner/src/bundles/bundles.dart';
 import 'package:mason/mason.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:process/process.dart';
 import 'package:watcher/watcher.dart';
 import 'package:yaml/yaml.dart';
 
-///
+/// Renderer for rendering the results of the steps in a [FluttiumFlow].
 typedef FlowRenderer = void Function(FluttiumFlow flow, List<bool?> stepStates);
+
+/// Returns the [MasonGenerator] to use.
+typedef GeneratorBuilder = FutureOr<MasonGenerator> Function(
+  MasonBundle specification,
+);
+
+/// Builder for a [DirectoryWatcher].
+typedef DirectoryWatcherBuilder = DirectoryWatcher Function(
+  String path, {
+  Duration? pollingDelay,
+});
+
+/// Builder for a [FileWatcher].
+typedef FileWatcherBuilder = FileWatcher Function(
+  String path, {
+  Duration? pollingDelay,
+});
 
 /// {@template fluttium_runner}
 /// A runner for executing Fluttium flow tests.
@@ -23,11 +42,17 @@ class FluttiumRunner {
     required this.deviceId,
     required this.renderer,
     required this.mainEntry,
+    required Logger logger,
     this.flavor,
-    Logger? logger,
     ProcessManager? processManager,
-  })  : _logger = logger ?? Logger(),
-        _processManager = processManager ?? const LocalProcessManager();
+    @visibleForTesting GeneratorBuilder? generator,
+    @visibleForTesting DirectoryWatcherBuilder? directoryWatcher,
+    @visibleForTesting FileWatcherBuilder? fileWatcher,
+  })  : _logger = logger,
+        _generatorBuilder = generator ?? MasonGenerator.fromBundle,
+        _processManager = processManager ?? const LocalProcessManager(),
+        _directoryWatcher = directoryWatcher ?? DirectoryWatcher.new,
+        _fileWatcher = fileWatcher ?? FileWatcher.new;
 
   /// The flow file to run.
   final File flowFile;
@@ -56,6 +81,10 @@ class FluttiumRunner {
   FluttiumFlow? flow;
 
   MasonGenerator? _generator;
+  final GeneratorBuilder _generatorBuilder;
+
+  final DirectoryWatcherBuilder _directoryWatcher;
+  final FileWatcherBuilder _fileWatcher;
 
   /// The result of each previous step that has been run.
   ///
@@ -88,8 +117,6 @@ class FluttiumRunner {
           ..createSync(recursive: true)
           ..writeAsBytesSync(bytes);
         break;
-      default:
-        throw Exception('Unknown action: $action');
     }
   }
 
@@ -139,7 +166,7 @@ class FluttiumRunner {
     flow = FluttiumFlow(flowFile.readAsStringSync());
     _convertFlowToVars();
 
-    _generator ??= await MasonGenerator.fromBundle(fluttiumDriverBundle);
+    _generator ??= await _generatorBuilder(fluttiumDriverBundle);
     final result = await _generator!.generate(
       DirectoryGeneratorTarget(projectDirectory),
       vars: _vars,
@@ -151,12 +178,6 @@ class FluttiumRunner {
     if (_driver.existsSync()) {
       _driver.deleteSync();
     }
-
-    await _generator!.hooks.postGen(
-      vars: _vars,
-      workingDirectory: projectDirectory.path,
-      onVarsChanged: _vars.addAll,
-    );
   }
 
   /// Runs the flow.
@@ -239,7 +260,7 @@ class FluttiumRunner {
     if (watch) {
       // If the application code changes, we clear the step states and
       // hot restart the application.
-      final projectWatcher = DirectoryWatcher(projectDirectory.path);
+      final projectWatcher = _directoryWatcher(projectDirectory.path);
       projectWatcher.events.listen(
         (event) {
           if (!event.path.endsWith('.dart')) return;
@@ -257,7 +278,7 @@ class FluttiumRunner {
 
       // If the flow file changes, we clear the step states and re-generate
       // the driver before hot restarting the application.
-      final flowWatcher = FileWatcher(flowFile.path);
+      final flowWatcher = _fileWatcher(flowFile.path);
       flowWatcher.events.listen((event) async {
         await _generateDriver();
         restart();
