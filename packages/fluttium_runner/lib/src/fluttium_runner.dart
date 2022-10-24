@@ -94,13 +94,14 @@ class FluttiumRunner {
   }
 
   void _convertFlowToVars() {
-    String sanitize(String text) => text.replaceAll("'", r"\'");
+    String sanitizeText(String text) => text.replaceAll("'", r"\'");
+    String sanitizeRegExp(String text) => text.replaceAll("'''", r"\'''");
 
     _vars.addAll({
-      'flow_description': sanitize(flow!.description),
+      'flow_description': sanitizeText(flow!.description),
       'flow_steps': flow!.steps
           .map((e) {
-            final text = sanitize(e.text);
+            final text = sanitizeRegExp(e.text);
             switch (e.action) {
               case FluttiumAction.expectVisible:
                 return "await worker.expectVisible(r'$text');";
