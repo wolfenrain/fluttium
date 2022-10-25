@@ -210,7 +210,8 @@ class FluttiumRunner {
 
       // Skip until we see the first line of the test output.
       if (!isAttached &&
-          data.startsWith(RegExp(r'^[I/]*flutter[\s*\(\s*\d+\)]*: '))) {
+          (data.startsWith(RegExp(r'^[I/]*flutter[\s*\(\s*\d+\)]*: ')) ||
+              data.contains('Flutter Web Bootstrap'))) {
         startingUpTestDriver.complete();
         isAttached = true;
       }
