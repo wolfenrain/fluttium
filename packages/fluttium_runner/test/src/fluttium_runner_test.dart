@@ -316,6 +316,88 @@ name: project_name
       );
     });
 
+    test('attaches on web as well', () async {
+      await IOOverrides.runZoned(
+        () async {
+          final fluttiumRunner = createRunner();
+          final future = fluttiumRunner.run();
+          // Wait for the process to start.
+          await Future<void>.delayed(Duration.zero);
+
+          // Setup project
+          verify(() => mainEntry.existsSync()).called(1);
+          verify(() => pubspec.readAsStringSync()).called(1);
+          verify(() => mainEntry.path).called(1);
+
+          // Generate driver
+          verify(() => flowFile.readAsStringSync()).called(1);
+          verify(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars', that: equals(vars)),
+            ),
+          ).called(1);
+
+          // Rest of the run
+          verify(
+            () => logger.progress(any(that: equals('Starting up test driver'))),
+          ).called(1);
+          verify(
+            () => processManager.start(
+              any(
+                that: equals(
+                  [
+                    'flutter',
+                    'run',
+                    'project_directory/.test_driver.dart',
+                    '-d',
+                    'deviceId'
+                  ],
+                ),
+              ),
+              runInShell: any(named: 'runInShell'),
+              workingDirectory: any(
+                named: 'workingDirectory',
+                that: equals('project_directory'),
+              ),
+            ),
+          ).called(1);
+          verify(() => process.stdout).called(1);
+          verify(() => process.stderr).called(1);
+          verify(() => process.exitCode).called(1);
+
+          // Trigger the attach
+          stdoutController.add(utf8.encode('Flutter Web Bootstrap: auto'));
+          await Future<void>.delayed(Duration.zero);
+          verify(() => startingUpTestDriverProgress.complete()).called(1);
+
+          processExitCode.complete(ExitCode.success.code);
+          await future;
+
+          verifyNever(
+            () => startingUpTestDriverProgress
+                .fail('Failed to start test driver'),
+          );
+        },
+        createFile: (path) {
+          if (path == 'flow.yaml') {
+            return flowFile;
+          } else if (path == 'project_directory/.test_driver.dart') {
+            return driver;
+          } else if (path == 'project_directory/pubspec.yaml') {
+            return pubspec;
+          }
+          throw UnimplementedError(path);
+        },
+        createDirectory: (path) {
+          if (path == 'project_directory') {
+            return projectDirectory;
+          }
+          throw UnimplementedError(path);
+        },
+      );
+    });
+
     test('quit early if a step failed', () async {
       await IOOverrides.runZoned(
         () async {
@@ -496,7 +578,7 @@ name: project_name
       );
     });
 
-    test('fails if never attached', () async {
+    test('fails if main entry does not exists', () async {
       when(mainEntry.existsSync).thenReturn(false);
 
       await IOOverrides.runZoned(
