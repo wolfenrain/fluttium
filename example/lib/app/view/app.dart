@@ -1,4 +1,5 @@
 import 'package:example/counter/counter.dart';
+import 'package:example/progress/progress.dart';
 import 'package:example/text/text.dart';
 import 'package:flutter/material.dart';
 
@@ -34,6 +35,10 @@ class AppView extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.of(context).push(TextPage.route()),
             child: const Text('Text'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).push(ProgressPage.route()),
+            child: const Text('Progress'),
           ),
         ],
       ),

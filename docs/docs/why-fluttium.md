@@ -25,9 +25,9 @@ Fluttium focuses on the real user, the tests a developer writes with Fluttium ar
 representation of the actions that an user of an application would perform. Fluttium exposes a set
 of actions that a developer can use to write a user flow test.
 
-These user flow tests are powered by the integration testing framework from Flutter, this allows
-Fluttium to optimize the execution of the actions, for example by automatically waiting till an
-action is truly completed.
+These user flow tests are powered by the semantic tree of the Flutter application, this allows
+Fluttium to fully act like the real user and execution actions. Fluttium optimizes these actions as
+well, for example by automatically waiting till an action is truly completed.
 
 As a result, Fluttium does not support certain features that a Flutter developer would expect. For
 instance, Fluttium does not provide an API to search by a
@@ -44,8 +44,8 @@ Out of the box Fluttium provides the following:
   reflected in your tests immediately.
 - Fluttium's syntax is designed to be as declarative as possible, allowing you to write tests
   that are easy to read and understand. Represented by a simple YAML file.
-- Actions are only executed once your app settles. Fluttium uses the Flutter integration testing
-  framework under the hood and that allows it to automatically wait until an action is completed.
+- Actions are only executed once your app settles. Fluttium uses the application's semantic tree
+  under the hood and that allows it to wait until an action is completed.
 
 ## Example
 
@@ -76,19 +76,14 @@ fluttium test your_flow.yaml
 
 ## Supported Platforms
 
-Fluttium technically can support all platforms that Flutter supports but right now only a few are
-tested and therefore allowed. Here is a full overview of all the platforms and their current
-states:
+Fluttium supports all platforms that Flutter supports:
 
 | Android | iOS | Web | macOS | Windows | Linux |
 | ------- | --- | --- | ----- | ------- | ----- |
-| ✅      | ✅  | ❓  | ✅    | ✅      | ✅    |
+| ✅      | ✅  | ✅  | ✅    | ✅      | ✅    |
 
-<small>
-✅ supported and tested<br></br>
-❓ supported but untested <br></br>
-❌ unsupported
-</small>
+Fluttium can in theory supports any custom embedder for Flutter but this has not been tested
+out yet.
 
 ## Other awesome Flutter testing tools
 

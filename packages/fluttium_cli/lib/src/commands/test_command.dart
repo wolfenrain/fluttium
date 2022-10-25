@@ -18,8 +18,8 @@ typedef FluttiumRunner = fluttium.FluttiumRunner Function({
   required String deviceId,
   required fluttium.FlowRenderer renderer,
   required File mainEntry,
+  required Logger logger,
   String? flavor,
-  Logger? logger,
   ProcessManager? processManager,
 });
 
