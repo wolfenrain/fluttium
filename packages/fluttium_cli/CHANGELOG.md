@@ -1,3 +1,8 @@
+# 0.1.0-dev.13
+
+- refactor: properly use the semantic tree instead of relying on the `integration_test` framework ([#70](https://github.com/wolfenrain/fluttium/issues/70))
+- chore: update `fluttium_runner` to v0.1.0-dev.9 ([#94](https://github.com/wolfenrain/fluttium/issues/94))
+
 # 0.1.0-dev.12
 
 - chore: update `fluttium_runner` to v0.1.0-dev.8 ([#90](https://github.com/wolfenrain/fluttium/issues/90))
