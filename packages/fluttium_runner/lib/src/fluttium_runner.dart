@@ -194,7 +194,7 @@ class FluttiumRunner {
 
     final startingUpTestDriver = _logger.progress('Starting up test driver');
     _process = await _processManager.start(
-      [
+      <String>[
         'flutter',
         'run',
         _driver.path,
@@ -202,7 +202,10 @@ class FluttiumRunner {
         deviceId,
         if (flavor != null) ...['--flavor', flavor!],
         if (dartDefines.isNotEmpty)
-          ...dartDefines.map((e) => '--dart-define $e'),
+          ...dartDefines.fold<List<String>>(
+            [],
+            (p, e) => p..addAll(['--dart-define', e]),
+          ),
       ],
       runInShell: true,
       workingDirectory: projectDirectory.path,
