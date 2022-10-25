@@ -1,3 +1,7 @@
+# 0.1.0-dev.9
+
+- refactor: properly use the semantic tree instead of relying on the `integration_test` framework ([#70](https://github.com/wolfenrain/fluttium/issues/70))
+
 # 0.1.0-dev.8
 
 - fix: use multi-line string to safely escape patterns for actions ([#88](https://github.com/wolfenrain/fluttium/issues/88))
