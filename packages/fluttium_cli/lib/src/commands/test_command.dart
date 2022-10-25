@@ -20,6 +20,7 @@ typedef FluttiumRunner = fluttium.FluttiumRunner Function({
   required File mainEntry,
   required Logger logger,
   String? flavor,
+  List<String> dartDefines,
   ProcessManager? processManager,
 });
 
@@ -54,6 +55,13 @@ This will be passed to the --flavor option of flutter run.''',
         help:
             '''The main entry-point file of the application, as run on the device.''',
         defaultsTo: 'lib/main.dart',
+      )
+      ..addMultiOption(
+        'dart-define',
+        valueHelp: 'key=value',
+        help: '''
+Pass additional key-value pairs to the flutter run.
+Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       );
   }
 
@@ -83,6 +91,8 @@ This will be passed to the --flavor option of flutter run.''',
 
   /// Indicates whether the `--watch` flag was passed.
   bool get watch => results['watch'] as bool;
+
+  List<String> get _dartDefines => results['dart-define'] as List<String>;
 
   /// The file of the flow to run.
   File get _flowFile {
@@ -213,6 +223,7 @@ This will be passed to the --flavor option of flutter run.''',
       processManager: _process,
       flavor: results['flavor'] as String?,
       mainEntry: target,
+      dartDefines: _dartDefines,
       renderer: (flow, stepStates) {
         // Reset the cursor to the top of the screen and clear the screen.
         _logger.info('''
