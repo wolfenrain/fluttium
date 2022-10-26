@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -19,7 +20,7 @@ typedef FluttiumRunner = fluttium.FluttiumRunner Function({
   required fluttium.FlowRenderer renderer,
   required File mainEntry,
   required Logger logger,
-  required List<String> dartDefines,
+  List<String> dartDefines,
   String? flavor,
   ProcessManager? processManager,
 });
