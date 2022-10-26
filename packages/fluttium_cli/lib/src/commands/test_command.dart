@@ -19,7 +19,7 @@ typedef FluttiumRunner = fluttium.FluttiumRunner Function({
   required fluttium.FlowRenderer renderer,
   required File mainEntry,
   required Logger logger,
-  List<String> dartDefines,
+  required List<String> dartDefines,
   String? flavor,
   ProcessManager? processManager,
 });
