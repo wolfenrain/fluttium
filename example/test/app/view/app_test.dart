@@ -1,5 +1,6 @@
 import 'package:example/app/app.dart';
 import 'package:example/counter/counter.dart';
+import 'package:example/drawer/drawer.dart';
 import 'package:example/progress/progress.dart';
 import 'package:example/text/text.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +19,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(CounterPage), findsOneWidget);
+    });
+
+    testWidgets('navigates to Drawer when Drawer button is tapped',
+        (tester) async {
+      await tester.pumpWidget(const App(environment: 'Testing'));
+      await tester.tap(find.text('Drawer'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DrawerPage), findsOneWidget);
     });
 
     testWidgets('navigates to TextPage when Text button is tapped',
