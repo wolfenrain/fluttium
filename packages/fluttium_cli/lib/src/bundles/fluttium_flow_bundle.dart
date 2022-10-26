@@ -8,7 +8,7 @@ final fluttiumFlowBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{name}}.yaml",
       "data":
-          "ZGVzY3JpcHRpb246IHt7ZGVzY3JpcHRpb259fQotLS17eyNzdGVwc319Ci0ge3thY3Rpb259fTogInt7dGV4dH19Int7L3N0ZXBzfX0=",
+          "ZGVzY3JpcHRpb246IHt7e2Rlc2NyaXB0aW9ufX19Ci0tLXt7I3N0ZXBzfX0KLSB7e2FjdGlvbn19OiAie3t7dGV4dH19fSJ7ey9zdGVwc319",
       "type": "text"
     }
   ],
