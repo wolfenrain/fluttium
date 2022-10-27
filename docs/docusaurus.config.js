@@ -92,6 +92,10 @@ const config = {
                 href: 'https://github.com/wolfenrain/fluttium',
               },
               {
+                label: 'Open an Issue',
+                href: 'https://github.com/wolfenrain/fluttium/issues/new/choose',
+              },
+              {
                 label: 'Sponsor the Project',
                 href: 'https://github.com/sponsors/wolfenrain',
               },
