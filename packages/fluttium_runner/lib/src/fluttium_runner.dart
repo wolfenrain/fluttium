@@ -43,6 +43,7 @@ class FluttiumRunner {
     required this.renderer,
     required this.mainEntry,
     required Logger logger,
+    this.dartDefines = const [],
     this.flavor,
     ProcessManager? processManager,
     @visibleForTesting GeneratorBuilder? generator,
@@ -73,6 +74,9 @@ class FluttiumRunner {
 
   /// The flavor to run.
   final String? flavor;
+
+  /// The dart defines to use.
+  final List<String> dartDefines;
 
   final Logger _logger;
   final ProcessManager _processManager;
@@ -190,13 +194,18 @@ class FluttiumRunner {
 
     final startingUpTestDriver = _logger.progress('Starting up test driver');
     _process = await _processManager.start(
-      [
+      <String>[
         'flutter',
         'run',
         _driver.path,
         '-d',
         deviceId,
         if (flavor != null) ...['--flavor', flavor!],
+        if (dartDefines.isNotEmpty)
+          ...dartDefines.fold<List<String>>(
+            [],
+            (p, e) => p..addAll(['--dart-define', e]),
+          ),
       ],
       runInShell: true,
       workingDirectory: projectDirectory.path,

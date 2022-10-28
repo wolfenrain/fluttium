@@ -23,6 +23,9 @@ fluttium test your_flow.yaml --watch
 # Test the given flow using a different target entry file.
 fluttium test your_flow.yaml --target lib/main_development.dart
 
-# Test the given flow using a different flavor of your application
+# Test the given flow using a different flavor of your application.
 fluttium test your_flow.yaml --flavor development
+
+# Test the given flow using custom dart defines.
+fluttium test your_flow.yaml --dart-define SOME_KEY=myValue --dart-define SOME_OTHER_KEY=myOtherValue
 ```

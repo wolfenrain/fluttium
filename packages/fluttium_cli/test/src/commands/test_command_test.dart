@@ -19,13 +19,15 @@ const expectedUsage = [
   'Run a FluttiumFlow test.\n'
       '\n'
       'Usage: fluttium test <flow.yaml>\n'
-      '-h, --help          Print this usage information.\n'
-      '-w, --[no-]watch    Watch for file changes.\n'
-      '-d, --device-id     Target device id or name (prefixes allowed).\n'
-      '''    --flavor        Build a custom app flavor as defined by platform-specific build setup.\n'''
-      '''                    This will be passed to the --flavor option of flutter run.\n'''
-      '''-t, --target        The main entry-point file of the application, as run on the device.\n'''
-      '                    (defaults to "lib/main.dart")\n'
+      '-h, --help                       Print this usage information.\n'
+      '-w, --[no-]watch                 Watch for file changes.\n'
+      '''-d, --device-id                  Target device id or name (prefixes allowed).\n'''
+      '''    --flavor                     Build a custom app flavor as defined by platform-specific build setup.\n'''
+      '''                                 This will be passed to the --flavor option of flutter run.\n'''
+      '''-t, --target                     The main entry-point file of the application, as run on the device.\n'''
+      '                                 (defaults to "lib/main.dart")\n'
+      '''    --dart-define=<key=value>    Pass additional key-value pairs to the flutter run.\n'''
+      '''                                 Multiple defines can be passed by repeating "--dart-define" multiple times.\n'''
       '\n'
       'Run "fluttium help" to see global options.'
 ];
@@ -39,6 +41,7 @@ FluttiumRunner _fluttiumRunner(fluttium.FluttiumRunner runner) {
     required File mainEntry,
     String? flavor,
     Logger? logger,
+    List<String> dartDefines = const [],
     ProcessManager? processManager,
   }) =>
       runner;
@@ -92,6 +95,7 @@ void main() {
       when(() => argResults.arguments).thenReturn(['test_flow.yaml']);
       when(() => argResults['watch']).thenReturn(false);
       when(() => argResults['target']).thenReturn('lib/main.dart');
+      when(() => argResults['dart-define']).thenReturn(<String>[]);
 
       progressLogs = <String>[];
 
@@ -609,6 +613,7 @@ void main() {
           required fluttium.FlowRenderer renderer,
           required File mainEntry,
           String? flavor,
+          List<String> dartDefines = const [],
           Logger? logger,
           ProcessManager? processManager,
         }) {
@@ -706,6 +711,7 @@ void main() {
             required fluttium.FlowRenderer renderer,
             required File mainEntry,
             String? flavor,
+            List<String> dartDefines = const [],
             Logger? logger,
             ProcessManager? processManager,
           }) {
@@ -759,6 +765,7 @@ void main() {
             required fluttium.FlowRenderer renderer,
             required File mainEntry,
             String? flavor,
+            List<String> dartDefines = const [],
             Logger? logger,
             ProcessManager? processManager,
           }) {

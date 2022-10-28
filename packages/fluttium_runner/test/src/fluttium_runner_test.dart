@@ -132,7 +132,7 @@ name: project_name
       when(
         () => processManager.start(
           any(
-            that: equals(
+            that: containsAllInOrder(
               [
                 'flutter',
                 'run',
@@ -167,6 +167,7 @@ name: project_name
     FluttiumRunner createRunner({
       DirectoryWatcher? directoryWatcher,
       FileWatcher? fileWatcher,
+      List<String> dartDefines = const [],
     }) {
       return FluttiumRunner(
         flowFile: File('flow.yaml'),
@@ -174,6 +175,7 @@ name: project_name
         deviceId: 'deviceId',
         renderer: (flow, stepStates) => testStepStates = stepStates,
         mainEntry: mainEntry,
+        dartDefines: dartDefines,
         logger: logger,
         processManager: processManager,
         generator: (_) async => generator,
@@ -378,6 +380,81 @@ name: project_name
             () => startingUpTestDriverProgress
                 .fail('Failed to start test driver'),
           );
+        },
+        createFile: (path) {
+          if (path == 'flow.yaml') {
+            return flowFile;
+          } else if (path == 'project_directory/.test_driver.dart') {
+            return driver;
+          } else if (path == 'project_directory/pubspec.yaml') {
+            return pubspec;
+          }
+          throw UnimplementedError(path);
+        },
+        createDirectory: (path) {
+          if (path == 'project_directory') {
+            return projectDirectory;
+          }
+          throw UnimplementedError(path);
+        },
+      );
+    });
+
+    test('runs with custom dart defines', () async {
+      await IOOverrides.runZoned(
+        () async {
+          final fluttiumRunner = createRunner(
+            dartDefines: [
+              'FLUTTER_WEB_USE_SKIA=true',
+              'FLUTTER_WEB_AUTO_DETECT=true',
+            ],
+          );
+          final future = fluttiumRunner.run();
+          // Wait for the process to start.
+          await Future<void>.delayed(Duration.zero);
+
+          // Setup project
+          verify(() => mainEntry.existsSync()).called(1);
+          verify(() => pubspec.readAsStringSync()).called(1);
+          verify(() => mainEntry.path).called(1);
+
+          // Generate driver
+          verify(() => flowFile.readAsStringSync()).called(1);
+          verify(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars', that: equals(vars)),
+            ),
+          ).called(1);
+
+          // Validate that it was called with the correct dart defines
+          verify(
+            () => processManager.start(
+              any(
+                that: equals(
+                  [
+                    'flutter',
+                    'run',
+                    'project_directory/.test_driver.dart',
+                    '-d',
+                    'deviceId',
+                    '--dart-define',
+                    'FLUTTER_WEB_USE_SKIA=true',
+                    '--dart-define',
+                    'FLUTTER_WEB_AUTO_DETECT=true',
+                  ],
+                ),
+              ),
+              runInShell: any(named: 'runInShell'),
+              workingDirectory: any(
+                named: 'workingDirectory',
+                that: equals('project_directory'),
+              ),
+            ),
+          ).called(1);
+
+          processExitCode.complete(ExitCode.success.code);
+          await future;
         },
         createFile: (path) {
           if (path == 'flow.yaml') {
