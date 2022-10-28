@@ -1,3 +1,7 @@
+# 0.1.0-dev.10
+
+- feat: add `--dart-define` options to the CLI to pass to the Flutter process ([#96](https://github.com/wolfenrain/fluttium/issues/96))
+
 # 0.1.0-dev.9
 
 - refactor: properly use the semantic tree instead of relying on the `integration_test` framework ([#70](https://github.com/wolfenrain/fluttium/issues/70))
