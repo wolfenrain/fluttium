@@ -1,3 +1,9 @@
+# 0.1.0-dev.14
+
+- fix: don't escape steps in flow brick ([#97](https://github.com/wolfenrain/fluttium/issues/97))
+- feat: add `--dart-define` options to the CLI to pass to the Flutter process ([#96](https://github.com/wolfenrain/fluttium/issues/96))
+- chore: update `fluttium_runner` to v0.1.0-dev.10 ([#101](https://github.com/wolfenrain/fluttium/issues/101))
+
 # 0.1.0-dev.13
 
 - refactor: properly use the semantic tree instead of relying on the `integration_test` framework ([#70](https://github.com/wolfenrain/fluttium/issues/70))
