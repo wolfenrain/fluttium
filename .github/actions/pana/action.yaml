@@ -27,10 +27,6 @@ runs:
 
     - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
-      run: pana . --no-warning
-
-    - working-directory: ${{ inputs.working_directory }}
-      shell: ${{ inputs.shell }}
       run: |
         PANA=$(pana . --no-warning); PANA_SCORE=$(echo $PANA | sed -n "s/.*Points: \([0-9]*\)\/\([0-9]*\)./\1\/\2/p")
         echo "Score: $PANA_SCORE"
