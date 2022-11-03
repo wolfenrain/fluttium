@@ -1,7 +1,7 @@
 import 'package:fluttium/fluttium.dart';
 
 /// {@template fluttium_registry}
-/// The registry of all the actions a [FluttiumBinding] can perform.
+/// The registry of all the actions a [FluttiumTester] can perform.
 /// {@endtemplate}
 class FluttiumRegistry {
   final Map<String, _ActionRegistration> _actions = {

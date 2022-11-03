@@ -84,6 +84,9 @@ jobs:
         id: filter
         with:
           filters: |
+            fluttium:
+              - ./.github/actions/dart_package
+              - packages/fluttium/**
             fluttium_cli:
               - ./.github/actions/dart_package
               - packages/fluttium_cli/**

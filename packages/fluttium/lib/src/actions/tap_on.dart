@@ -18,10 +18,10 @@ class TapOn extends Action {
   final Offset? offset;
 
   @override
-  Future<bool> execute(FluttiumBinding worker) async {
+  Future<bool> execute(FluttiumTester tester) async {
     final Offset center;
     if (text != null) {
-      final node = await worker.find(text!);
+      final node = await tester.find(text!);
       if (node == null) {
         return false;
       }
@@ -32,10 +32,10 @@ class TapOn extends Action {
       return false;
     }
 
-    worker.emitPointerEvent(PointerDownEvent(position: center));
+    tester.emitPointerEvent(PointerDownEvent(position: center));
     await Future<void>.delayed(kPressTimeout);
-    worker.emitPointerEvent(PointerUpEvent(position: center));
-    await worker.pumpAndSettle();
+    tester.emitPointerEvent(PointerUpEvent(position: center));
+    await tester.pumpAndSettle();
 
     return true;
   }

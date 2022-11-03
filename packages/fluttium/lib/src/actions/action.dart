@@ -13,5 +13,5 @@ abstract class Action {
   const Action();
 
   /// Called when it executes the action in a flow file.
-  Future<bool> execute(FluttiumBinding worker);
+  Future<bool> execute(FluttiumTester tester);
 }

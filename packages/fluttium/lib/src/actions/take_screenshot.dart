@@ -16,7 +16,7 @@ class TakeScreenshot extends Action {
   final String fileName;
 
   @override
-  Future<bool> execute(FluttiumBinding worker) async {
+  Future<bool> execute(FluttiumTester tester) async {
     RenderRepaintBoundary? boundary;
     void find(RenderObject element) {
       if (boundary != null) return;
@@ -27,12 +27,16 @@ class TakeScreenshot extends Action {
       boundary = element;
     }
 
-    worker.renderObject.visitChildren(find);
+    tester.renderObject.visitChildren(find);
+
+    if (boundary == null) {
+      return false;
+    }
 
     final image = await boundary!.toImage();
     final byteData = await image.toByteData(format: ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
-    await worker.storeFile('screenshots/$fileName.png', pngBytes);
+    await tester.storeFile('screenshots/$fileName.png', pngBytes);
 
     return true;
   }

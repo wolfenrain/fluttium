@@ -1,0 +1,95 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:fluttium/fluttium.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../../helpers/helpers.dart';
+
+void main() {
+  group('TapOn', () {
+    late FluttiumTester tester;
+    late SemanticsNode node;
+
+    setUp(() {
+      tester = MockFluttiumTester();
+      node = MockSemanticsNode();
+      when(() => node.rect).thenReturn(
+        Rect.fromCircle(center: Offset.zero, radius: 10),
+      );
+
+      when(() => tester.find(any(), timeout: any(named: 'timeout')))
+          .thenAnswer((_) async => node);
+      when(() => tester.pumpAndSettle(timeout: any(named: 'timeout')))
+          .thenAnswer((_) async {});
+      when(() => tester.emitPointerEvent(any())).thenAnswer((_) async {});
+    });
+
+    setUpAll(() {
+      registerFallbackValue(FakePointerEvent());
+    });
+
+    test('returns false if no valid parameters are given', () {
+      final action = TapOn();
+      expect(action.execute(tester), completion(isFalse));
+    });
+
+    test('taps on offset when given given', () async {
+      final tapOn = TapOn(offset: Offset.zero);
+
+      expect(await tapOn.execute(tester), isTrue);
+
+      verify(
+        () => tester.emitPointerEvent(
+          any(that: isPointerEvent<PointerDownEvent>(position: Offset.zero)),
+        ),
+      ).called(1);
+      verify(
+        () => tester.emitPointerEvent(
+          any(that: isPointerEvent<PointerUpEvent>(position: Offset.zero)),
+        ),
+      ).called(1);
+    });
+
+    group('if text is given', () {
+      test('and a node is found it taps on the center of the node', () async {
+        final tapOn = TapOn(text: 'hello');
+
+        expect(await tapOn.execute(tester), isTrue);
+
+        verify(
+          () => tester.emitPointerEvent(
+            any(that: isPointerEvent<PointerDownEvent>(position: Offset.zero)),
+          ),
+        ).called(1);
+        verify(
+          () => tester.emitPointerEvent(
+            any(that: isPointerEvent<PointerUpEvent>(position: Offset.zero)),
+          ),
+        ).called(1);
+      });
+
+      test('and a node is not found it returns false', () async {
+        final tapOn = TapOn(text: 'hello');
+
+        when(() => tester.find(any(), timeout: any(named: 'timeout')))
+            .thenAnswer((_) async => null);
+
+        expect(await tapOn.execute(tester), isFalse);
+
+        verifyNever(
+          () => tester.emitPointerEvent(
+            any(that: isPointerEvent<PointerDownEvent>(position: Offset.zero)),
+          ),
+        );
+        verifyNever(
+          () => tester.emitPointerEvent(
+            any(that: isPointerEvent<PointerUpEvent>(position: Offset.zero)),
+          ),
+        );
+      });
+    });
+  });
+}

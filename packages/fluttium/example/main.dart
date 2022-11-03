@@ -21,13 +21,13 @@ class CustomAction extends Action {
 
   /// Called when it executes the action in a flow file.
   @override
-  Future<bool> execute(FluttiumBinding worker) async {
+  Future<bool> execute(FluttiumTester tester) async {
     if (text == null) {
       return false;
     }
 
-    if (await ExpectVisible(text: text!).execute(worker)) {
-      return TapOn(text: text).execute(worker);
+    if (await ExpectVisible(text: text!).execute(tester)) {
+      return TapOn(text: text).execute(tester);
     }
     return false;
   }

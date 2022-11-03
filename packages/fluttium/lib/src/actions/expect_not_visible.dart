@@ -17,8 +17,8 @@ class ExpectNotVisible extends Action {
   final int timeout;
 
   @override
-  Future<bool> execute(FluttiumBinding worker) async {
-    final node = await worker.find(
+  Future<bool> execute(FluttiumTester tester) async {
+    final node = await tester.find(
       text,
       timeout: Duration(milliseconds: timeout),
     );

@@ -13,13 +13,13 @@ class InputText extends Action {
   /// The text to input.
   final String text;
 
-  Future<void> _enterText(FluttiumBinding worker, String text) async {
+  Future<void> _enterText(FluttiumTester tester, String text) async {
     final value = TextEditingValue(
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
     );
 
-    await worker.emitPlatformMessage(
+    await tester.emitPlatformMessage(
       SystemChannels.textInput.name,
       SystemChannels.textInput.codec.encodeMethodCall(
         MethodCall(
@@ -31,12 +31,12 @@ class InputText extends Action {
   }
 
   @override
-  Future<bool> execute(FluttiumBinding worker) async {
+  Future<bool> execute(FluttiumTester tester) async {
     final chars = <String>[];
     for (final char in text.split('')) {
       chars.add(char);
-      await _enterText(worker, chars.join());
-      await worker.pumpAndSettle();
+      await _enterText(tester, chars.join());
+      await tester.pumpAndSettle();
     }
     return true;
   }

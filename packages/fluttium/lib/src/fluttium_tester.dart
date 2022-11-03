@@ -3,14 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Action;
 import 'package:fluttium/fluttium.dart';
 
-/// {@template fluttium_binding}
-/// TODO: Add documentation.
+/// {@template fluttium_tester}
+/// The tester that is used to execute the actions in a flow file.
 /// {@endtemplate}
-class FluttiumBinding {
-  /// {@macro fluttium_binding}
-  const FluttiumBinding(this._binding, this._manager, this._registry);
+class FluttiumTester {
+  /// {@macro fluttium_tester}
+  const FluttiumTester(this._binding, this._stateManager, this._registry);
 
-  final FluttiumManager _manager;
+  final FluttiumStateManager _stateManager;
 
   final WidgetsBinding _binding;
 
@@ -25,27 +25,27 @@ class FluttiumBinding {
   Future<void> executeStep(String actionName, dynamic arguments) async {
     final action = _registry.getAction(actionName, arguments);
 
-    await _manager.start();
+    await _stateManager.start();
     try {
       final result = await action.execute(this);
       if (result) {
-        await _manager.done();
-      } else {
-        await _manager.fail();
+        return _stateManager.done();
       }
+      return _stateManager.fail();
     } catch (err) {
-      await _manager.fail();
+      return _stateManager.fail();
     }
   }
 
-  /// Store binary data.
+  /// Store binary data with the given [fileName].
   Future<void> storeFile(String fileName, Uint8List bytes) async {
-    await _manager.send('store', bytes.join(','));
+    await _stateManager.store(fileName, bytes);
   }
 
   /// Dispatch an event to the targets found by a hit test on its position.
-  void emitPointerEvent(PointerEvent event) =>
-      _binding.handlePointerEvent(event);
+  void emitPointerEvent(PointerEvent event) {
+    return _binding.handlePointerEvent(event);
+  }
 
   /// Dispatch a message to the platform.
   Future<void> emitPlatformMessage(String channel, ByteData? data) async {
@@ -73,7 +73,7 @@ class FluttiumBinding {
     final end = DateTime.now().add(timeout ?? const Duration(seconds: 10));
     do {
       if (DateTime.now().isAfter(end)) {
-        throw Exception('_pumpAndSettle timed out');
+        throw Exception('pumpAndSettle timed out');
       }
       await pump();
     } while (_binding.hasScheduledFrame);
