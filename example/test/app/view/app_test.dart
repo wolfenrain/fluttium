@@ -1,4 +1,5 @@
 import 'package:example/app/app.dart';
+import 'package:example/complex_text/complex_text.dart';
 import 'package:example/counter/counter.dart';
 import 'package:example/drawer/drawer.dart';
 import 'package:example/progress/progress.dart';
@@ -46,6 +47,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(ProgressPage), findsOneWidget);
+    });
+
+    testWidgets(
+        'navigates to ComplexTextPage when Complex Text button is tapped',
+        (tester) async {
+      await tester.pumpWidget(const App(environment: 'Testing'));
+      await tester.tap(find.text('Complex Text'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ComplexTextPage), findsOneWidget);
     });
   });
 }
