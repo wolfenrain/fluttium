@@ -157,7 +157,7 @@ class FluttiumWorker {
   }
 
   Future<SemanticsNode> _findOrWait(String text) async {
-    var nodes = _findNodes(semanticsOwner.rootSemanticsNode!, RegExp(text));
+    var nodes = _findNodes(semanticsOwner.rootSemanticsNode!, text);
 
     final end = DateTime.now().add(const Duration(seconds: 10));
     while (nodes.isEmpty) {
@@ -165,18 +165,18 @@ class FluttiumWorker {
       if (DateTime.now().isAfter(end)) {
         throw Exception('Timeout waiting for $text');
       }
-      nodes = _findNodes(semanticsOwner.rootSemanticsNode!, RegExp(text));
+      nodes = _findNodes(semanticsOwner.rootSemanticsNode!, text);
     }
 
     return nodes.first;
   }
 
-  List<SemanticsNode> _findNodes(SemanticsNode node, RegExp pattern) {
+  List<SemanticsNode> _findNodes(SemanticsNode node, String text) {
     final nodes = <SemanticsNode>[];
     node.visitChildren((n) {
       // Add all descendants that match the pattern.
       if (!n.mergeAllDescendantsIntoThisNode) {
-        nodes.addAll(_findNodes(n, pattern));
+        nodes.addAll(_findNodes(n, text));
       }
 
       // If the node is invisible or has the hidden flag, don't add it.
@@ -192,7 +192,7 @@ class FluttiumWorker {
         data.value,
         data.hint,
         data.tooltip,
-      ].any(pattern.hasMatch)) {
+      ].any((value) => value == text || RegExp(text).hasMatch(value))) {
         nodes.add(n);
       }
 

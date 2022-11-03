@@ -1,3 +1,4 @@
+import 'package:example/complex_text/complex_text.dart';
 import 'package:example/counter/counter.dart';
 import 'package:example/drawer/drawer.dart';
 import 'package:example/progress/progress.dart';
@@ -45,6 +46,12 @@ class AppView extends StatelessWidget {
             onPressed: () => Navigator.of(context).push(ProgressPage.route()),
             child: const Text('Progress'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).push(
+              ComplexTextPage.route(),
+            ),
+            child: const Text('Complex Text'),
+          )
         ],
       ),
     );

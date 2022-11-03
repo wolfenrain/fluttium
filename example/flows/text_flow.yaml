@@ -4,7 +4,7 @@ description: Testing the text page
 - expectVisible: "Environment: (Development|Staging|Production|None){1}"
 # Go to the text page
 - tapOn: Text
-# Validate that the counter page is displayed and there is no result
+# Validate that the text page is displayed and there is no result
 - expectVisible: Text
 - expectVisible: "Result: "
 - tapOn: "Enter text"
