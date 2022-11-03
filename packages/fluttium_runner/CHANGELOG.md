@@ -1,3 +1,7 @@
+# 0.1.0-dev.11
+
+- fix: match with regexp and string ([#108](https://github.com/wolfenrain/fluttium/issues/108))
+
 # 0.1.0-dev.10
 
 - feat: add `--dart-define` options to the CLI to pass to the Flutter process ([#96](https://github.com/wolfenrain/fluttium/issues/96))
