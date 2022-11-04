@@ -97,7 +97,7 @@ jobs:
               - ./.github/actions/dart_package
               - packages/fluttium_runner/**
 
-  # Build and test the packages that have changed.
+  # Build and test the dart packages that have changed.
   #
   # If the matrix is empty, no jobs will be created.
   build_packages:
@@ -113,8 +113,20 @@ jobs:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
 
+      - name: ❓ Dart Or Flutter
+        id: dart_or_flutter
+        run: |
+          echo "::set-output name=is_flutter::$(cat packages/${{ matrix.package }}/pubspec.yaml | grep -q 'sdk: flutter' && echo true || echo false)"
+
       - name: ✨ Format, Analyze and Test (${{ matrix.package }})
         uses: ./.github/actions/dart_package
+        if: steps.check_files.outputs.dart_or_flutter == 'false'
+        with:
+          working_directory: packages/${{ matrix.package }}
+
+      - name: ✨ Format, Analyze and Test (${{ matrix.package }})
+        uses: ./.github/actions/flutter_package
+        if: steps.check_files.outputs.dart_or_flutter == 'true'
         with:
           working_directory: packages/${{ matrix.package }}
 
