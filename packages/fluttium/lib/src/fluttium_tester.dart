@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Action;
@@ -23,12 +24,11 @@ class FluttiumTester {
 
   /// Executes the step by creating an [Action] and passing the [arguments].
   Future<void> executeStep(String actionName, dynamic arguments) async {
-    final action = _registry.getAction(actionName, arguments);
-
-    await _stateManager.start();
     try {
-      final result = await action.execute(this);
-      if (result) {
+      await _stateManager.start();
+
+      final action = _registry.getAction(actionName, arguments);
+      if (await action.execute(this)) {
         return _stateManager.done();
       }
       return _stateManager.fail();
@@ -56,23 +56,25 @@ class FluttiumTester {
     );
   }
 
-  /// Pump the widget tree for a single frame.
+  /// Pump the widget tree for the given [duration].
+  ///
+  /// If [duration] is null, it will pump for a single frame.
   Future<void> pump({Duration? duration}) async {
     if (duration == null) {
       return _binding.endOfFrame;
     }
 
-    final end = DateTime.now().add(duration);
-    while (DateTime.now().isBefore(end)) {
+    final end = clock.now().add(duration);
+    while (clock.now().isBefore(end)) {
       await _binding.endOfFrame;
     }
   }
 
   /// Pump the widget tree and wait for animations to complete.
   Future<void> pumpAndSettle({Duration? timeout}) async {
-    final end = DateTime.now().add(timeout ?? const Duration(seconds: 10));
+    final end = clock.now().add(timeout ?? const Duration(seconds: 10));
     do {
-      if (DateTime.now().isAfter(end)) {
+      if (clock.now().isAfter(end)) {
         throw Exception('pumpAndSettle timed out');
       }
       await pump();
@@ -85,10 +87,10 @@ class FluttiumTester {
   Future<SemanticsNode?> find(String text, {Duration? timeout}) async {
     var nodes = _findNodes(_semanticsOwner.rootSemanticsNode!, text);
 
-    final end = DateTime.now().add(timeout ?? const Duration(seconds: 10));
+    final end = clock.now().add(timeout ?? const Duration(seconds: 10));
     while (nodes.isEmpty) {
       await pump();
-      if (DateTime.now().isAfter(end)) {
+      if (clock.now().isAfter(end)) {
         return null;
       }
       nodes = _findNodes(_semanticsOwner.rootSemanticsNode!, text);

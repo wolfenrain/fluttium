@@ -27,7 +27,11 @@ class TakeScreenshot extends Action {
       boundary = element;
     }
 
-    tester.renderObject.visitChildren(find);
+    if (tester.renderObject is! RenderRepaintBoundary) {
+      tester.renderObject.visitChildren(find);
+    } else {
+      boundary = tester.renderObject as RenderRepaintBoundary;
+    }
 
     if (boundary == null) {
       return false;
