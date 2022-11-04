@@ -116,7 +116,7 @@ jobs:
       - name: ❓ Dart Or Flutter
         id: dart_or_flutter
         run: |
-          echo "::set-output name=is_flutter::$(cat packages/${{ matrix.package }}/pubspec.yaml | grep -q 'sdk: flutter' && echo true || echo false)"
+          echo "dart_or_flutter=$(cat packages/${{ matrix.package }}/pubspec.yaml | grep -q 'sdk: flutter' && echo true || echo false)" >> $GITHUB_OUTPUT
 
       - name: ✨ Format, Analyze and Test (${{ matrix.package }})
         uses: ./.github/actions/dart_package
