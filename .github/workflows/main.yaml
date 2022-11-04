@@ -118,15 +118,15 @@ jobs:
         run: |
           echo "dart_or_flutter=$(cat packages/${{ matrix.package }}/pubspec.yaml | grep -q 'sdk: flutter' && echo true || echo false)" >> $GITHUB_OUTPUT
 
-      - name: ✨ Format, Analyze and Test (${{ matrix.package }})
+      - name: ✨ Dart Format, Analyze and Test (${{ matrix.package }})
+        if: steps.dart_or_flutter.outputs.dart_or_flutter == 'false'
         uses: ./.github/actions/dart_package
-        if: steps.check_files.outputs.dart_or_flutter == 'false'
         with:
           working_directory: packages/${{ matrix.package }}
 
-      - name: ✨ Format, Analyze and Test (${{ matrix.package }})
+      - name: ✨ Flutter Format, Analyze and Test (${{ matrix.package }})
+        if: steps.dart_or_flutter.outputs.dart_or_flutter == 'true'
         uses: ./.github/actions/flutter_package
-        if: steps.check_files.outputs.dart_or_flutter == 'true'
         with:
           working_directory: packages/${{ matrix.package }}
 
