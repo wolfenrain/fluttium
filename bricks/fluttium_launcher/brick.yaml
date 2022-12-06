@@ -1,0 +1,28 @@
+name: fluttium_launcher
+description: Brick for generating a file that can launch a Fluttium runner.
+version: 0.1.0+1
+
+environment:
+  mason: ">=0.1.0-dev.26 <0.1.0"
+
+vars:
+  runner_id:
+    type: string
+    description: The unique ID of the runner to launch
+    prompt: What is the ID of the runner?
+  runner_path:
+    type: string
+    description: The path to the result of the fluttium_test_runner brick
+    prompt: What is the path to the result of the fluttium_test_runner brick?
+  project_name:
+    type: string
+    description: The name of the project
+    prompt: What is the name of the project?
+  main_entry:
+    type: string
+    description: The main entry point of the project
+    prompt: What is the main entry point of the project?
+  steps:
+    type: string
+    description: The steps of the user flow
+    prompt: What are the steps (encoded as a list)?

@@ -6,37 +6,35 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
-import 'package:fluttium_flow/fluttium_flow.dart';
-import 'package:fluttium_runner/fluttium_runner.dart' as fluttium;
+import 'package:fluttium_cli/src/json_decode_safely.dart';
+import 'package:fluttium_driver/fluttium_driver.dart';
+import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:process/process.dart';
 
-typedef FluttiumRunner = fluttium.FluttiumRunner Function({
-  required File flowFile,
+typedef FluttiumDriverCreator = FluttiumDriver Function({
+  required DriverConfiguration configuration,
+  required Map<String, ActionLocation> actions,
   required Directory projectDirectory,
-  required String deviceId,
-  required fluttium.FlowRenderer renderer,
-  required File mainEntry,
-  required Logger logger,
-  List<String> dartDefines,
-  String? flavor,
+  required File userFlowFile,
+  Logger? logger,
   ProcessManager? processManager,
 });
 
 /// {@template test_command}
-/// `fluttium test` command which runs a [FluttiumFlow] test.
+/// `fluttium test` command which runs a [UserFlowYaml] test.
 /// {@endtemplate}
 class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({
     required Logger logger,
     ProcessManager? processManager,
-    FluttiumRunner? runner,
+    FluttiumDriverCreator? driver,
   })  : _logger = logger,
         _process = processManager ?? const LocalProcessManager(),
-        _fluttiumRunner = runner ?? fluttium.FluttiumRunner.new {
+        _driver = driver ?? FluttiumDriver.new {
     argParser
       ..addFlag('watch', abbr: 'w', help: 'Watch for file changes.')
       ..addOption(
@@ -67,7 +65,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
   }
 
   @override
-  String get description => 'Run a FluttiumFlow test.';
+  String get description => 'Run a user flow test.';
 
   @override
   String get name => 'test';
@@ -81,7 +79,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
 
   final ProcessManager _process;
 
-  final FluttiumRunner _fluttiumRunner;
+  final FluttiumDriverCreator _driver;
 
   /// [ArgResults] used for testing purposes only.
   @visibleForTesting
@@ -92,6 +90,8 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
 
   /// Indicates whether the `--watch` flag was passed.
   bool get watch => results['watch'] as bool;
+
+  String? get _flavor => results['flavor'] as String?;
 
   List<String> get _dartDefines => results['dart-define'] as List<String>;
 
@@ -126,29 +126,31 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
 
   Future<FlutterDevice?> getDevice(
     String workingDirectory,
-    Progress progress,
+    FluttiumYaml fluttium,
   ) async {
+    final retrievingDevices = _logger.progress('Retrieving devices');
     final devices = await _getDevices(workingDirectory);
-    if (devices.length == 1) {
-      progress.complete();
-      return devices.first;
-    }
     if (devices.isEmpty) {
-      progress.fail();
+      retrievingDevices.fail();
       return null;
     }
-    final optionalDeviceId = results['device-id'] as String?;
-    FlutterDevice? optionalDevice;
-    if (optionalDeviceId != null) {
-      progress.complete();
-      optionalDevice = devices.firstWhereOrNull(
-        (device) => device.id == optionalDeviceId.trim(),
-      );
+
+    FlutterDevice? device;
+    if (devices.length == 1) {
+      device = devices.first;
     } else {
-      progress.cancel();
+      final optionalDeviceId = results['device-id'] as String?;
+      if (optionalDeviceId != null && optionalDeviceId.isNotEmpty) {
+        retrievingDevices.complete();
+        device = devices.firstWhereOrNull(
+          (device) => device.id == optionalDeviceId.trim(),
+        );
+      } else {
+        retrievingDevices.cancel();
+      }
     }
 
-    return optionalDevice ??
+    return device ??
         _logger.chooseOne<FlutterDevice>(
           'Choose a device:',
           choices: devices,
@@ -189,13 +191,13 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
 
   @override
   Future<int> run() async {
-    final flowFile = _flowFile;
-    if (!flowFile.existsSync()) {
-      _logger.err('Flow file "${flowFile.path}" not found.');
+    final userFlowFile = _flowFile;
+    if (!userFlowFile.existsSync()) {
+      _logger.err('Flow file "${userFlowFile.path}" not found.');
       return ExitCode.unavailable.code;
     }
 
-    final projectDirectory = _getProjectDirectory(flowFile);
+    final projectDirectory = _getProjectDirectory(userFlowFile);
     if (projectDirectory == null) {
       _logger.err('Could not find pubspec.yaml in parent directories.');
       return ExitCode.unavailable.code;
@@ -207,97 +209,98 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       return ExitCode.unavailable.code;
     }
 
-    final device = await getDevice(
-      projectDirectory.path,
-      _logger.progress('Retrieving devices'),
+    var fluttium = FluttiumYaml(
+      environment: FluttiumEnvironment(
+        // TODO: get version from bundle?
+        fluttium: VersionConstraint.parse('any'),
+      ),
     );
-    if (device == null) {
+    final fluttiumFile = File(join(projectDirectory.path, 'fluttium.yaml'));
+    if (fluttiumFile.existsSync()) {
+      fluttium = FluttiumYaml.fromFile(fluttiumFile);
+    }
+
+    final device = await getDevice(projectDirectory.path, fluttium);
+
+    fluttium = fluttium.copyWith(
+      driver: fluttium.driver.copyWith(
+        deviceId: device?.id,
+        mainEntry: target.path,
+        flavor: _flavor,
+        dartDefines: [
+          ...fluttium.driver.dartDefines,
+          ..._dartDefines,
+        ],
+      ),
+    );
+
+    if (fluttium.driver.deviceId == null) {
       _logger.err('No devices found.');
       return ExitCode.unavailable.code;
     }
 
-    final runner = _fluttiumRunner(
-      flowFile: flowFile,
+    final driver = _driver(
+      configuration: fluttium.driver,
+      actions: fluttium.actions,
       projectDirectory: projectDirectory,
-      deviceId: device.id,
+      userFlowFile: userFlowFile,
       logger: _logger,
       processManager: _process,
-      flavor: results['flavor'] as String?,
-      mainEntry: target,
-      dartDefines: _dartDefines,
-      renderer: (flow, stepStates) {
-        // Reset the cursor to the top of the screen and clear the screen.
-        _logger.info('''
-\u001b[0;0H\u001b[0J
-  ${styleBold.wrap(flow.description)}
-''');
-
-        for (var i = 0; i < flow.steps.length; i++) {
-          final step = flow.steps[i];
-
-          final String actionDescription;
-          switch (step.action) {
-            case FluttiumAction.expectVisible:
-              actionDescription = 'Expect visible "${step.text}"';
-              break;
-            case FluttiumAction.expectNotVisible:
-              actionDescription = 'Expect not visible "${step.text}"';
-              break;
-            case FluttiumAction.tapOn:
-              actionDescription = 'Tap on "${step.text}"';
-              break;
-            case FluttiumAction.inputText:
-              actionDescription = 'Input text "${step.text}"';
-              break;
-            case FluttiumAction.takeScreenshot:
-              actionDescription = 'Screenshot "${step.text}"';
-              break;
-          }
-
-          if (i < stepStates.length) {
-            final state = stepStates[i];
-            if (state == null) {
-              _logger.info('  ⏳  $actionDescription');
-            } else if (state) {
-              _logger.info('  ✅  $actionDescription');
-            } else {
-              _logger.info('  ❌  $actionDescription');
-            }
-          } else {
-            _logger.info('  🔲  $actionDescription');
-          }
-        }
-        _logger.info('');
-        if (watch) {
-          _logger.info('''
-  ${styleDim.wrap('Press')} r ${styleDim.wrap('to restart the test.')}
-  ${styleDim.wrap('Press')} q ${styleDim.wrap('to quit.')}''');
-        }
-      },
     );
 
-    if (watch) {
-      stdin.echoMode = false;
-      stdin.lineMode = false;
+    driver.steps.listen((steps) {
+      // Reset the cursor to the top of the screen and clear the screen.
+      _logger.info('''
+\u001b[0;0H\u001b[0J
+  ${styleBold.wrap(driver.userFlow.description)}
+''');
 
-      stdin.listen((event) {
-        final key = utf8.decode(event).trim();
-        switch (key) {
-          case 'q':
-            runner.quit();
+      // Render the steps.
+      for (final step in steps) {
+        switch (step.status) {
+          case StepStatus.initial:
+            _logger.info('  🔲  ${step.description}');
             break;
-          case 'r':
-            runner.restart();
+          case StepStatus.running:
+            _logger.info('  ⏳  ${step.description}');
+            break;
+          case StepStatus.done:
+            _logger.info('  ✅  ${step.description}');
+            break;
+          case StepStatus.failed:
+            _logger.info('  ❌  ${step.description}');
             break;
         }
-      });
-    }
+      }
 
-    await runner.run(watch: watch);
+      _logger.info('');
+      if (watch) {
+        _logger.info('''
+  ${styleDim.wrap('Press')} r ${styleDim.wrap('to restart the test.')}
+  ${styleDim.wrap('Press')} q ${styleDim.wrap('to quit.')}''');
+      }
+    });
 
     if (watch) {
-      stdin.lineMode = true;
-      stdin.echoMode = true;
+      stdin
+        ..echoMode = false
+        ..lineMode = false
+        ..listen((event) async {
+          switch (utf8.decode(event).trim()) {
+            case 'q':
+              return driver.quit();
+            case 'r':
+              return driver.restart();
+          }
+        });
+    }
+
+    await driver.run(watch: watch);
+
+    if (watch) {
+      stdin
+        ..lineMode = true
+        ..echoMode = true;
     }
 
     return ExitCode.success.code;

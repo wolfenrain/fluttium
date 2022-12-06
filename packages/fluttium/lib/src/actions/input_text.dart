@@ -13,7 +13,7 @@ class InputText extends Action {
   /// The text to input.
   final String text;
 
-  Future<void> _enterText(FluttiumTester tester, String text) async {
+  Future<void> _enterText(Tester tester, String text) async {
     final value = TextEditingValue(
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
@@ -31,7 +31,7 @@ class InputText extends Action {
   }
 
   @override
-  Future<bool> execute(FluttiumTester tester) async {
+  Future<bool> execute(Tester tester) async {
     final chars = <String>[];
     for (final char in text.split('')) {
       chars.add(char);
@@ -40,4 +40,7 @@ class InputText extends Action {
     }
     return true;
   }
+
+  @override
+  String description() => 'Input text "$text"';
 }

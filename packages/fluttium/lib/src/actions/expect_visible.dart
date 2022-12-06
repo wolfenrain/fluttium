@@ -17,11 +17,14 @@ class ExpectVisible extends Action {
   final int? timeout;
 
   @override
-  Future<bool> execute(FluttiumTester tester) async {
+  Future<bool> execute(Tester tester) async {
     final node = await tester.find(
       text,
       timeout: timeout != null ? Duration(milliseconds: timeout!) : null,
     );
     return node != null;
   }
+
+  @override
+  String description() => 'Expect visible "$text"';
 }

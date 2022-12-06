@@ -9,7 +9,7 @@ mixin DiagnosticableToStringMixin on Object {
   }
 }
 
-class MockFluttiumTester extends Mock implements FluttiumTester {}
+class MockTester extends Mock implements Tester {}
 
 class MockSemanticsNode extends Mock
     with DiagnosticableToStringMixin

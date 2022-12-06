@@ -1,0 +1,16 @@
+name: fluttium_test_runner
+description: A brick for generating the Fluttium registry and tester.
+version: 0.1.0+1
+
+environment:
+  mason: ">=0.1.0-dev.26 <0.1.0"
+
+vars:
+  actions:
+    type: string
+    description: The actions to register
+    prompt: What are the actions to register (encoded as a list)?
+  steps:
+    type: string
+    description: The steps to run
+    prompt: What are the steps (encoded as a list)?

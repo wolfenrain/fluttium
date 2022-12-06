@@ -21,7 +21,7 @@ class CustomAction extends Action {
 
   /// Called when it executes the action in a flow file.
   @override
-  Future<bool> execute(FluttiumTester tester) async {
+  Future<bool> execute(Tester tester) async {
     if (text == null) {
       return false;
     }
@@ -31,10 +31,13 @@ class CustomAction extends Action {
     }
     return false;
   }
+
+  @override
+  String description() => 'Custom action "$text"';
 }
 
 /// Will be executed by Fluttium on startup.
-void register(FluttiumRegistry registry) {
+void register(Registry registry) {
   registry.registerAction(
     'customAction',
     CustomAction.new,

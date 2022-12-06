@@ -16,7 +16,7 @@ class TakeScreenshot extends Action {
   final String fileName;
 
   @override
-  Future<bool> execute(FluttiumTester tester) async {
+  Future<bool> execute(Tester tester) async {
     RenderRepaintBoundary? boundary;
     void find(RenderObject element) {
       if (boundary != null) return;
@@ -44,4 +44,7 @@ class TakeScreenshot extends Action {
 
     return true;
   }
+
+  @override
+  String description() => 'Screenshot "$fileName"';
 }

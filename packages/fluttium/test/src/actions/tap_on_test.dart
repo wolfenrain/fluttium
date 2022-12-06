@@ -10,11 +10,11 @@ import '../../helpers/helpers.dart';
 
 void main() {
   group('TapOn', () {
-    late FluttiumTester tester;
+    late Tester tester;
     late SemanticsNode node;
 
     setUp(() {
-      tester = MockFluttiumTester();
+      tester = MockTester();
       node = MockSemanticsNode();
       when(() => node.rect).thenReturn(
         Rect.fromCircle(center: Offset.zero, radius: 10),
@@ -89,6 +89,24 @@ void main() {
             any(that: isPointerEvent<PointerUpEvent>(position: Offset.zero)),
           ),
         );
+      });
+    });
+
+    group('Readable representation', () {
+      test('with text', () {
+        final tapOn = TapOn(text: 'hello');
+        expect(tapOn.description(), 'Tap on "hello"');
+      });
+
+      test('with offset', () {
+        final tapOn = TapOn(offset: Offset.zero);
+        expect(tapOn.description(), 'Tap on [0.0, 0.0]');
+      });
+
+      test('with none', () {
+        final tapOn = TapOn();
+
+        expect(tapOn.description, throwsUnsupportedError);
       });
     });
   });

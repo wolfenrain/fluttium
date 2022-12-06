@@ -12,17 +12,15 @@ import '../../helpers/helpers.dart';
 
 class _MockImage extends Mock implements Image {}
 
-class _FakeUint8List extends Fake implements List<int> {}
-
 void main() {
   group('TakeScreenshot', () {
-    late FluttiumTester tester;
+    late Tester tester;
     late RenderObject renderObject;
     late RenderRepaintBoundary renderRepaintBoundary;
     late Image image;
 
     setUp(() {
-      tester = MockFluttiumTester();
+      tester = MockTester();
       when(() => tester.storeFile(any(), any())).thenAnswer((_) async {});
 
       renderObject = MockRenderObject();
@@ -106,6 +104,12 @@ void main() {
           Uint8List.fromList([1, 2, 3, 4]),
         ),
       );
+    });
+
+    test('Readable representation', () {
+      final takeScreenshot = TakeScreenshot(fileName: 'fileName');
+
+      expect(takeScreenshot.description(), 'Screenshot "fileName"');
     });
   });
 }

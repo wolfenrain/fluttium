@@ -1,3 +1,5 @@
-dependency_overrides: 
-  fluttium_flow:
-    path: ../fluttium_flow
+dependency_overrides:
+  fluttium_protocol:
+    path: ../fluttium_protocol
+  fluttium_interfaces:
+    path: ../fluttium_interfaces

@@ -9,11 +9,11 @@ import '../../helpers/helpers.dart';
 
 void main() {
   group('ExpectVisible', () {
-    late FluttiumTester tester;
+    late Tester tester;
     late SemanticsNode node;
 
     setUp(() {
-      tester = MockFluttiumTester();
+      tester = MockTester();
       node = MockSemanticsNode();
     });
 
@@ -47,6 +47,12 @@ void main() {
           timeout: any(named: 'timeout', that: isNull),
         ),
       ).called(1);
+    });
+
+    test('Readable representation', () {
+      final expectVisible = ExpectVisible(text: 'hello');
+
+      expect(expectVisible.description(), 'Expect visible "hello"');
     });
   });
 }

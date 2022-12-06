@@ -9,10 +9,10 @@ import '../../helpers/helpers.dart';
 
 void main() {
   group('InputText', () {
-    late FluttiumTester tester;
+    late Tester tester;
 
     setUp(() {
-      tester = MockFluttiumTester();
+      tester = MockTester();
       when(() => tester.pumpAndSettle(timeout: any(named: 'timeout')))
           .thenAnswer((_) async {});
       when(() => tester.emitPlatformMessage(any(), any()))
@@ -55,6 +55,12 @@ void main() {
         () =>
             tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
       ]);
+    });
+
+    test('Readable representation', () {
+      final inputText = InputText(text: 'hello');
+
+      expect(inputText.description(), 'Input text "hello"');
     });
   });
 }
