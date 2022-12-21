@@ -41,11 +41,11 @@ void main() {
       'project_name': 'project_name',
       'flow_description': 'test',
       'flow_steps': [
-        {'step': "await worker.tapOn(r'Text');"},
-        {'step': "await worker.expectVisible(r'Text');"},
-        {'step': "await worker.expectNotVisible(r'Text');"},
-        {'step': "await worker.inputText(r'Text');"},
-        {'step': "await worker.takeScreenshot(r'Text');"}
+        {'step': "await worker.tapOn(r'''Text''');"},
+        {'step': "await worker.expectVisible(r'''Text''');"},
+        {'step': "await worker.expectNotVisible(r'''Text''');"},
+        {'step': "await worker.inputText(r'''Text''');"},
+        {'step': "await worker.takeScreenshot(r'''Text''');"}
       ]
     };
 
