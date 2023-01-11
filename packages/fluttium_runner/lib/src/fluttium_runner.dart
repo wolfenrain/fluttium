@@ -135,15 +135,15 @@ class FluttiumRunner {
             final text = sanitizeRegExp(e.text);
             switch (e.action) {
               case FluttiumAction.expectVisible:
-                return "await worker.expectVisible(r'$text');";
+                return "await worker.expectVisible(r'''$text''');";
               case FluttiumAction.expectNotVisible:
-                return "await worker.expectNotVisible(r'$text');";
+                return "await worker.expectNotVisible(r'''$text''');";
               case FluttiumAction.tapOn:
-                return "await worker.tapOn(r'$text');";
+                return "await worker.tapOn(r'''$text''');";
               case FluttiumAction.inputText:
-                return "await worker.inputText(r'$text');";
+                return "await worker.inputText(r'''$text''');";
               case FluttiumAction.takeScreenshot:
-                return "await worker.takeScreenshot(r'$text');";
+                return "await worker.takeScreenshot(r'''$text''');";
             }
           })
           .map((e) => {'step': e})
