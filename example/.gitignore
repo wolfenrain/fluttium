@@ -123,5 +123,5 @@ app.*.map.json
 
 pubspec.lock
 
-# Ignore any driver files
-.*_driver.dart
+# Ignore any Fluttium launcher files
+.fluttium_*_launcher.dart

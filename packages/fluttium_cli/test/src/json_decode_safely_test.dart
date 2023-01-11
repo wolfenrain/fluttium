@@ -1,4 +1,4 @@
-import 'package:fluttium_flow/fluttium_flow.dart';
+import 'package:fluttium_cli/src/json_decode_safely.dart';
 import 'package:test/test.dart';
 
 void main() {

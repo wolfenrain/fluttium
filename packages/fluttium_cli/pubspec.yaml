@@ -10,9 +10,9 @@ environment:
 dependencies:
   args: ^2.3.1
   collection: ^1.16.0
-  fluttium_flow: ^0.1.0-dev.2
-  fluttium_runner: ^0.1.0-dev.11
-  mason: ^0.1.0-dev.34
+  fluttium_driver: ^0.1.0-dev.1
+  fluttium_interfaces: ^0.1.0-dev.1
+  mason: ^0.1.0-dev.37
   meta: ^1.8.0
   path: ^1.8.2
   process: ^4.2.4
