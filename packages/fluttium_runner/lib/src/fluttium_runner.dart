@@ -127,7 +127,7 @@ class FluttiumRunner {
   void _convertFlowToVars() {
     String sanitizeText(String text) => text.replaceAll("'", r"\'");
     String sanitizeRegExp(String text) => text.replaceAll("'''", r"\'''");
-
+    
     _vars.addAll({
       'flow_description': sanitizeText(flow!.description),
       'flow_steps': flow!.steps
@@ -144,6 +144,8 @@ class FluttiumRunner {
                 return "await worker.inputText(r'$text');";
               case FluttiumAction.takeScreenshot:
                 return "await worker.takeScreenshot(r'$text');";
+              case FluttiumAction.wait:
+                return "await worker.wait(r'$text')";
             }
           })
           .map((e) => {'step': e})

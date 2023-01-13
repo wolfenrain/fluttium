@@ -63,6 +63,16 @@ class FluttiumWorker {
 
   RenderObject get renderObject => binding.renderViewElement!.renderObject!;
 
+  Future<void> wait(String text) async {
+    await manager.start();
+    try {
+      final node = await Future.delayed(Duration(seconds: num.tryParse(text).toInt()))
+      await manager.done();
+    } catch (err) {
+      await manager.fail();
+    }
+  }
+
   Future<void> tapOn(String text) async {
     await manager.start();
     try {

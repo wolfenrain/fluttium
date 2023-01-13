@@ -252,6 +252,9 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
             case FluttiumAction.takeScreenshot:
               actionDescription = 'Screenshot "${step.text}"';
               break;
+            case FluttiumAction.wait:
+              actionDescription = 'Wait "${step.text}"';
+              break;
           }
 
           if (i < stepStates.length) {

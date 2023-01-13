@@ -45,6 +45,7 @@ void main() {
         {'step': "await worker.expectVisible(r'Text');"},
         {'step': "await worker.expectNotVisible(r'Text');"},
         {'step': "await worker.inputText(r'Text');"},
+        {'step': "await worker.wait(r'Text');"},
         {'step': "await worker.takeScreenshot(r'Text');"}
       ]
     };
@@ -84,6 +85,7 @@ description: test
 - expectNotVisible: "Text"
 - inputText: "Text"
 - takeScreenshot: "Text"
+- wait: "Text"
 ''');
       when(() => flowFile.path).thenReturn('flow.yaml');
 

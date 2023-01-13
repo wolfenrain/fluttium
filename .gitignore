@@ -44,3 +44,5 @@ coverage
 
 !.vscode/launch.json
 !.idea/runConfigurations/
+.fvm/flutter_sdk
+.fvm/fvm_config.json

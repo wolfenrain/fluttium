@@ -625,6 +625,7 @@ void main() {
             FluttiumStep(FluttiumAction.tapOn, text: 'text'),
             FluttiumStep(FluttiumAction.inputText, text: 'text'),
             FluttiumStep(FluttiumAction.takeScreenshot, text: 'text'),
+            FluttiumStep(FluttiumAction.wait, text: 'text'),
           ]);
 
           renderer(flow, []);

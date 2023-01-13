@@ -12,6 +12,9 @@ enum FluttiumAction {
   /// Input the given text.
   inputText,
 
+  /// Make a pause.
+  wait,
+
   /// Take a screenshot with the given name.
   takeScreenshot;
 
@@ -28,6 +31,8 @@ enum FluttiumAction {
         return FluttiumAction.inputText;
       case 'takeScreenshot':
         return FluttiumAction.takeScreenshot;
+      case 'wait':
+        return FluttiumAction.wait;
       default:
         throw UnimplementedError('$action is not implemented');
     }
