@@ -80,7 +80,7 @@ class FluttiumWorker {
       }else if(typeOfDuration.contains("hour")){
         duration = Duration(hours: valueInt)
       }
-      final node = await Future.delayed(Duration(seconds: num.tryParse(text).toInt()))
+      final node = await Future.delayed(duration)
       await manager.done();
     } catch (err) {
       await manager.fail();
