@@ -66,6 +66,20 @@ class FluttiumWorker {
   Future<void> wait(String text) async {
     await manager.start();
     try {
+      Duration duration = Duration();
+      int valueInt = num.parse(text.split(" ").first);
+      String typeOfDuration = text.split(" ").last;
+      if(typeOfDuration.contains("microsecond")){
+        duration = Duration(microseconds: valueInt)
+      }else if(typeOfDuration.contains("millisecond")){
+        duration = Duration(milliseconds: valueInt)
+      }else if(typeOfDuration.contains("second")){
+        duration = Duration(seconds: valueInt)
+      }else if(typeOfDuration.contains("minute")){
+        duration = Duration(minutes: valueInt)
+      }else if(typeOfDuration.contains("hour")){
+        duration = Duration(hours: valueInt)
+      }
       final node = await Future.delayed(Duration(seconds: num.tryParse(text).toInt()))
       await manager.done();
     } catch (err) {
