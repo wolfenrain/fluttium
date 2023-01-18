@@ -34,7 +34,7 @@ Future<void> main() async {
     userFlowFile: File('../../example/flows/progress_flow.yaml'),
   );
 
-  driver.steps.listen((steps) {
+  final sub = driver.steps.listen((steps) {
     // clear the terminal
     stdout.write('\x1B[2J\x1B[0;0H\n');
 
@@ -61,5 +61,6 @@ Future<void> main() async {
       ProcessSignal.sigint.watch().listen((_) => driver.quit());
 
   await driver.run();
+  await sub.cancel();
   await subscription.cancel();
 }

@@ -52,7 +52,6 @@ class FluttiumDriver {
         _fileWatcher = fileWatcher ?? FileWatcher.new,
         _stepStateController = StreamController<List<StepState>>.broadcast(),
         assert(userFlowFile.existsSync(), 'userFlowFile does not exist') {
-    steps = _stepStateController.stream;
     userFlow = UserFlowYaml.fromFile(userFlowFile);
   }
 
@@ -75,7 +74,7 @@ class FluttiumDriver {
   ///
   /// The steps are emitted as a list of [StepState]s representing the current
   /// state of those steps, the list is ordered by the order of execution.
-  late final Stream<List<StepState>> steps;
+  late final Stream<List<StepState>> steps = _stepStateController.stream;
   final StreamController<List<StepState>> _stepStateController;
   final List<StepState> _stepStates = [];
 
