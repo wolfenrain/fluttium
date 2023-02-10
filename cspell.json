@@ -20,5 +20,9 @@
     "useGitignore": true,
     "ignorePaths": [
         ".github/workflows/**"
+    ],
+    "words": [
+        "fluttium",
+        "pubspec"
     ]
 }

@@ -307,7 +307,6 @@ class FluttiumDriver {
     );
 
     if (runPubGet) {
-      // TODO: this might keep the process running
       await _testRunnerGenerator.hooks.postGen(
         workingDirectory: _testRunnerDirectory.path,
       );
@@ -339,7 +338,7 @@ class FluttiumDriver {
           multiLine: true,
         );
         final data = utf8.decode(event);
-        _logger.detail(data);
+        _logger.detail('driver: $data');
 
         final isValidAttach =
             data.startsWith(regex) || data.contains('Flutter Web Bootstrap');
@@ -376,18 +375,14 @@ class FluttiumDriver {
               );
           }
         }
-
-        if (data.startsWith(regex)) {
-          return utf8.encode(data.replaceAll(regex, ''));
-        }
-        return event;
+        return utf8.encode(data.replaceAll(regex, ''));
       }),
     );
 
     final errorBuffer = StringBuffer();
     _subscriptions.add(
-      _process!.stderr.listen(
-        (event) => errorBuffer.write(utf8.decode(event)),
+      _process!.stderr.transform(utf8.decoder).listen(
+        errorBuffer.write,
         onDone: () {
           // If it exited without correctly attaching to the application, we
           // output the errors.

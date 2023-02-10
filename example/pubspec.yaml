@@ -16,6 +16,8 @@ dev_dependencies:
   bloc_test: ^9.1.0
   flutter_test:
     sdk: flutter
+  fluttium_test_runner:
+    path: /var/folders/1x/xz6dvvjx6hl2x2hz8gln8l8m0000gn/T/fluttium_T2Cs0d
   mocktail: ^0.3.0
   very_good_analysis: ^3.1.0
 
