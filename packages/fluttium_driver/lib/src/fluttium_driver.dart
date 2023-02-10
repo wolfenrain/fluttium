@@ -192,7 +192,7 @@ class FluttiumDriver {
     // Cleanup the generated files.
     await _cleanupGeneratedCode();
 
-    _process = null;
+    _process?.kill();
   }
 
   /// Restart the runner and the driver.
@@ -228,7 +228,9 @@ class FluttiumDriver {
 
     // Setup the test runner.
     _testRunnerGenerator = await _generatorBuilder(fluttiumTestRunnerBundle);
-    _testRunnerDirectory = Directory.systemTemp.createTempSync('fluttium_');
+    _testRunnerDirectory = Directory(
+      '/Users/wolfen/Projects/personal/fluttium/example/test_runner',
+    ); //Directory.systemTemp.createTempSync('fluttium_');
     settingUpTestRunner.complete();
 
     final settingUpLauncher = _logger.progress('Setting up the launcher');
@@ -416,7 +418,7 @@ extension on ActionLocation {
     } else if (path != null) {
       return '''
 
-    path: ${relativeDirectory.absolute.uri.resolve(path!)}''';
+    path: ${relativeDirectory.absolute.uri.resolve(path!).replace(scheme: '')}''';
     }
     throw Exception('Invalid action location.');
   }

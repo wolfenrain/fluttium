@@ -1,7 +1,7 @@
 description: Testing the progress page
 ---
 # Validate that the app page is displayed
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- expectEnvironmentText:
 # Go to the progress page
 - tapOn: Progress
 # Validate that the progress page is displayed and the start button is there
@@ -13,4 +13,4 @@ description: Testing the progress page
 - expectVisible: Done
 # Return to the app page
 - tapOn: Back
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- expectEnvironmentText:

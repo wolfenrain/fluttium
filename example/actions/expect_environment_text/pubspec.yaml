@@ -1,0 +1,11 @@
+name: expect_environment_text 
+description: Check if the environment text label is set on the main screen.
+version: 0.1.0-dev.1
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dependencies:
+  fluttium: ^0.1.0-dev.1
+  flutter:
+    sdk: flutter

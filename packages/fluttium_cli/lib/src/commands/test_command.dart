@@ -234,6 +234,8 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       ),
     );
 
+    // TODO(wolfen): check `fluttium.environment`
+
     if (fluttium.driver.deviceId == null) {
       _logger.err('No devices found.');
       return ExitCode.unavailable.code;

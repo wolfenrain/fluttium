@@ -1,7 +1,7 @@
 description: Testing the counter page
 ---
 # Validate that the app page is displayed
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- expectEnvironmentText:
 # Go to the counter page
 - tapOn: Counter
 # Validate that the counter page is displayed and the counter is 0
@@ -16,4 +16,4 @@ description: Testing the counter page
 - expectVisible: 1
 # Return to the app page
 - tapOn: Back
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- expectEnvironmentText:

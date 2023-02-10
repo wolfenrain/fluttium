@@ -1,0 +1,18 @@
+name: fluttium_action
+description: A new brick created with the Mason CLI.
+version: 0.1.0+1
+
+environment:
+  mason: ">=0.1.0-dev.41 <0.1.0"
+
+vars:
+  name:
+    type: string
+    description: The name of the action
+    default: my_action
+    prompt: What is the name of the action?
+  description:
+    type: string
+    description: The description of the action
+    default: A custom action for Fluttium. An action is immutable and an instance of an action represents a step in the user flow.
+    prompt: What is the description of the action?

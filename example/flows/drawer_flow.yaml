@@ -1,7 +1,7 @@
 description: Testing the drawer page
 ---
 # Validate that the app page is displayed
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- expectEnvironmentText:
 # Go to the drawer page
 - tapOn: Drawer
 # Validate that the drawer page is displayed and nothing is clicked
@@ -27,4 +27,4 @@ description: Testing the drawer page
 - expectVisible: "Clicked: Value 2"
 # Return to the app page
 - tapOn: Back
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- expectEnvironmentText:
