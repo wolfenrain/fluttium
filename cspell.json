@@ -22,7 +22,17 @@
         ".github/workflows/**"
     ],
     "words": [
+        "Appium",
+        "Automator",
+        "Diagnosticable",
+        "embedder",
         "fluttium",
-        "pubspec"
+        "microtasks",
+        "pubspec",
+        "SKIA",
+        "sublist",
+        "writeln",
+        "xcassets",
+        "xcworkspace"
     ]
 }
