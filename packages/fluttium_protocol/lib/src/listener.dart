@@ -15,7 +15,7 @@ class Listener {
   /// stream has to ensure that Flutter's prefix is removed. The following regex
   /// can be used to remove the prefix:
   /// ```dart
-  /// RegExp(r'^[I/]*flutter[\s*\(\s*\d+\)]*: ');
+  /// RegExp(r'^[I\/]*flutter[\s*\(\s*\d+\)]*: ');
   /// ```
   Listener(Stream<List<int>> stream)
       : _controller = StreamController<Message>() {
@@ -26,8 +26,15 @@ class Listener {
     _subscription =
         stream.transform(utf8.decoder).transform(const LineSplitter()).listen(
       (event) {
+        final data = event.trim();
+        // Skip empty lines.
+        if (data.isEmpty) return;
+
+        // Skip if it doesn't start with a bracket.
+        if (!data.startsWith('{')) return;
+
         try {
-          final chunk = json.decode(event.trim()) as Map<String, dynamic>;
+          final chunk = json.decode(data) as Map<String, dynamic>;
           if (!chunk.containsKey('type')) return;
 
           switch (chunk['type']) {

@@ -307,6 +307,7 @@ class FluttiumDriver {
     );
 
     if (runPubGet) {
+      // TODO: this might keep the process running
       await _testRunnerGenerator.hooks.postGen(
         workingDirectory: _testRunnerDirectory.path,
       );
@@ -333,8 +334,11 @@ class FluttiumDriver {
 
     _listener = Listener(
       _process!.stdout.map((event) {
-        final regex = RegExp(r'^[I/]*flutter[\s*\(\s*\d+\)]*: ');
-        final data = utf8.decode(event).trim();
+        final regex = RegExp(
+          r'^[I\/]*flutter[\s*\(\s*\d+\)]*: ',
+          multiLine: true,
+        );
+        final data = utf8.decode(event);
         _logger.detail(data);
 
         final isValidAttach =
@@ -374,7 +378,7 @@ class FluttiumDriver {
         }
 
         if (data.startsWith(regex)) {
-          return utf8.encode(data.replaceFirst(regex, ''));
+          return utf8.encode(data.replaceAll(regex, ''));
         }
         return event;
       }),
