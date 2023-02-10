@@ -3,16 +3,23 @@ import 'package:fluttium/fluttium.dart';
 /// {@template custom_action}
 /// A custom action for Fluttium.
 ///
-/// An action is immutable and an instance of an action represents a step in
-/// the user flow.
+/// An action is immutable and it represents a step in the user flow.
 ///
-/// The syntax for this action is as followed:
+/// This action can be invoked either using the short-hand version:
+///
+/// ```yaml
+/// - customAction: "Hello World"
+/// ```
+///
+/// Or using the verbose version:
 ///
 /// ```yaml
 /// - customAction:
 ///   - text: "Hello World"
 /// ```
+/// {@endtemplate}
 class CustomAction extends Action {
+  /// {@macro custom_action}
   const CustomAction({
     required this.text,
   });

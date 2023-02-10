@@ -2,6 +2,8 @@ import 'package:fluttium/fluttium.dart';
 
 /// {@template {{name.snakeCase()}}}
 /// {{{description}}}
+/// 
+/// An action is immutable and it represents a step in the user flow.
 ///
 /// This action can be invoked either using the short-hand version:
 /// 

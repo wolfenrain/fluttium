@@ -14,5 +14,5 @@ vars:
   description:
     type: string
     description: The description of the action
-    default: A custom action for Fluttium. An action is immutable and an instance of an action represents a step in the user flow.
+    default: A custom action for Fluttium.
     prompt: What is the description of the action?

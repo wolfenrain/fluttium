@@ -44,3 +44,6 @@ coverage
 
 !.vscode/launch.json
 !.idea/runConfigurations/
+
+# Ignore any pubspec overrides within brick templates
+bricks/**/__brick__/pubspec_overrides.yaml
