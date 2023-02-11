@@ -10,25 +10,12 @@ Future<void> main() async {
     configuration: const DriverConfiguration(
       // flavor: 'development',
       mainEntry: 'lib/main_development.dart',
-      deviceId: 'macos',
+      deviceId: 'chrome',
     ),
     actions: {
-      // 'tap': const ActionLocation(
-      //   path: '../../some/path',
-      // ),
-      // 'swipe': ActionLocation(
-      //   hosted: HostedPath(
-      //     url: 'https://some.url',
-      //     version: VersionConstraint.parse('0.1.0'),
-      //   ),
-      // ),
-      // 'scroll': const ActionLocation(
-      //   git: GitPath(
-      //     url: 'https://some.url',
-      //     ref: 'some-ref',
-      //     path: 'some/path',
-      //   ),
-      // ),
+      'expect_environment_text': const ActionLocation(
+        path: 'actions/expect_environment_text',
+      ),
     },
     projectDirectory: Directory('../../example'),
     userFlowFile: File('../../example/flows/progress_flow.yaml'),

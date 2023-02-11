@@ -9,6 +9,8 @@ import 'package:mocktail/mocktail.dart';
 import '../../helpers/helpers.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('TapOn', () {
     late Tester tester;
     late SemanticsNode node;
@@ -16,6 +18,7 @@ void main() {
     setUp(() {
       tester = MockTester();
       node = MockSemanticsNode();
+      when(() => node.transform).thenReturn(Matrix4.identity());
       when(() => node.rect).thenReturn(
         Rect.fromCircle(center: Offset.zero, radius: 10),
       );

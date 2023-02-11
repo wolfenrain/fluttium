@@ -91,12 +91,15 @@ jobs:
             fluttium_cli:
               - ./.github/actions/dart_package
               - packages/fluttium_cli/**
-            fluttium_flow:
+            fluttium_driver:
               - ./.github/actions/dart_package
-              - packages/fluttium_flow/**
-            fluttium_runner:
+              - packages/fluttium_driver/**
+            fluttium_interfaces:
               - ./.github/actions/dart_package
-              - packages/fluttium_runner/**
+              - packages/fluttium_interfaces/**
+            fluttium_protocol:
+              - ./.github/actions/dart_package
+              - packages/fluttium_protocol/**
 
   # Build and test the dart packages that have changed.
   #
@@ -166,9 +169,12 @@ jobs:
         id: filter
         with:
           filters: |
-            generated_registry:
+            fluttium_launcher:
               - ./.github/actions/dart_package
-              - bricks/generated_registry/hooks/**
+              - bricks/fluttium_launcher/hooks/**
+            fluttium_test_runner:
+              - ./.github/actions/dart_package
+              - bricks/fluttium_test_runner/hooks/**
 
   # Build and test the bricks that have changed.
   #

@@ -22,9 +22,6 @@ class Tester {
 
   SemanticsOwner get _semanticsOwner => _binding.pipelineOwner.semanticsOwner!;
 
-  /// TODO: Add documentation.
-  RenderObject get renderObject => _binding.renderViewElement!.renderObject!;
-
   /// Converts the [steps] into a list of executable actions.
   Future<List<Future<void> Function()>> convert(
     List<UserFlowStep> steps,
@@ -141,5 +138,24 @@ class Tester {
     });
 
     return nodes;
+  }
+
+  /// Retrieve the root repaint boundary.
+  RenderRepaintBoundary? getRenderRepaintBoundary() {
+    final renderObject = _binding.renderViewElement!.renderObject!;
+    RenderRepaintBoundary? boundary;
+    void find(RenderObject element) {
+      if (boundary != null) return;
+
+      if (element is! RenderRepaintBoundary) {
+        return element.visitChildren(find);
+      }
+      boundary = element;
+    }
+
+    if (renderObject is! RenderRepaintBoundary) {
+      renderObject.visitChildren(find);
+    }
+    return boundary;
   }
 }

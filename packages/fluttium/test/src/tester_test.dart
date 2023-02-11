@@ -10,7 +10,7 @@ import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:fluttium_protocol/fluttium_protocol.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../helpers/mocks.dart';
+import '../helpers/helpers.dart';
 
 class _MockAction extends Mock implements Action {}
 
@@ -25,6 +25,10 @@ class _MockBinaryMessenger extends Mock implements BinaryMessenger {}
 class _MockPipelineOwner extends Mock implements PipelineOwner {}
 
 class _MockSemanticsOwner extends Mock implements SemanticsOwner {}
+
+class _MockElement extends Mock
+    with DiagnosticableToStringMixin
+    implements Element {}
 
 class _FakeTester extends Fake implements Tester {}
 
@@ -64,6 +68,10 @@ void main() {
       registerFallbackValue(_FakeTester());
       registerFallbackValue(Uint8List(0));
       registerFallbackValue(PointerDownEvent());
+    });
+
+    test('can create a tester without an emitter', () {
+      expect(Tester(binding, registry), isNotNull);
     });
 
     group('compute', () {
@@ -216,7 +224,7 @@ void main() {
       });
 
       test('pump for the given duration', () async {
-        FakeAsync().run((async) {
+        fakeAsync((async) {
           when(() => binding.endOfFrame).thenAnswer((_) async {
             async.elapse(Duration(milliseconds: 10));
           });
@@ -273,18 +281,26 @@ void main() {
         when(() => binding.pipelineOwner).thenReturn(pipelineOwner);
         when(() => pipelineOwner.semanticsOwner).thenReturn(semanticsOwner);
 
-        rootNode = SemanticsNode();
+        rootNode = MockSemanticsNode();
         when(() => semanticsOwner.rootSemanticsNode).thenReturn(rootNode);
       });
 
+      setUpAll(() {
+        registerFallbackValue(SemanticsFlag.isHidden);
+      });
+
       test('find a node by given string', () async {
-        final node = SemanticsNode();
+        final node = MockSemanticsNode();
         when(() => node.mergeAllDescendantsIntoThisNode).thenReturn(true);
         when(() => node.isInvisible).thenReturn(false);
         when(() => node.hasFlag(any())).thenReturn(false);
 
         final semanticsData = _MockSemanticsData();
         when(() => semanticsData.label).thenReturn('label');
+        when(() => semanticsData.value).thenReturn('');
+        when(() => semanticsData.hint).thenReturn('');
+        when(() => semanticsData.tooltip).thenReturn('');
+
         when(node.getSemanticsData).thenReturn(semanticsData);
 
         when(() => rootNode.visitChildren(any())).thenAnswer((invocation) {
@@ -296,6 +312,147 @@ void main() {
         final result = await tester.find('label');
 
         expect(result, equals(node));
+      });
+
+      test('merge all nodes directly', () async {
+        final parentNode = MockSemanticsNode();
+        when(() => parentNode.mergeAllDescendantsIntoThisNode)
+            .thenReturn(false);
+        when(() => parentNode.isInvisible).thenReturn(true);
+
+        final node = MockSemanticsNode();
+        when(() => node.mergeAllDescendantsIntoThisNode).thenReturn(false);
+        when(() => node.isInvisible).thenReturn(false);
+        when(() => node.hasFlag(any())).thenReturn(false);
+
+        final semanticsData = _MockSemanticsData();
+        when(() => semanticsData.label).thenReturn('label');
+        when(() => semanticsData.value).thenReturn('');
+        when(() => semanticsData.hint).thenReturn('');
+        when(() => semanticsData.tooltip).thenReturn('');
+
+        when(node.getSemanticsData).thenReturn(semanticsData);
+
+        when(() => rootNode.visitChildren(any())).thenAnswer((invocation) {
+          final visitor =
+              invocation.positionalArguments[0] as SemanticsNodeVisitor;
+          visitor(parentNode);
+        });
+        when(() => parentNode.visitChildren(any())).thenAnswer((invocation) {
+          final visitor =
+              invocation.positionalArguments[0] as SemanticsNodeVisitor;
+          visitor(node);
+        });
+
+        final result = await tester.find('label');
+
+        expect(result, equals(node));
+      });
+
+      test('find a node by given regex', () async {
+        final node = MockSemanticsNode();
+        when(() => node.mergeAllDescendantsIntoThisNode).thenReturn(true);
+        when(() => node.isInvisible).thenReturn(false);
+        when(() => node.hasFlag(any())).thenReturn(false);
+
+        final semanticsData = _MockSemanticsData();
+        when(() => semanticsData.label).thenReturn('');
+        when(() => semanticsData.value).thenReturn('');
+        when(() => semanticsData.hint).thenReturn('');
+        when(() => semanticsData.tooltip).thenReturn('tooltip_0');
+
+        when(node.getSemanticsData).thenReturn(semanticsData);
+
+        when(() => rootNode.visitChildren(any())).thenAnswer((invocation) {
+          final visitor =
+              invocation.positionalArguments[0] as SemanticsNodeVisitor;
+          visitor(node);
+        });
+
+        final result = await tester.find(r'tooltip_\d+');
+
+        expect(result, equals(node));
+      });
+
+      test('find a node after a pump', () async {
+        final node = MockSemanticsNode();
+        when(() => node.mergeAllDescendantsIntoThisNode).thenReturn(true);
+        when(() => node.isInvisible).thenReturn(false);
+        when(() => node.hasFlag(any())).thenReturn(false);
+
+        final semanticsData = _MockSemanticsData();
+        when(() => semanticsData.label).thenReturn('label');
+        when(() => semanticsData.value).thenReturn('');
+        when(() => semanticsData.hint).thenReturn('');
+        when(() => semanticsData.tooltip).thenReturn('');
+
+        when(node.getSemanticsData).thenReturn(semanticsData);
+
+        var firstVisit = true;
+        when(() => rootNode.visitChildren(any())).thenAnswer((invocation) {
+          if (firstVisit) {
+            firstVisit = false;
+            return;
+          }
+          final visitor =
+              invocation.positionalArguments[0] as SemanticsNodeVisitor;
+          visitor(node);
+        });
+
+        when(() => binding.endOfFrame).thenAnswer((_) async {});
+
+        final result = await tester.find('label');
+
+        expect(result, equals(node));
+        verify(() => binding.endOfFrame).called(1);
+      });
+
+      test('returns null after timeout', () {
+        fakeAsync((async) {
+          when(() => rootNode.visitChildren(any())).thenAnswer((invocation) {});
+          when(() => binding.endOfFrame).thenAnswer((_) async {
+            async.elapse(Duration(seconds: 1));
+          });
+
+          final future = tester.find('label', timeout: Duration(seconds: 1));
+          expect(future, completion(isNull));
+
+          async.flushMicrotasks();
+
+          verify(() => binding.endOfFrame).called(2);
+        });
+      });
+    });
+
+    group('getRenderRepaintBoundary', () {
+      late RenderObject renderObject;
+
+      setUp(() {
+        renderObject = MockRenderObject();
+
+        final renderViewElement = _MockElement();
+        when(() => renderViewElement.renderObject).thenReturn(renderObject);
+        when(() => binding.renderViewElement).thenReturn(renderViewElement);
+      });
+
+      test('recursively finds the renderRepaintBoundary', () {
+        final renderRepaintBoundary = MockRenderRepaintBoundary();
+
+        var firstVisit = true;
+        when(() => renderObject.visitChildren(any())).thenAnswer((invocation) {
+          final visitor =
+              invocation.positionalArguments[0] as RenderObjectVisitor;
+          if (firstVisit) {
+            firstVisit = false;
+            return visitor(renderObject);
+          }
+          return visitor(renderRepaintBoundary);
+        });
+
+        final boundary = tester.getRenderRepaintBoundary();
+        expect(boundary, equals(renderRepaintBoundary));
+
+        verify(() => renderObject.visitChildren(any())).called(2);
       });
     });
   });

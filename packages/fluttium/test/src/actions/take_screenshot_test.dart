@@ -36,7 +36,8 @@ void main() {
           pixelRatio: any(named: 'pixelRatio'),
         ),
       ).thenAnswer((_) async => image);
-      when(() => tester.renderObject).thenReturn(renderRepaintBoundary);
+      when(() => tester.getRenderRepaintBoundary())
+          .thenReturn(renderRepaintBoundary);
     });
 
     setUpAll(() {
@@ -70,23 +71,11 @@ void main() {
     });
 
     test('stops early if no repaint boundary was found', () async {
-      var firstVisit = true;
-      when(() => tester.renderObject).thenReturn(renderObject);
-      when(() => renderObject.visitChildren(any())).thenAnswer((invocation) {
-        final visitor =
-            invocation.positionalArguments[0] as RenderObjectVisitor;
-        if (firstVisit) {
-          firstVisit = false;
-          return visitor(renderObject);
-        }
-        return;
-      });
-
+      when(() => tester.getRenderRepaintBoundary()).thenReturn(null);
       final takeScreenshot = TakeScreenshot(fileName: 'fileName');
 
       expect(await takeScreenshot.execute(tester), isFalse);
 
-      verify(() => renderObject.visitChildren(any())).called(2);
       verifyNever(
         () => renderRepaintBoundary.toImage(
           pixelRatio: any(named: 'pixelRatio'),
