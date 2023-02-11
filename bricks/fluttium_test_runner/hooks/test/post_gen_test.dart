@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -23,6 +25,8 @@ class _FakeHookContext extends Fake implements HookContext {
 
 class _MockLogger extends Mock implements Logger {}
 
+class _MockProgress extends Mock implements Progress {}
+
 void main() {
   group('postGen', () {
     late HookContext context;
@@ -31,12 +35,21 @@ void main() {
     setUp(() {
       logger = _MockLogger();
       context = _FakeHookContext(logger: logger);
+
+      when(() => logger.progress(any())).thenReturn(_MockProgress());
     });
 
     test('run completes when pubspec.yaml exists', () async {
-      const name = 'example';
-      context.vars = {'name': name};
       await expectLater(run(context), completes);
+    });
+
+    test('run throws when pubspec.yaml does not exist', () async {
+      await IOOverrides.runZoned(
+        () async {
+          await expectLater(() => run(context), throwsA(isA<Exception>()));
+        },
+        getCurrentDirectory: () => Directory('/invalid'),
+      );
     });
   });
 }
