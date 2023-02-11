@@ -6,6 +6,24 @@ import 'package:test/test.dart';
 
 void main() {
   group('Emitter', () {
+    test('emit announce', () async {
+      await runWithPrint((printed) async {
+        final emitter = Emitter();
+        await emitter.announce('step');
+
+        await printingDone;
+
+        expect(
+          printed,
+          equals([
+            '{"type":"start"}',
+            r'{"type":"data","data":"\"{\\\"type\\\":\\\"announce\\\",\\\"data\\\":\\\"\\\\\\\"step\\\\\\\"\\\"}\""}',
+            '{"type":"done"}'
+          ]),
+        );
+      });
+    });
+
     test('emit start', () async {
       await runWithPrint((printed) async {
         final emitter = Emitter();

@@ -5,4 +5,3 @@ dependency_overrides:
     path: ../../../packages/fluttium_protocol
   fluttium_interfaces:
     path: ../../../packages/fluttium_interfaces
-# TODO(wolfen): git ignore this file and explain how to set it up
