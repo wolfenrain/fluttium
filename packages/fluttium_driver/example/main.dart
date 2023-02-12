@@ -8,7 +8,7 @@ Future<void> main() async {
   final driver = FluttiumDriver(
     logger: Logger(level: Level.verbose),
     configuration: const DriverConfiguration(
-      // flavor: 'development',
+      flavor: 'development',
       mainEntry: 'lib/main_development.dart',
       deviceId: 'chrome',
     ),
@@ -21,7 +21,7 @@ Future<void> main() async {
     userFlowFile: File('../../example/flows/progress_flow.yaml'),
   );
 
-  final sub = driver.steps.listen((steps) {
+  final stepsSubscription = driver.steps.listen((steps) {
     // clear the terminal
     stdout.write('\x1B[2J\x1B[0;0H\n');
 
@@ -44,10 +44,10 @@ Future<void> main() async {
     }
   });
 
-  final subscription =
+  final processSubscription =
       ProcessSignal.sigint.watch().listen((_) => driver.quit());
 
   await driver.run();
-  await sub.cancel();
-  await subscription.cancel();
+  await stepsSubscription.cancel();
+  await processSubscription.cancel();
 }

@@ -111,10 +111,44 @@ class FluttiumDriver {
   /// To listen to the steps in the user flow, use the [steps] stream.
   Future<void> run({bool watch = false}) async {
     await _setupGeneratedCode();
-    await _startRunner(watch: watch);
+    await _launchTestRunner();
 
     _subscriptions.add(
       _listener.messages.listen((message) async {
+        if (!_didAttach) {
+          _didAttach = true;
+          _launchingTestRunner?.complete();
+
+          if (watch) {
+            // Watch the project directory for changes and hot restart the
+            // runner when changes are detected.
+            _subscriptions
+              ..add(
+                _directoryWatcher(projectDirectory.path).events.listen(
+                  (event) {
+                    if (!event.path.endsWith('.dart')) return;
+                    restart();
+                  },
+                  onError: (Object err) {
+                    if (err is FileSystemException &&
+                        err.message.contains('Failed to watch')) {
+                      return _logger.detail(err.toString());
+                    }
+                    // ignore: only_throw_errors
+                    throw err;
+                  },
+                ),
+              )
+              // Watch the user flow file for changes and restart the driver
+              // when changes are detected.
+              ..add(
+                _fileWatcher(userFlowFile.path)
+                    .events
+                    .listen((event) => restart()),
+              );
+          }
+        }
+
         switch (message.type) {
           case MessageType.announce:
             _stepStates.add(StepState(message.data as String));
@@ -210,8 +244,8 @@ class FluttiumDriver {
     // automatically be filled up by the runner.
     _stepStates.clear();
 
-    // Regenerate the runner.
-    await _generateRunner();
+    // Regenerate the test runner.
+    await _generateTestRunner();
 
     // Tell the runner to restart.
     _process?.stdin.write('R');
@@ -252,7 +286,7 @@ class FluttiumDriver {
     settingUpLauncher.complete();
 
     // Generate the test runner project.
-    await _generateRunner(runPubGet: true);
+    await _generateTestRunner(runPubGet: true);
 
     // Generate the launcher file.
     final files = await _launcherGenerator.generate(
@@ -287,7 +321,7 @@ class FluttiumDriver {
     }
   }
 
-  Future<void> _generateRunner({bool runPubGet = false}) async {
+  Future<void> _generateTestRunner({bool runPubGet = false}) async {
     userFlow = UserFlowYaml.fromFile(userFlowFile);
     await _testRunnerGenerator.generate(
       DirectoryGeneratorTarget(_testRunnerDirectory),
@@ -315,7 +349,9 @@ class FluttiumDriver {
     }
   }
 
-  Future<void> _startRunner({required bool watch}) async {
+  Progress? _launchingTestRunner;
+
+  Future<void> _launchTestRunner() async {
     final commandArgs = [
       'flutter',
       'run',
@@ -326,7 +362,7 @@ class FluttiumDriver {
     ];
     _logger.detail('Running command: ${commandArgs.join(' ')}');
 
-    final launchingTestRunner = _logger.progress('Launching the test runner');
+    _launchingTestRunner = _logger.progress('Launching the test runner');
     _process = await _processManager.start(
       commandArgs,
       runInShell: true,
@@ -341,42 +377,6 @@ class FluttiumDriver {
         );
         final data = utf8.decode(event);
         _logger.detail('driver: $data');
-
-        final isValidAttach =
-            data.startsWith(regex) || data.contains('Flutter Web Bootstrap');
-        if (!_didAttach && isValidAttach) {
-          _didAttach = true;
-          launchingTestRunner.complete();
-
-          if (watch) {
-            // Watch the project directory for changes and hot restart the
-            // runner when changes are detected.
-            _subscriptions
-              ..add(
-                _directoryWatcher(projectDirectory.path).events.listen(
-                  (event) {
-                    if (!event.path.endsWith('.dart')) return;
-                    restart();
-                  },
-                  onError: (Object err) {
-                    if (err is FileSystemException &&
-                        err.message.contains('Failed to watch')) {
-                      return _logger.detail(err.toString());
-                    }
-                    // ignore: only_throw_errors
-                    throw err;
-                  },
-                ),
-              )
-              // Watch the user flow file for changes and restart the driver
-              // when changes are detected.
-              ..add(
-                _fileWatcher(userFlowFile.path)
-                    .events
-                    .listen((event) => restart()),
-              );
-          }
-        }
         return utf8.encode(data.replaceAll(regex, ''));
       }),
     );
@@ -389,7 +389,7 @@ class FluttiumDriver {
           // If it exited without correctly attaching to the application, we
           // output the errors.
           if (!_didAttach) {
-            launchingTestRunner.fail('Failed to start test driver');
+            _launchingTestRunner?.fail('Failed to start test driver');
             _logger.err(errorBuffer.toString());
           }
         },
