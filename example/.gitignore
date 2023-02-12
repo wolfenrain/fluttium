@@ -124,3 +124,6 @@ pubspec.lock
 
 # Ignore any Fluttium launcher files
 .fluttium_*_launcher.dart
+
+# Ignore any example screenshots
+screenshots/

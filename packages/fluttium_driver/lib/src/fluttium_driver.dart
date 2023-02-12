@@ -184,7 +184,7 @@ class FluttiumDriver {
           case MessageType.store:
             final data = message.data as List<dynamic>;
             final fileName = data.first as String;
-            final fileData = data.last as List<int>;
+            final fileData = (data.last as List<dynamic>).cast<int>();
 
             final index = _stepStates.indexWhere(
               (state) => state.status == StepStatus.running,

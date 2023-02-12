@@ -268,6 +268,12 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
             break;
           case StepStatus.done:
             _logger.info('  ✅  ${step.description}');
+            for (final file in step.files.entries) {
+              _logger.detail('Writing ${file.value.length} bytes to $file');
+              File(file.key)
+                ..createSync(recursive: true)
+                ..writeAsBytesSync(file.value);
+            }
             break;
           case StepStatus.failed:
             _logger.info('  ❌  ${step.description}');

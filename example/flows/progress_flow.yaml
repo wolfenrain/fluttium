@@ -2,6 +2,7 @@ description: Testing the progress page
 ---
 # Validate that the app page is displayed
 - expectEnvironmentText:
+- takeScreenshot: app_page
 # Go to the progress page
 - tapOn: Progress
 # Validate that the progress page is displayed and the start button is there
