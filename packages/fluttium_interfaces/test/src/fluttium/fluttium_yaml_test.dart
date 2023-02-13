@@ -1,13 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
-
-class _MockFile extends Mock implements File {}
 
 class _FakeEncoding extends Fake implements Encoding {}
 

@@ -2,8 +2,6 @@
 #
 # This is a one-time setup script.
 
-
-
 echo "dependency_overrides:
   fluttium:
     path: $(pwd)/packages/fluttium

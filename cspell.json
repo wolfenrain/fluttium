@@ -24,9 +24,11 @@
     "words": [
         "Appium",
         "Automator",
+        "darwin",
         "Diagnosticable",
         "embedder",
         "fluttium",
+        "linux",
         "microtasks",
         "pubspec",
         "sigint",

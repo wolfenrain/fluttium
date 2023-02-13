@@ -59,7 +59,7 @@ if grep -q $new_version "CHANGELOG.md"; then
     exit 1
 fi
 
-# Add a new version entry with the found commits to the CHANGELOG.md
+# Add a new version entry with the found commits to the CHANGELOG.md.
 echo "# ${new_version}\n\n${commits}\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
 echo "CHANGELOG for $package_name generated, validate entries here: $(pwd)/CHANGELOG.md"
 

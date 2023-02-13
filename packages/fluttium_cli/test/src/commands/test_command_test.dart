@@ -66,8 +66,8 @@ class _MockStdin extends Mock implements Stdin {}
 
 class _MockUserFlowYaml extends Mock implements UserFlowYaml {}
 
-class _MockStreamSubscription<T> extends Mock implements StreamSubscription<T> {
-}
+class _MockStreamSubscription<T> extends Mock
+    implements StreamSubscription<T> {}
 
 void main() {
   group('test', () {
