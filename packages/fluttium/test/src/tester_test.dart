@@ -272,7 +272,6 @@ void main() {
     group('find', () {
       late SemanticsOwner semanticsOwner;
       late SemanticsNode rootNode;
-      late SemanticsNode mergeAllDescendantsIntoThisNode;
 
       setUp(() {
         semanticsOwner = _MockSemanticsOwner();

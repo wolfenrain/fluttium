@@ -31,10 +31,7 @@ void main() {
 
       expect(
         step.toJson(),
-        equals({
-          'actionName': 'tapOn',
-          'arguments': '"Increment"',
-        }),
+        equals({'tapOn': 'Increment'}),
       );
     });
 
