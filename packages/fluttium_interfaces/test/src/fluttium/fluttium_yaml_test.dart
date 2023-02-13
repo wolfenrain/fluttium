@@ -13,12 +13,6 @@ class _FakeEncoding extends Fake implements Encoding {}
 
 void main() {
   group('FluttiumYaml', () {
-    late File file;
-
-    setUp(() {
-      file = _MockFile();
-    });
-
     setUpAll(() {
       registerFallbackValue(_FakeEncoding());
     });
@@ -34,8 +28,7 @@ void main() {
     });
 
     test('can construct from a file', () {
-      when(() => file.readAsStringSync(encoding: any(named: 'encoding')))
-          .thenReturn('''
+      final config = FluttiumYaml.fromData('''
 environment:
   fluttium: ">=0.1.0-dev.1 <0.1.0"
 
@@ -50,8 +43,6 @@ actions:
   custom_action: ^0.1.0-dev.1
   some_other_action: 1.2.3
 ''');
-
-      final config = FluttiumYaml.fromFile(file);
 
       expect(
         config.environment,

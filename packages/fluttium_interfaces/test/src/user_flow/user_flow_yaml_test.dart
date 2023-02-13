@@ -1,24 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _MockFile extends Mock implements File {}
-
 class _FakeEncoding extends Fake implements Encoding {}
 
 void main() {
   group('UserFlowYaml', () {
-    late File file;
-
-    setUp(() {
-      file = _MockFile();
-    });
-
     setUpAll(() {
       registerFallbackValue(_FakeEncoding());
     });
@@ -46,16 +37,13 @@ void main() {
     });
 
     test('can construct from a file', () {
-      when(() => file.readAsStringSync(encoding: any(named: 'encoding')))
-          .thenReturn('''
+      final flow = UserFlowYaml.fromData('''
 description: test description
 ---
 - tapOn: "Increment"
 - expectVisible: 
     text: "0"
 ''');
-
-      final flow = UserFlowYaml.fromFile(file);
       expect(flow.description, equals('test description'));
       expect(flow.steps.length, equals(2));
 

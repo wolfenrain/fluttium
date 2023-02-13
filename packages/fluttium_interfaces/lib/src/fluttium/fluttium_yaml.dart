@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:fluttium_interfaces/src/fluttium/fluttium.dart';
@@ -20,21 +19,22 @@ class FluttiumYaml extends Equatable {
   /// {@macro fluttium_yaml}
   ///
   /// Loads the configuration from a `fluttium.yaml` file.
-  factory FluttiumYaml.fromFile(File file) {
-    final data = json.decode(json.encode(loadYaml(file.readAsStringSync())))
-        as Map<String, dynamic>;
+  factory FluttiumYaml.fromData(String data) {
+    final yaml = json.decode(
+      json.encode(loadYaml(data)),
+    ) as Map<String, dynamic>;
 
     return FluttiumYaml(
       environment: FluttiumEnvironment.fromJson(
-        data['environment'] as Map<String, dynamic>? ?? {},
+        yaml['environment'] as Map<String, dynamic>? ?? {},
       ),
       actions: {
         for (final entry
-            in (data['actions'] as Map<String, dynamic>? ?? {}).entries)
+            in (yaml['actions'] as Map<String, dynamic>? ?? {}).entries)
           entry.key: ActionLocation.fromJson(entry.value)
       },
       driver: DriverConfiguration.fromJson(
-        data['driver'] as Map<String, dynamic>? ?? {},
+        yaml['driver'] as Map<String, dynamic>? ?? {},
       ),
     );
   }

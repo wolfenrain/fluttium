@@ -52,7 +52,7 @@ class FluttiumDriver {
         _fileWatcher = fileWatcher ?? FileWatcher.new,
         _stepStateController = StreamController<List<StepState>>.broadcast(),
         assert(userFlowFile.existsSync(), 'userFlowFile does not exist') {
-    userFlow = UserFlowYaml.fromFile(userFlowFile);
+    userFlow = UserFlowYaml.fromData(userFlowFile.readAsStringSync());
   }
 
   /// The configuration for the driver.
@@ -320,7 +320,7 @@ class FluttiumDriver {
   }
 
   Future<void> _generateTestRunner({bool runPubGet = false}) async {
-    userFlow = UserFlowYaml.fromFile(userFlowFile);
+    userFlow = UserFlowYaml.fromData(userFlowFile.readAsStringSync());
     await _testRunnerGenerator.generate(
       DirectoryGeneratorTarget(_testRunnerDirectory),
       vars: {

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:fluttium_interfaces/src/user_flow/user_flow.dart';
@@ -18,13 +17,9 @@ class UserFlowYaml extends Equatable {
   /// {@macro user_flow_yaml}
   ///
   /// Converts a json map to a [UserFlowYaml].
-  factory UserFlowYaml.fromFile(File file) {
+  factory UserFlowYaml.fromData(String data) {
     final documents = json.decode(
-      json.encode(
-        loadYamlDocuments(file.readAsStringSync())
-            .map((e) => e.contents)
-            .toList(),
-      ),
+      json.encode(loadYamlDocuments(data).map((e) => e.contents).toList()),
     ) as List<dynamic>;
     final metaData = documents.first as Map<String, dynamic>;
     final stepData = documents.last as List<dynamic>;
