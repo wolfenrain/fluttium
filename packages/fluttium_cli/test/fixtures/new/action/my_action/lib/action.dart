@@ -2,15 +2,15 @@ import 'package:fluttium/fluttium.dart';
 
 /// {@template my_action}
 /// A custom action for Fluttium.
-/// 
+///
 /// An action is immutable and it represents a step in the user flow.
 ///
 /// This action can be invoked either using the short-hand version:
-/// 
+///
 /// ```yaml
 /// - myAction: "Hello World"
 /// ```
-/// 
+///
 /// Or using the verbose version:
 ///
 /// ```yaml
