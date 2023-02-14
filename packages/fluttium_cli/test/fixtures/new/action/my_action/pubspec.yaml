@@ -1,0 +1,11 @@
+name: my_action 
+description: A custom action for Fluttium.
+version: 0.1.0-dev.1
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dependencies:
+  fluttium: ^0.1.0-dev.1
+  flutter:
+    sdk: flutter

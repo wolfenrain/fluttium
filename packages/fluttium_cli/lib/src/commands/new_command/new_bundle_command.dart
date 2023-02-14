@@ -40,11 +40,6 @@ class NewBundleCommand extends Command<int> {
       switch (props.type) {
         case BrickVariableType.enumeration:
         case BrickVariableType.array:
-          argParser.addMultiOption(
-            entry.key,
-            help: props.description,
-            defaultsTo: props.defaultValues as List<String>?,
-          );
           break;
         case BrickVariableType.boolean:
         case BrickVariableType.number:

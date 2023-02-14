@@ -71,9 +71,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
   String get name => 'test';
 
   @override
-  String get invocation {
-    return super.invocation.replaceAll('[arguments]', '<flow.yaml>');
-  }
+  String get invocation => 'fluttium test <flow.yaml> [arguments]';
 
   final Logger _logger;
 
@@ -96,11 +94,11 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
   List<String> get _dartDefines => results['dart-define'] as List<String>;
 
   /// The file of the flow to run.
-  File get _flowFile {
+  File get _userFlowFile {
     if (results.rest.isEmpty || results.rest.first.isEmpty) {
       usageException('No flow file specified.');
     }
-    return File(results.arguments.first);
+    return File(results.rest.first);
   }
 
   /// The project directory to run in.
@@ -138,6 +136,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
     FlutterDevice? device;
     if (devices.length == 1) {
       device = devices.first;
+      retrievingDevices.complete();
     } else {
       final optionalDeviceId = results['device-id'] as String?;
       if (optionalDeviceId != null && optionalDeviceId.isNotEmpty) {
@@ -191,7 +190,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
 
   @override
   Future<int> run() async {
-    final userFlowFile = _flowFile;
+    final userFlowFile = _userFlowFile;
     if (!userFlowFile.existsSync()) {
       _logger.err('Flow file "${userFlowFile.path}" not found.');
       return ExitCode.unavailable.code;

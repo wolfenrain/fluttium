@@ -1,6 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:fluttium_cli/src/bundles/bundles.dart';
-import 'package:fluttium_cli/src/commands/new_command/new_sub_command.dart';
+import 'package:fluttium_cli/src/commands/new_command/new_bundle_command.dart';
 import 'package:mason/mason.dart';
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].

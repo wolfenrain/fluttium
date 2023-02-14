@@ -13,3 +13,4 @@ coverage/
 
 # Android studio and IntelliJ
 .idea
+test/fixtures/.*/

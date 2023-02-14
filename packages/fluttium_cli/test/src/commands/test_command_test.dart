@@ -16,51 +16,39 @@ import '../../helpers/helpers.dart';
 
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
-  'Run a FluttiumFlow test.\n'
+  'Run a user flow test.\n'
       '\n'
-      'Usage: fluttium test <flow.yaml>\n'
+      'Usage: fluttium test <flow.yaml> [arguments]\n'
       '-h, --help                       Print this usage information.\n'
       '-w, --[no-]watch                 Watch for file changes.\n'
-      '''-d, --device-id                  Target device id or name (prefixes allowed).\n'''
-      '''    --flavor                     Build a custom app flavor as defined by platform-specific build setup.\n'''
-      '''                                 This will be passed to the --flavor option of flutter run.\n'''
-      '''-t, --target                     The main entry-point file of the application, as run on the device.\n'''
+      '-d, --device-id                  Target device id or name (prefixes allowed).\n'
+      '    --flavor                     Build a custom app flavor as defined by platform-specific build setup.\n'
+      '                                 This will be passed to the --flavor option of flutter run.\n'
+      '-t, --target                     The main entry-point file of the application, as run on the device.\n'
       '                                 (defaults to "lib/main.dart")\n'
-      '''    --dart-define=<key=value>    Pass additional key-value pairs to the flutter run.\n'''
-      '''                                 Multiple defines can be passed by repeating "--dart-define" multiple times.\n'''
+      '    --dart-define=<key=value>    Pass additional key-value pairs to the flutter run.\n'
+      '                                 Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
       '\n'
       'Run "fluttium help" to see global options.'
 ];
 
-FluttiumDriverCreator _runner(FluttiumDriver runner) {
-  return ({
-    required DriverConfiguration configuration,
-    required Map<String, ActionLocation> actions,
-    required Directory projectDirectory,
-    required File userFlowFile,
-    Logger? logger,
-    ProcessManager? processManager,
-  }) =>
-      runner;
-}
-
 class _FakeLogger extends Fake implements Logger {}
 
-class _MockArgResults extends Mock implements ArgResults {}
+class _MockFluttiumDriver extends Mock implements FluttiumDriver {}
 
 class _MockLogger extends Mock implements Logger {}
 
 class _MockProgress extends Mock implements Progress {}
 
-class _MockFluttiumDriver extends Mock implements FluttiumDriver {}
+class _MockProcessManager extends Mock implements ProcessManager {}
+
+class _MockProcessResult extends Mock implements ProcessResult {}
+
+class _MockArgResults extends Mock implements ArgResults {}
 
 class _MockFile extends Mock implements File {}
 
 class _MockDirectory extends Mock implements Directory {}
-
-class _MockProcessManager extends Mock implements ProcessManager {}
-
-class _MockProcessResult extends Mock implements ProcessResult {}
 
 class _MockStdin extends Mock implements Stdin {}
 
@@ -71,44 +59,41 @@ class _MockStreamSubscription<T> extends Mock
 
 void main() {
   group('test', () {
-    late List<String> progressLogs;
+    late FluttiumDriver driver;
     late Logger logger;
-    late Progress progress;
+    late Progress retrievingDevices;
     late ProcessManager processManager;
     late ProcessResult flutterDevicesResult;
-    late Directory projectDirectory;
-    late File flowFile;
-    late File targetFile;
-    late Directory platformDirectory;
-    late Stdin stdin;
     late ArgResults argResults;
+    late File userFlowFile;
+    late Directory projectDirectory;
+    late Directory platformDirectory;
+    late File pubspecFile;
+    late File fluttiumFile;
+    late File targetFile;
+    late StreamController<List<StepState>> stepStateController;
+    late Stdin stdin;
+    late File testFile;
 
     setUpAll(() {
       registerFallbackValue(_FakeLogger());
     });
 
     setUp(() {
-      argResults = _MockArgResults();
-      when(() => argResults.arguments).thenReturn(['test_flow.yaml']);
-      when(() => argResults['watch']).thenReturn(false);
-      when(() => argResults['target']).thenReturn('lib/main.dart');
-      when(() => argResults['dart-define']).thenReturn(<String>[]);
+      driver = _MockFluttiumDriver();
+      when(driver.run).thenAnswer((_) async {});
 
-      progressLogs = <String>[];
+      stepStateController = StreamController.broadcast();
+      when(() => driver.steps).thenAnswer((_) => stepStateController.stream);
 
       logger = _MockLogger();
-      progress = _MockProgress();
-      when(() => progress.complete(any())).thenAnswer((_) {
-        if (_.positionalArguments.isEmpty) {
-          return;
-        }
-        if (_.positionalArguments[0] != null) {
-          progressLogs.add(_.positionalArguments[0] as String);
-        }
-      });
-      when(() => logger.progress(any())).thenReturn(progress);
+
+      retrievingDevices = _MockProgress();
+      when(() => logger.progress(any(that: equals('Retrieving devices'))))
+          .thenReturn(retrievingDevices);
 
       processManager = _MockProcessManager();
+
       flutterDevicesResult = _MockProcessResult();
       when(() => flutterDevicesResult.stdout).thenReturn(
         json.encode([
@@ -120,7 +105,6 @@ void main() {
           }
         ]),
       );
-
       when(
         () => processManager.run(
           any(
@@ -136,26 +120,46 @@ void main() {
           runInShell: any(named: 'runInShell'),
           workingDirectory: any(named: 'workingDirectory'),
         ),
-      ).thenAnswer((invocation) async => flutterDevicesResult);
+      ).thenAnswer((_) async => flutterDevicesResult);
 
-      final pubspecFile = _MockFile();
+      argResults = _MockArgResults();
+      when(() => argResults.rest).thenReturn(['test_flow.yaml']);
+      when(() => argResults['watch']).thenReturn(false);
+      when(() => argResults['target']).thenReturn('lib/main.dart');
+      when(() => argResults['dart-define']).thenReturn(<String>[]);
+
+      pubspecFile = _MockFile();
       when(() => pubspecFile.path).thenReturn('pubspec.yaml');
+
       projectDirectory = _MockDirectory();
-      when(projectDirectory.listSync).thenReturn([pubspecFile]);
       when(() => projectDirectory.absolute).thenReturn(projectDirectory);
-      when(() => projectDirectory.path).thenReturn('project');
-
-      flowFile = _MockFile();
-      when(flowFile.existsSync).thenReturn(true);
-      when(() => flowFile.parent).thenReturn(projectDirectory);
-      when(() => flowFile.path).thenReturn('project/test_flow.yaml');
-
-      targetFile = _MockFile();
-      when(targetFile.existsSync).thenReturn(true);
-      when(() => targetFile.path).thenReturn('project/lib/main.dart');
+      when(() => projectDirectory.listSync()).thenReturn([pubspecFile]);
+      when(() => projectDirectory.path).thenReturn('project_directory');
 
       platformDirectory = _MockDirectory();
-      when(platformDirectory.existsSync).thenReturn(true);
+      when(() => platformDirectory.existsSync()).thenReturn(true);
+
+      userFlowFile = _MockFile();
+      when(() => userFlowFile.path)
+          .thenReturn('project_directory/test_flow.yaml');
+      when(() => userFlowFile.existsSync()).thenReturn(true);
+      when(() => userFlowFile.parent).thenReturn(projectDirectory);
+
+      fluttiumFile = _MockFile();
+      when(() => fluttiumFile.existsSync()).thenReturn(true);
+      when(() => fluttiumFile.readAsStringSync()).thenReturn('''
+environment:
+  fluttium: ">=0.1.0-dev.1 <0.1.0"
+''');
+
+      targetFile = _MockFile();
+      when(() => targetFile.existsSync()).thenReturn(true);
+      when(() => targetFile.path).thenReturn('project_directory/lib/main.dart');
+
+      testFile = _MockFile();
+      when(() => testFile.createSync(recursive: any(named: 'recursive')))
+          .thenAnswer((_) {});
+      when(() => testFile.writeAsBytesSync(any())).thenAnswer((_) {});
 
       stdin = _MockStdin();
     });
@@ -175,66 +179,63 @@ void main() {
       }),
     );
 
-    test('completes running the fluttium runner', () async {
-      final driver = _MockFluttiumDriver();
-      when(driver.run).thenAnswer((invocation) async {});
+    Future<void> runWithMocks(Future<void> Function() callback) async {
+      await IOOverrides.runZoned(
+        callback,
+        createFile: (path) {
+          if (path.endsWith('test_flow.yaml')) {
+            return userFlowFile;
+          } else if (path.endsWith('fluttium.yaml')) {
+            return fluttiumFile;
+          } else if (path.endsWith('main.dart')) {
+            return targetFile;
+          } else if (path.endsWith('test_file')) {
+            return testFile;
+          }
+          throw UnimplementedError(path);
+        },
+        createDirectory: (path) {
+          if (path.endsWith('project_directory')) {
+            return projectDirectory;
+          }
+          return platformDirectory;
+        },
+        stdin: () => stdin,
+      );
+    }
 
+    test('completes running the fluttium driver', () async {
       final command = TestCommand(
         logger: logger,
         processManager: processManager,
-        driver: _runner(driver),
+        driver: _driver(driver),
       )..testArgResults = argResults;
 
-      await IOOverrides.runZoned(
-        () async {
-          final result = await command.run();
-          expect(result, equals(ExitCode.success.code));
-        },
-        createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-        createDirectory: (path) {
-          if (path.endsWith('macos')) {
-            return platformDirectory;
-          }
-          return projectDirectory;
-        },
-      );
+      await runWithMocks(() async {
+        final result = await command.run();
+        expect(result, equals(ExitCode.success.code));
+      });
     });
 
-    test('bubbles up until it fits a pubspec', () async {
-      final driver = _MockFluttiumDriver();
-      when(driver.run).thenAnswer((invocation) async {});
-
-      final childDirectory = _MockDirectory();
-      when(childDirectory.listSync).thenReturn([]);
-      when(() => childDirectory.absolute).thenReturn(childDirectory);
-      when(() => childDirectory.parent).thenReturn(projectDirectory);
-
-      when(() => flowFile.parent).thenReturn(childDirectory);
+    test('completes running the fluttium driver without a fluttium.yaml file',
+        () async {
+      when(() => fluttiumFile.existsSync()).thenReturn(false);
 
       final command = TestCommand(
         logger: logger,
         processManager: processManager,
-        driver: _runner(driver),
+        driver: _driver(driver),
       )..testArgResults = argResults;
 
-      await IOOverrides.runZoned(
-        () async {
-          final result = await command.run();
-          expect(result, equals(ExitCode.success.code));
-        },
-        createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-        createDirectory: (path) {
-          if (path.endsWith('macos')) {
-            return platformDirectory;
-          }
-          return childDirectory;
-        },
-      );
+      await runWithMocks(() async {
+        final result = await command.run();
+        expect(result, equals(ExitCode.success.code));
+      });
     });
 
     group('exits early', () {
       test(
-        'if no flow file is given',
+        'exits early if no flow file was specified',
         withRunner((commandRunner, logger, printLogs, processManager) async {
           final result = await commandRunner.run(['test']);
 
@@ -243,118 +244,118 @@ void main() {
       );
 
       test('if the given flow file does not exists', () async {
-        final driver = _MockFluttiumDriver();
-        when(driver.run).thenAnswer((invocation) async {});
-
-        when(flowFile.existsSync).thenReturn(false);
+        when(userFlowFile.existsSync).thenReturn(false);
 
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          driver: _runner(driver),
+          driver: _driver(driver),
         )..testArgResults = argResults;
 
-        await IOOverrides.runZoned(
-          () async {
-            final result = await command.run();
-            expect(result, equals(ExitCode.unavailable.code));
+        await runWithMocks(() async {
+          final result = await command.run();
+          expect(result, equals(ExitCode.unavailable.code));
 
-            verify(
-              () => logger.err(
-                any(
-                  that: equals('Flow file "project/test_flow.yaml" not found.'),
+          verify(
+            () => logger.err(
+              any(
+                that: equals(
+                  'Flow file "project_directory/test_flow.yaml" not found.',
                 ),
               ),
-            ).called(1);
-          },
-          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-          createDirectory: (path) {
-            if (path.endsWith('macos')) {
-              return platformDirectory;
-            }
-            return projectDirectory;
-          },
-        );
+            ),
+          ).called(1);
+        });
+      });
+
+      test('if fluttium version does not fit constraints', () async {
+        when(() => fluttiumFile.readAsStringSync()).thenReturn('''
+environment:
+  fluttium: ">=999.999.998 <999.999.999"
+''');
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final result = await command.run();
+          expect(result, equals(ExitCode.unavailable.code));
+
+          verify(
+            () => logger.err(
+              any(
+                that: equals(
+                  '''
+Version solving failed:
+  The Fluttium CLI uses "${FluttiumDriver.fluttiumVersionConstraint}" as the version constraint.
+  The current project uses ">=999.999.998 <999.999.999" as defined in the fluttium.yaml.
+
+Either adjust the constraint in the Fluttium configuration or update the CLI to a newer version.''',
+                ),
+              ),
+            ),
+          ).called(1);
+        });
       });
 
       test('if no pubspec was found in parent directories', () async {
-        final driver = _MockFluttiumDriver();
-        when(driver.run).thenAnswer((invocation) async {});
+        final parentDirectory = _MockDirectory();
+        when(parentDirectory.listSync).thenReturn([]);
+        when(() => parentDirectory.parent).thenReturn(parentDirectory);
 
         when(() => projectDirectory.listSync()).thenReturn([]);
-        when(() => projectDirectory.parent).thenReturn(projectDirectory);
+        when(() => projectDirectory.parent).thenReturn(parentDirectory);
 
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          driver: _runner(driver),
+          driver: _driver(driver),
         )..testArgResults = argResults;
 
-        await IOOverrides.runZoned(
-          () async {
-            final result = await command.run();
-            expect(result, equals(ExitCode.unavailable.code));
+        await runWithMocks(() async {
+          final result = await command.run();
+          expect(result, equals(ExitCode.unavailable.code));
 
-            verify(
-              () => logger.err(
-                any(
-                  that: equals(
-                    'Could not find pubspec.yaml in parent directories.',
-                  ),
+          verify(
+            () => logger.err(
+              any(
+                that: equals(
+                  'Could not find pubspec.yaml in parent directories.',
                 ),
               ),
-            ).called(1);
-          },
-          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-          createDirectory: (path) {
-            if (path.endsWith('macos')) {
-              return platformDirectory;
-            }
-            return projectDirectory;
-          },
-        );
+            ),
+          ).called(1);
+        });
       });
 
       test('if the target file does not exist', () async {
-        final driver = _MockFluttiumDriver();
-        when(driver.run).thenAnswer((invocation) async {});
-
         when(targetFile.existsSync).thenReturn(false);
 
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          driver: _runner(driver),
+          driver: _driver(driver),
         )..testArgResults = argResults;
 
-        await IOOverrides.runZoned(
-          () async {
-            final result = await command.run();
-            expect(result, equals(ExitCode.unavailable.code));
+        await runWithMocks(() async {
+          final result = await command.run();
+          expect(result, equals(ExitCode.unavailable.code));
 
-            verify(
-              () => logger.err(
-                any(
-                  that: equals('Target file "lib/main.dart" not found.'),
-                ),
+          verify(
+            () => logger.err(
+              any(
+                that: equals('Target file "lib/main.dart" not found.'),
               ),
-            ).called(1);
-          },
-          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-          createDirectory: (path) {
-            if (path.endsWith('macos')) {
-              return platformDirectory;
-            }
-            return projectDirectory;
-          },
-        );
+            ),
+          ).called(1);
+        });
       });
     });
 
     test('validates all platforms', () async {
-      final driver = _MockFluttiumDriver();
-      when(driver.run).thenAnswer((invocation) async {});
-
       for (final platform in [
         const MapEntry('web', 'web'),
         const MapEntry('macos', 'darwin'),
@@ -377,18 +378,18 @@ void main() {
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          driver: _runner(driver),
+          driver: _driver(driver),
         )..testArgResults = argResults;
 
-        await IOOverrides.runZoned(
+        await runWithMocks(
           () async {
             final result = await command.run();
 
             verify(
               () => logger.progress(any(that: equals('Retrieving devices'))),
             ).called(1);
-            verify(() => progress.complete()).called(1);
-            verifyNever(() => progress.cancel());
+            verify(retrievingDevices.complete).called(1);
+            verifyNever(retrievingDevices.cancel);
             verifyNever(
               () => logger.chooseOne<FlutterDevice>(
                 any(that: equals('Choose a device:')),
@@ -398,13 +399,6 @@ void main() {
             );
 
             expect(result, equals(ExitCode.success.code));
-          },
-          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-          createDirectory: (path) {
-            if (path.endsWith(platform.key)) {
-              return platformDirectory;
-            }
-            return projectDirectory;
           },
         );
       }
@@ -414,9 +408,6 @@ void main() {
       test('run on specified device', () async {
         when(() => argResults['device-id']).thenReturn('macos');
 
-        final driver = _MockFluttiumDriver();
-        when(driver.run).thenAnswer((invocation) async {});
-
         when(() => flutterDevicesResult.stdout).thenReturn(
           json.encode([
             {
@@ -437,41 +428,29 @@ void main() {
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          driver: _runner(driver),
+          driver: _driver(driver),
         )..testArgResults = argResults;
 
-        await IOOverrides.runZoned(
-          () async {
-            final result = await command.run();
-            expect(result, equals(ExitCode.success.code));
+        await runWithMocks(() async {
+          final result = await command.run();
+          expect(result, equals(ExitCode.success.code));
 
-            verify(
-              () => logger.progress(any(that: equals('Retrieving devices'))),
-            ).called(1);
-            verify(() => progress.complete()).called(1);
-            verifyNever(() => progress.cancel());
-            verifyNever(
-              () => logger.chooseOne<FlutterDevice>(
-                any(that: equals('Choose a device:')),
-                choices: any(named: 'choices'),
-                display: any(named: 'display'),
-              ),
-            );
-          },
-          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-          createDirectory: (path) {
-            if (path.endsWith('macos') || path.endsWith('ios')) {
-              return platformDirectory;
-            }
-            return projectDirectory;
-          },
-        );
+          verify(
+            () => logger.progress(any(that: equals('Retrieving devices'))),
+          ).called(1);
+          verify(retrievingDevices.complete).called(1);
+          verifyNever(retrievingDevices.cancel);
+          verifyNever(
+            () => logger.chooseOne<FlutterDevice>(
+              any(that: equals('Choose a device:')),
+              choices: any(named: 'choices'),
+              display: any(named: 'display'),
+            ),
+          );
+        });
       });
 
       test('prompts user which device to run on', () async {
-        final driver = _MockFluttiumDriver();
-        when(driver.run).thenAnswer((invocation) async {});
-
         when(() => flutterDevicesResult.stdout).thenReturn(
           json.encode([
             {
@@ -492,114 +471,87 @@ void main() {
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          driver: _runner(driver),
+          driver: _driver(driver),
         )..testArgResults = argResults;
 
-        await IOOverrides.runZoned(
-          () async {
-            when(
-              () => logger.chooseOne<FlutterDevice>(
-                any(that: equals('Choose a device:')),
-                choices: any(named: 'choices'),
-                display: any(named: 'display'),
-              ),
-            ).thenAnswer(
-              (invocation) {
-                final device = FlutterDevice({
-                  'name': 'macOS',
-                  'id': 'macos',
-                  'isSupported': true,
-                  'targetPlatform': 'darwin',
-                });
-                final display =
-                    (invocation.namedArguments[#display] as String Function(
-                  FlutterDevice,
-                ))(device);
-                expect(display, equals('macOS (macos)'));
+        await runWithMocks(() async {
+          when(
+            () => logger.chooseOne<FlutterDevice>(
+              any(that: equals('Choose a device:')),
+              choices: any(named: 'choices'),
+              display: any(named: 'display'),
+            ),
+          ).thenAnswer(
+            (invocation) {
+              final device = FlutterDevice({
+                'name': 'macOS',
+                'id': 'macos',
+                'isSupported': true,
+                'targetPlatform': 'darwin',
+              });
+              final display =
+                  (invocation.namedArguments[#display] as String Function(
+                FlutterDevice,
+              ))(device);
+              expect(display, equals('macOS (macos)'));
 
-                return device;
-              },
-            );
+              return device;
+            },
+          );
 
-            final result = await command.run();
-            expect(result, equals(ExitCode.success.code));
+          final result = await command.run();
+          expect(result, equals(ExitCode.success.code));
 
-            verify(
-              () => logger.progress(any(that: equals('Retrieving devices'))),
-            ).called(1);
-            verify(() => progress.cancel()).called(1);
-            verifyNever(() => progress.complete());
-            verifyNever(() => progress.fail());
-            verify(
-              () => logger.chooseOne<FlutterDevice>(
-                any(that: equals('Choose a device:')),
-                choices: any(named: 'choices'),
-                display: any(named: 'display'),
-              ),
-            ).called(1);
-          },
-          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-          createDirectory: (path) {
-            if (path.endsWith('macos') || path.endsWith('ios')) {
-              return platformDirectory;
-            }
-            return projectDirectory;
-          },
-        );
+          verify(
+            () => logger.progress(any(that: equals('Retrieving devices'))),
+          ).called(1);
+          verify(retrievingDevices.cancel).called(1);
+          verifyNever(retrievingDevices.complete);
+          verifyNever(retrievingDevices.fail);
+          verify(
+            () => logger.chooseOne<FlutterDevice>(
+              any(that: equals('Choose a device:')),
+              choices: any(named: 'choices'),
+              display: any(named: 'display'),
+            ),
+          ).called(1);
+        });
       });
 
       test('exits early if no devices are found', () async {
-        final driver = _MockFluttiumDriver();
-        when(driver.run).thenAnswer((invocation) async {});
-
-        when(() => flutterDevicesResult.stdout).thenReturn(
-          json.encode([]),
-        );
+        when(() => flutterDevicesResult.stdout).thenReturn(json.encode([]));
 
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
-          driver: _runner(driver),
+          driver: _driver(driver),
         )..testArgResults = argResults;
 
-        await IOOverrides.runZoned(
-          () async {
-            final result = await command.run();
-            expect(result, equals(ExitCode.unavailable.code));
+        await runWithMocks(() async {
+          final result = await command.run();
+          expect(result, equals(ExitCode.unavailable.code));
 
-            verify(
-              () => logger.progress(any(that: equals('Retrieving devices'))),
-            ).called(1);
-            verifyNever(() => progress.complete());
-            verify(() => progress.fail()).called(1);
-            verifyNever(() => progress.cancel());
-            verifyNever(
-              () => logger.chooseOne<FlutterDevice>(
-                any(that: equals('Choose a device:')),
-                choices: any(named: 'choices'),
-                display: any(named: 'display'),
-              ),
-            );
+          verify(
+            () => logger.progress(any(that: equals('Retrieving devices'))),
+          ).called(1);
+          verifyNever(retrievingDevices.complete);
+          verify(retrievingDevices.fail).called(1);
+          verifyNever(retrievingDevices.cancel);
+          verifyNever(
+            () => logger.chooseOne<FlutterDevice>(
+              any(that: equals('Choose a device:')),
+              choices: any(named: 'choices'),
+              display: any(named: 'display'),
+            ),
+          );
 
-            verify(
-              () => logger.err(any(that: equals('No devices found.'))),
-            ).called(1);
-          },
-          createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-          createDirectory: (path) {
-            if (path.endsWith('macos')) {
-              return platformDirectory;
-            }
-            return projectDirectory;
-          },
-        );
+          verify(() => logger.err(any(that: equals('No devices found.'))))
+              .called(1);
+        });
       });
     });
 
     test('renders as expected for all steps', () async {
-      final driver = _MockFluttiumDriver();
-      when(driver.run).thenAnswer((invocation) async {});
-
       final userFlow = _MockUserFlowYaml();
       when(() => userFlow.description).thenReturn('description');
       when(() => driver.userFlow).thenReturn(userFlow);
@@ -610,58 +562,67 @@ void main() {
       final command = TestCommand(
         logger: logger,
         processManager: processManager,
-        driver: _runner(driver),
+        driver: _driver(driver),
       )..testArgResults = argResults;
 
-      await IOOverrides.runZoned(
-        () async {
-          final future = command.run();
+      await runWithMocks(() async {
+        final future = command.run();
 
-          final step1 = StepState('Expect visible "text"');
-          final step2 = StepState('Expect not visible "text"');
-          final step3 = StepState('Tap on "text"');
+        final step1 = StepState('Expect visible "text"');
+        final step2 = StepState('Expect not visible "text"');
+        final step3 = StepState('Tap on "text"');
 
-          stepsController.add([step1, step2, step3]);
+        stepsController.add([step1, step2, step3]);
+        await Future<void>.delayed(Duration.zero);
 
-          verify(() => logger.info('  🔲  Expect visible "text"')).called(1);
-          verify(() => logger.info('  🔲  Expect not visible "text"'))
-              .called(1);
-          verify(() => logger.info('  🔲  Tap on "text"')).called(1);
+        verify(() => logger.info('  🔲  Expect visible "text"')).called(1);
+        verify(() => logger.info('  🔲  Expect not visible "text"')).called(1);
+        verify(() => logger.info('  🔲  Tap on "text"')).called(1);
 
-          stepsController
-              .add([step1.copyWith(status: StepStatus.running), step2]);
-          verify(() => logger.info('  ✅  Expect visible "text"')).called(1);
-          verify(() => logger.info('  ⏳  Expect not visible "text"')).called(1);
-          verify(() => logger.info('  🔲  Tap on "text"')).called(1);
+        stepsController
+            .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+        await Future<void>.delayed(Duration.zero);
 
-          stepsController.add([
-            step1.copyWith(status: StepStatus.done),
-            step2.copyWith(status: StepStatus.failed),
-            step3,
-          ]);
+        verify(() => logger.info('  ⏳  Expect visible "text"')).called(1);
+        verify(() => logger.info('  🔲  Expect not visible "text"')).called(1);
+        verify(() => logger.info('  🔲  Tap on "text"')).called(1);
 
-          verify(() => logger.info('  ✅  Expect visible "text"')).called(1);
-          verify(() => logger.info('  ❌  Expect not visible "text"')).called(1);
-          verify(() => logger.info('  🔲  Tap on "text"')).called(1);
+        stepsController.add([
+          step1.copyWith(status: StepStatus.done),
+          step2.copyWith(status: StepStatus.running),
+          step3
+        ]);
+        await Future<void>.delayed(Duration.zero);
 
-          verify(
-            () => logger.info(any(that: contains('description'))),
-          ).called(3);
+        verify(() => logger.info('  ✅  Expect visible "text"')).called(1);
+        verify(() => logger.info('  ⏳  Expect not visible "text"')).called(1);
+        verify(() => logger.info('  🔲  Tap on "text"')).called(1);
 
-          expect(await future, equals(ExitCode.success.code));
-        },
-        createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-        createDirectory: (path) {
-          if (path.endsWith('macos')) {
-            return platformDirectory;
-          }
-          return projectDirectory;
-        },
-      );
+        stepsController.add([
+          step1.copyWith(status: StepStatus.done),
+          step2.copyWith(status: StepStatus.failed),
+          step3
+        ]);
+        await Future<void>.delayed(Duration.zero);
+
+        verify(() => logger.info('  ✅  Expect visible "text"')).called(1);
+        verify(() => logger.info('  ❌  Expect not visible "text"')).called(1);
+        verify(() => logger.info('  🔲  Tap on "text"')).called(1);
+
+        verify(
+          () => logger.info(any(that: contains('description'))),
+        ).called(4);
+
+        expect(await future, equals(ExitCode.success.code));
+      });
     });
 
     group('watch mode', () {
       setUp(() {
+        final userFlow = _MockUserFlowYaml();
+        when(() => userFlow.description).thenReturn('description');
+        when(() => driver.userFlow).thenReturn(userFlow);
+
         when(() => argResults['watch']).thenReturn(true);
 
         when(() => stdin.listen(any())).thenAnswer((invocation) {
@@ -669,120 +630,85 @@ void main() {
         });
       });
 
-      // test('trigger short cuts', () async {
-      //   when(() => stdin.listen(any())).thenAnswer((invocation) {
-      //     final onData = invocation.positionalArguments[0] as void Function(
-      //       List<int> event,
-      //     );
-      //     onData(utf8.encode('r'));
-      //     onData(utf8.encode('q'));
+      test('trigger short cuts', () async {
+        final stepsController = StreamController<List<StepState>>();
+        when(() => driver.steps).thenAnswer((_) => stepsController.stream);
 
-      //     return _MockStreamSubscription();
-      //   });
+        when(() => stdin.listen(any())).thenAnswer((invocation) {
+          final onData = invocation.positionalArguments[0] as void Function(
+            List<int> event,
+          );
+          onData(utf8.encode('r'));
+          onData(utf8.encode('q'));
 
-      //   final driver = _MockFluttiumDriver();
-      //   when(() => driver.run(watch: any(named: 'watch')))
-      //       .thenAnswer((invocation) async {});
-      //   when(driver.restart).thenAnswer((invocation) async {});
-      //   when(driver.quit).thenAnswer((invocation) async {});
+          return _MockStreamSubscription();
+        });
 
-      //   final command = TestCommand(
-      //     logger: logger,
-      //     processManager: processManager,
-      //     driver: _runner(driver),
-      //     driver: ({
-      //       required DriverConfiguration configuration,
-      //       required Map<String, ActionLocation> actions,
-      //       required Directory projectDirectory,
-      //       required File userFlowFile,
-      //       Logger? logger,
-      //       ProcessManager? processManager,
-      //     }) {
-      //       final flow = _MockUserFlowYaml();
-      //       when(() => flow.description).thenReturn('description');
-      //       when(() => flow.steps).thenReturn([]);
+        when(() => driver.run(watch: any(named: 'watch')))
+            .thenAnswer((invocation) async {});
+        when(driver.restart).thenAnswer((invocation) async {});
+        when(driver.quit).thenAnswer((invocation) async {});
 
-      //       renderer(flow, []);
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
 
-      //       verify(
-      //         () => logger!.info(
-      //           any(that: contains('restart')),
-      //         ),
-      //       ).called(1);
+        await runWithMocks(() async {
+          final future = command.run();
 
-      //       return driver;
-      //     },
-      //   )..testArgResults = argResults;
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
 
-      //   await IOOverrides.runZoned(
-      //     () async {
-      //       final result = await command.run();
-      //       expect(result, equals(ExitCode.success.code));
+          stepsController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
 
-      //       verify(driver.restart).called(1);
-      //       verify(driver.quit).called(1);
-      //     },
-      //     createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-      //     createDirectory: (path) {
-      //       if (path.endsWith('macos')) {
-      //         return platformDirectory;
-      //       }
-      //       return projectDirectory;
-      //     },
-      //     stdin: () => stdin,
-      //   );
-      // });
+          verify(
+            () => logger.info(any(that: contains('restart'))),
+          ).called(1);
 
-      // test('renders with short cuts', () async {
-      //   final driver = _MockFluttiumDriver();
-      //   when(() => driver.run(watch: any(named: 'watch')))
-      //       .thenAnswer((invocation) async {});
+          stepsController.add([
+            step1.copyWith(
+              status: StepStatus.done,
+              files: {
+                'test_file': [1, 2, 3]
+              },
+            ),
+            step2,
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
 
-      //   final command = TestCommand(
-      //     logger: logger,
-      //     processManager: processManager,
-      //     driver: ({
-      //       required File flowFile,
-      //       required Directory projectDirectory,
-      //       required String deviceId,
-      //       required fluttium.FlowRenderer renderer,
-      //       required File mainEntry,
-      //       String? flavor,
-      //       List<String> dartDefines = const [],
-      //       Logger? logger,
-      //       ProcessManager? processManager,
-      //     }) {
-      //       final flow = _MockUserFlowYaml();
-      //       when(() => flow.description).thenReturn('description');
-      //       when(() => flow.steps).thenReturn([]);
+          verify(
+            () => testFile.createSync(
+              recursive: any(named: 'recursive', that: isTrue),
+            ),
+          ).called(1);
 
-      //       renderer(flow, []);
+          verify(
+            () => testFile.writeAsBytesSync(any(that: equals([1, 2, 3]))),
+          ).called(1);
 
-      //       verify(
-      //         () => logger!.info(
-      //           any(that: contains('restart')),
-      //         ),
-      //       ).called(1);
+          expect(await future, equals(ExitCode.success.code));
 
-      //       return driver;
-      //     },
-      //   )..testArgResults = argResults;
-
-      //   await IOOverrides.runZoned(
-      //     () async {
-      //       final result = await command.run();
-      //       expect(result, equals(ExitCode.success.code));
-      //     },
-      //     createFile: (path) => path.endsWith('.dart') ? targetFile : flowFile,
-      //     createDirectory: (path) {
-      //       if (path.endsWith('macos')) {
-      //         return platformDirectory;
-      //       }
-      //       return projectDirectory;
-      //     },
-      //     stdin: () => stdin,
-      //   );
-      // });
+          verify(driver.restart).called(1);
+          verify(driver.quit).called(1);
+        });
+      });
     });
   });
+}
+
+FluttiumDriverCreator _driver(FluttiumDriver driver) {
+  return ({
+    required DriverConfiguration configuration,
+    required Map<String, ActionLocation> actions,
+    required Directory projectDirectory,
+    required File userFlowFile,
+    Logger? logger,
+    ProcessManager? processManager,
+  }) =>
+      driver;
 }
