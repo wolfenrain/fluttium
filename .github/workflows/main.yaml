@@ -140,6 +140,9 @@ jobs:
   pana:
     needs: package_changes
 
+    # TODO(wolfen): remove after release of packages
+    continue-on-error: true
+
     strategy:
       matrix:
         package: ${{ fromJSON(needs.package_changes.outputs.packages) }}
