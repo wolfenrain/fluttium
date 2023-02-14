@@ -1,5 +1,5 @@
 name: fluttium_action
-description: A new brick created with the Mason CLI.
+description: Generate a new Fluttium action.
 version: 0.1.0+1
 
 environment:
