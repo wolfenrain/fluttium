@@ -97,7 +97,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
 
   /// The file of the flow to run.
   File get _flowFile {
-    if (results.arguments.isEmpty || results.arguments.first.isEmpty) {
+    if (results.rest.isEmpty || results.rest.first.isEmpty) {
       usageException('No flow file specified.');
     }
     return File(results.arguments.first);
@@ -209,32 +209,48 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       return ExitCode.unavailable.code;
     }
 
-    var fluttium = FluttiumYaml(
-      environment: FluttiumEnvironment(
-        // TODO: get version from bundle?
-        fluttium: VersionConstraint.parse('any'),
-      ),
-    );
+    // Setup a fluttium config file, if there is no fluttium.yaml we set up a
+    // basic one.
+    FluttiumYaml fluttium;
     final fluttiumFile = File(join(projectDirectory.path, 'fluttium.yaml'));
     if (fluttiumFile.existsSync()) {
-      fluttium = FluttiumYaml.fromFile(fluttiumFile);
+      fluttium = FluttiumYaml.fromData(fluttiumFile.readAsStringSync());
+    } else {
+      fluttium = FluttiumYaml(
+        environment: FluttiumEnvironment(
+          // TODO: get version from bundle?
+          fluttium: VersionConstraint.parse('any'),
+        ),
+      );
     }
 
-    final device = await getDevice(projectDirectory.path, fluttium);
+    // TODO(wolfen): retrieve version
+//     if (!fluttium.environment.fluttium.allows(version)) {
+//       _logger.err(
+//         '''
+// The current Fluttium version is $version.
 
+// Because this project requires Fluttium version ${fluttium.environment.fluttium}, version solving failed.''',
+//       );
+//       return ExitCode.unavailable.code;
+//     }
+
+    // Setup the driver config for Fluttium.
     fluttium = fluttium.copyWith(
       driver: fluttium.driver.copyWith(
-        deviceId: device?.id,
         mainEntry: target.path,
         flavor: _flavor,
-        dartDefines: [
-          ...fluttium.driver.dartDefines,
-          ..._dartDefines,
-        ],
+        dartDefines: [...fluttium.driver.dartDefines, ..._dartDefines],
       ),
     );
 
-    // TODO(wolfen): check `fluttium.environment`
+    // Retrieve the device to run on.
+    if (fluttium.driver.deviceId == null) {
+      final device = await getDevice(projectDirectory.path, fluttium);
+      fluttium = fluttium.copyWith(
+        driver: fluttium.driver.copyWith(deviceId: device?.id),
+      );
+    }
 
     if (fluttium.driver.deviceId == null) {
       _logger.err('No devices found.');
