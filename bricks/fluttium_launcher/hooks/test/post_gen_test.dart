@@ -43,6 +43,10 @@ void main() {
       when(() => logger.progress(any())).thenReturn(uninstallingTestRunner);
     });
 
+    test('run completes', () {
+      expect(run(context), completes);
+    });
+
     test('uninstalls fluttium_test_runner correctly', () async {
       var processRunnerCallCount = 0;
 

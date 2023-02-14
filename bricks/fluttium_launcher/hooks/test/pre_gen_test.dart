@@ -44,6 +44,10 @@ void main() {
       when(() => logger.progress(any())).thenReturn(installingTestRunner);
     });
 
+    test('run completes', () {
+      expect(run(context), completes);
+    });
+
     test('installs fluttium_test_runner correctly', () async {
       var processRunnerCallCount = 0;
 
