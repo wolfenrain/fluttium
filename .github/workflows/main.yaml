@@ -196,7 +196,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: ✨ Format, Analyze and Test (${{ matrix.brick }})
-        uses: ./.github/actions/flutter_package
+        uses: ./.github/actions/dart_package
         with:
           working_directory: bricks/${{ matrix.brick }}/hooks
           analyze_directories: .

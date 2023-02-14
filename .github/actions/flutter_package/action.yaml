@@ -25,10 +25,6 @@ inputs:
     required: false
     type: number
     default: 100
-  analyze_directories:
-    required: false
-    type: string
-    default: "lib test"
   test_optimization:
     required: false
     type: boolean
@@ -61,11 +57,11 @@ runs:
 
     - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
-      run: dart format --set-exit-if-changed ${{inputs.analyze_directories}}
+      run: dart format --set-exit-if-changed lib test
 
     - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}
-      run: flutter analyze ${{inputs.analyze_directories}}
+      run: flutter analyze lib test
 
     - working-directory: ${{ inputs.working_directory }}
       shell: ${{ inputs.shell }}

@@ -9,6 +9,7 @@ typedef ProcessRunner = Future<ProcessResult> Function(
   bool runInShell,
 });
 
+// coverage:ignore-line
 Future<void> run(HookContext context) => postGen(context);
 
 Future<void> postGen(

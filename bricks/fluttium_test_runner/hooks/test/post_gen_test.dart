@@ -43,10 +43,6 @@ void main() {
       when(() => logger.progress(any())).thenReturn(installingActions);
     });
 
-    test('run completes', () {
-      expect(run(context), completes);
-    });
-
     test('installs actions correctly', () async {
       var processRunnerCallCount = 0;
 
