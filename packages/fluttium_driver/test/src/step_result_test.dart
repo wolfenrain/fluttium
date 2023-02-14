@@ -32,6 +32,8 @@ void main() {
         }),
       );
       expect(copied.failReason, equals('failReason'));
+
+      expect(state.copyWith(), equals(state));
     });
 
     test('equality', () {

@@ -49,7 +49,7 @@ class FluttiumYaml extends Equatable {
   final Map<String, ActionLocation> actions;
 
   @override
-  List<Object?> get props => [environment, actions, driver];
+  List<Object?> get props => [environment, driver, actions];
 
   /// Copy the configuration to a new instance with optional overrides.
   FluttiumYaml copyWith({
@@ -63,4 +63,7 @@ class FluttiumYaml extends Equatable {
       driver: driver ?? this.driver,
     );
   }
+
+  /// Static constant for Fluttium configuration file name.
+  static const file = 'fluttium.yaml';
 }

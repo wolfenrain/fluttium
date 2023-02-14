@@ -258,16 +258,14 @@ class FluttiumDriver {
   }
 
   Future<void> _setupGeneratedCode() async {
-    final settingUpTestRunner = _logger.progress('Setting up the test runner');
-
     // Setup the test runner.
+    final settingUpTestRunner = _logger.progress('Setting up the test runner');
     _testRunnerGenerator = await _generatorBuilder(fluttiumTestRunnerBundle);
     _testRunnerDirectory = Directory.systemTemp.createTempSync('fluttium_');
     settingUpTestRunner.complete();
 
-    final settingUpLauncher = _logger.progress('Setting up the launcher');
-
     // Setup the launcher.
+    final settingUpLauncher = _logger.progress('Setting up the launcher');
     final projectData = loadYaml(
       File(join(projectDirectory.path, 'pubspec.yaml')).readAsStringSync(),
     ) as YamlMap;
@@ -286,6 +284,12 @@ class FluttiumDriver {
     // Generate the test runner project.
     await _generateTestRunner(runPubGet: true);
 
+    // Install the test runner into the project.
+    await _launcherGenerator.hooks.preGen(
+      workingDirectory: projectDirectory.path,
+      vars: launcherVars,
+    );
+
     // Generate the launcher file.
     final files = await _launcherGenerator.generate(
       DirectoryGeneratorTarget(projectDirectory),
@@ -294,12 +298,6 @@ class FluttiumDriver {
       fileConflictResolution: FileConflictResolution.overwrite,
     );
     _launcherFile = File(files.first.path);
-
-    // Install the test runner into the project.
-    await _launcherGenerator.hooks.preGen(
-      workingDirectory: projectDirectory.path,
-      vars: launcherVars,
-    );
   }
 
   Future<void> _cleanupGeneratedCode() async {
@@ -413,11 +411,11 @@ extension on ActionLocation {
       url: ${git!.url}
       ref: ${git!.ref}
       path: ${git!.path}''';
-    } else if (path != null) {
-      return '''
+    }
+
+    // Else it is a path location
+    return '''
 
     path: ${relativeDirectory.absolute.uri.resolve(path!).replace(scheme: '')}''';
-    }
-    throw Exception('Invalid action location.');
   }
 }

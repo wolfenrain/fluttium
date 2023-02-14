@@ -2,6 +2,7 @@
 
 # Bundle all cli bricks.
 mason bundle -t dart bricks/fluttium_action -o packages/fluttium_cli/lib/src/bundles/
+mason bundle -t dart bricks/fluttium_flow -o packages/fluttium_cli/lib/src/bundles/
 dart format --fix packages/fluttium_cli
 
 # Bundle all driver bricks.

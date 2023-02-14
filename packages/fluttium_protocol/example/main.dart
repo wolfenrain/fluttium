@@ -8,6 +8,7 @@ void main() {
   Emitter()
     ..announce('stepName')
     ..start('stepName')
+    ..store('fileName', [1, 2, 3])
     ..done('stepName');
 
   // Listening to data from the emitter.
