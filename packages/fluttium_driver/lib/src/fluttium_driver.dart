@@ -392,6 +392,20 @@ class FluttiumDriver {
       ),
     );
   }
+
+  /// The current Fluttium version constraint that the driver needs to work.
+  static VersionConstraint get fluttiumVersionConstraint {
+    final content = utf8.decode(
+      base64.decode(
+        fluttiumTestRunnerBundle.files
+            .firstWhere((e) => e.path == 'pubspec.yaml')
+            .data,
+      ),
+    );
+
+    final version = RegExp('fluttium: "(.*?)"{').firstMatch(content)!;
+    return VersionConstraint.parse(version.group(1)!);
+  }
 }
 
 extension on ActionLocation {

@@ -20,7 +20,7 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
   ],
   "hooks": [],
   "name": "fluttium_action",
-  "description": "A new brick created with the Mason CLI.",
+  "description": "Generate a new Fluttium action.",
   "version": "0.1.0+1",
   "environment": {"mason": ">=0.1.0-dev.41 <0.1.0"},
   "vars": {

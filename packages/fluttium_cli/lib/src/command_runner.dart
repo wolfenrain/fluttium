@@ -41,6 +41,8 @@ class FluttiumCommandRunner extends CommandRunner<int> {
       );
 
     // Add sub commands
+    addCommand(InitCommand(logger: _logger));
+    addCommand(NewCommand(logger: _logger));
     addCommand(TestCommand(logger: _logger, processManager: _process));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: _pubUpdater));
   }

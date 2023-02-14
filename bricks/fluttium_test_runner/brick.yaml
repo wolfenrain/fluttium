@@ -3,7 +3,7 @@ description: A brick for generating the Fluttium registry and tester.
 version: 0.1.0+1
 
 environment:
-  mason: ">=0.1.0-dev.26 <0.1.0"
+  mason: ">=0.1.0-dev.42 <0.1.0"
 
 vars:
   actions:

@@ -3,7 +3,7 @@ description: Brick for generating a file that can launch a Fluttium runner.
 version: 0.1.0+1
 
 environment:
-  mason: ">=0.1.0-dev.26 <0.1.0"
+  mason: ">=0.1.0-dev.42 <0.1.0"
 
 vars:
   runner_id:

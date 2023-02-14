@@ -218,22 +218,23 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
     } else {
       fluttium = FluttiumYaml(
         environment: FluttiumEnvironment(
-          // TODO: get version from bundle?
-          fluttium: VersionConstraint.parse('any'),
+          fluttium: FluttiumDriver.fluttiumVersionConstraint,
         ),
       );
     }
 
-    // TODO(wolfen): retrieve version
-//     if (!fluttium.environment.fluttium.allows(version)) {
-//       _logger.err(
-//         '''
-// The current Fluttium version is $version.
+    if (!fluttium.environment.fluttium
+        .allowsAny(FluttiumDriver.fluttiumVersionConstraint)) {
+      _logger.err(
+        '''
+Version solving failed:
+  The Fluttium CLI uses "${FluttiumDriver.fluttiumVersionConstraint}" as the version constraint.
+  The current project uses "${fluttium.environment.fluttium}" as defined in the fluttium.yaml.
 
-// Because this project requires Fluttium version ${fluttium.environment.fluttium}, version solving failed.''',
-//       );
-//       return ExitCode.unavailable.code;
-//     }
+Either adjust the constraint in the Fluttium configuration or update the CLI to a newer version.''',
+      );
+      return ExitCode.unavailable.code;
+    }
 
     // Setup the driver config for Fluttium.
     fluttium = fluttium.copyWith(
