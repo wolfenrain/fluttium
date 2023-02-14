@@ -21,12 +21,18 @@ const expectedUsage = [
       'Usage: fluttium test <flow.yaml> [arguments]\n'
       '-h, --help                       Print this usage information.\n'
       '-w, --[no-]watch                 Watch for file changes.\n'
+      // ignore: lines_longer_than_80_chars
       '-d, --device-id                  Target device id or name (prefixes allowed).\n'
+      // ignore: lines_longer_than_80_chars
       '    --flavor                     Build a custom app flavor as defined by platform-specific build setup.\n'
+      // ignore: lines_longer_than_80_chars
       '                                 This will be passed to the --flavor option of flutter run.\n'
+      // ignore: lines_longer_than_80_chars
       '-t, --target                     The main entry-point file of the application, as run on the device.\n'
       '                                 (defaults to "lib/main.dart")\n'
+      // ignore: lines_longer_than_80_chars
       '    --dart-define=<key=value>    Pass additional key-value pairs to the flutter run.\n'
+      // ignore: lines_longer_than_80_chars
       '                                 Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
       '\n'
       'Run "fluttium help" to see global options.'
