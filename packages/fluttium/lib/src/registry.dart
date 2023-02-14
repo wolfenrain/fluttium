@@ -21,7 +21,7 @@ class Registry {
   /// Registers an action with the registry.
   void registerAction(String name, Function action, {Symbol? shortHandIs}) {
     if (_actions.containsKey(name)) {
-      // TODO: better error
+      // TODO(wolfen): better error
       throw ArgumentError.value(
         name,
         'name',
@@ -34,7 +34,7 @@ class Registry {
   /// Returns the action with the given name.
   Action getAction(String name, dynamic arguments) {
     if (!_actions.containsKey(name)) {
-      // TODO: better error
+      // TODO(wolfen): better error
       throw ArgumentError.value(
         name,
         'name',
@@ -71,11 +71,11 @@ class ActionRegistration {
         return Function.apply(actionFactory, []) as Action;
       }
 
-      // TODO: better error
+      // TODO(wolfen): better error
       throw Exception('Invalid data type: ${data.runtimeType}');
     }
 
-    // TODO: catch error and throw better errors
+    // TODO(wolfen): catch error and throw better errors
     return Function.apply(
       actionFactory,
       [],

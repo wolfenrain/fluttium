@@ -2,19 +2,32 @@ import 'dart:io';
 
 import 'package:mason/mason.dart';
 
-Future<void> run(HookContext context) async {
+typedef ProcessRunner = Future<ProcessResult> Function(
+  String executable,
+  List<String> arguments, {
+  String workingDirectory,
+  bool runInShell,
+});
+
+Future<void> run(HookContext context) => preGen(context);
+
+Future<void> preGen(
+  HookContext context, {
+  Directory? directory,
+  ProcessRunner runProcess = Process.run,
+}) async {
   final installingTestRunner = context.logger.progress(
     'Installing test runner',
   );
 
-  await Process.run(
+  await runProcess(
     'flutter',
     ['pub', 'remove', 'fluttium_test_runner'],
     runInShell: true,
     workingDirectory: Directory.current.path,
   );
 
-  await Process.run(
+  await runProcess(
     'flutter',
     [
       'pub',

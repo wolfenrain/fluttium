@@ -4,7 +4,7 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-import '../post_gen.dart';
+import '../pre_gen.dart';
 
 class _FakeHookContext extends Fake implements HookContext {
   _FakeHookContext({Logger? logger}) : _logger = logger ?? _MockLogger();
@@ -30,24 +30,25 @@ class _MockProgress extends Mock implements Progress {}
 class _MockProcessResult extends Mock implements ProcessResult {}
 
 void main() {
-  group('postGen', () {
+  group('preGen', () {
     late HookContext context;
     late Logger logger;
-    late Progress uninstallingTestRunner;
+    late Progress installingTestRunner;
 
     setUp(() {
       logger = _MockLogger();
-      context = _FakeHookContext(logger: logger);
-      uninstallingTestRunner = _MockProgress();
+      context = _FakeHookContext(logger: logger)
+        ..vars = {'runner_path': 'runner_path'};
+      installingTestRunner = _MockProgress();
 
-      when(() => logger.progress(any())).thenReturn(uninstallingTestRunner);
+      when(() => logger.progress(any())).thenReturn(installingTestRunner);
     });
 
-    test('uninstalls fluttium_test_runner correctly', () async {
+    test('installs fluttium_test_runner correctly', () async {
       var processRunnerCallCount = 0;
 
       final result = _MockProcessResult();
-      await postGen(
+      await preGen(
         context,
         runProcess: (
           executable,
@@ -57,18 +58,33 @@ void main() {
         }) async {
           processRunnerCallCount++;
           expect(executable, equals('flutter'));
-          expect(args, equals(['pub', 'remove', 'fluttium_test_runner']));
           expect(workingDirectory, equals(Directory.current.path));
           expect(runInShell, isTrue);
+
+          if (processRunnerCallCount == 1) {
+            expect(args, equals(['pub', 'remove', 'fluttium_test_runner']));
+          } else {
+            expect(
+              args,
+              equals([
+                'pub',
+                'add',
+                'fluttium_test_runner',
+                '--dev',
+                '--path',
+                'runner_path',
+              ]),
+            );
+          }
           return result;
         },
       );
 
-      expect(processRunnerCallCount, equals(1));
+      expect(processRunnerCallCount, equals(2));
       verify(
-        () => logger.progress(any(that: equals('Uninstalling test runner'))),
+        () => logger.progress(any(that: equals('Installing test runner'))),
       ).called(1);
-      verify(() => uninstallingTestRunner.complete()).called(1);
+      verify(installingTestRunner.complete).called(1);
     });
   });
 }

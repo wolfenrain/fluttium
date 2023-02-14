@@ -319,7 +319,7 @@ name: project_name
             'path_action': ActionLocation(path: './path_action'),
           },
         );
-        verify(() => userFlowFile.readAsStringSync()).called(equals(1));
+        verify(() => userFlowFile.readAsStringSync()).called(1);
 
         final future = driver.run();
 
@@ -330,19 +330,19 @@ name: project_name
         verify(
           () =>
               logger.progress(any(that: equals('Setting up the test runner'))),
-        ).called(equals(1));
+        ).called(1);
         verify(
           () => tempDirectory.createTempSync(any(that: equals('fluttium_'))),
-        ).called(equals(1));
-        verify(() => settingUpTestRunner.complete()).called(equals(1));
+        ).called(1);
+        verify(() => settingUpTestRunner.complete()).called(1);
         verify(
           () => logger.progress(any(that: equals('Setting up the launcher'))),
-        ).called(equals(1));
-        verify(() => pubspecFile.readAsStringSync()).called(equals(1));
-        verify(() => settingUpLauncher.complete()).called(equals(1));
+        ).called(1);
+        verify(() => pubspecFile.readAsStringSync()).called(1);
+        verify(() => settingUpLauncher.complete()).called(1);
 
         // Check if the test runner generation is working correctly
-        verify(() => userFlowFile.readAsStringSync()).called(equals(1));
+        verify(() => userFlowFile.readAsStringSync()).called(1);
         verify(
           () => testRunnerGenerator.generate(
             any(),
@@ -393,7 +393,7 @@ name: project_name
               that: equals(FileConflictResolution.overwrite),
             ),
           ),
-        ).called(equals(1));
+        ).called(1);
         verify(
           () => testRunnerGeneratorHooks.postGen(
             workingDirectory: any(
@@ -401,7 +401,7 @@ name: project_name
               that: equals('/tmp/fluttium_xxxxxxx'),
             ),
           ),
-        ).called(equals(1));
+        ).called(1);
 
         // Verify that the rest of the test runner generation is working.
         verify(
@@ -420,7 +420,7 @@ name: project_name
               }),
             ),
           ),
-        ).called(equals(1));
+        ).called(1);
         verify(
           () => launcherGenerator.generate(
             any(),
@@ -436,7 +436,7 @@ name: project_name
             logger: any(named: 'logger'),
             fileConflictResolution: any(named: 'fileConflictResolution'),
           ),
-        ).called(equals(1));
+        ).called(1);
 
         // Verifying that the launching works correctly.
         verify(
@@ -447,10 +447,10 @@ name: project_name
               ),
             ),
           ),
-        ).called(equals(1));
+        ).called(1);
         verify(
           () => logger.progress(any(that: equals('Launching the test runner'))),
-        ).called(equals(1));
+        ).called(1);
         verify(
           () => processManager.start(
             any(
@@ -468,14 +468,14 @@ name: project_name
               that: equals('project_directory'),
             ),
           ),
-        ).called(equals(1));
+        ).called(1);
 
         // Trigger the attach by sending the first announce.
         stdoutController
           ..addAll(MessageType.announce.toData('stepName1'))
           ..addAll(MessageType.announce.toData('stepName2'));
         await Future<void>.delayed(Duration.zero);
-        verify(() => launchingTestRunner.complete()).called(equals(1));
+        verify(() => launchingTestRunner.complete()).called(1);
 
         // Finish the process by starting and finishing a step.
         stdoutController
@@ -496,7 +496,7 @@ name: project_name
               that: equals('project_directory'),
             ),
           ),
-        ).called(equals(1));
+        ).called(1);
         verify(() => launcherFile.existsSync()).called(1);
         verify(() => launcherFile.deleteSync()).called(1);
         verify(() => testRunnerDirectory.existsSync()).called(1);
@@ -531,7 +531,7 @@ name: project_name
     test('can run a flow test', () async {
       await runWithMocks(() async {
         final driver = createDriver();
-        verify(() => userFlowFile.readAsStringSync()).called(equals(1));
+        verify(() => userFlowFile.readAsStringSync()).called(1);
 
         final future = driver.run();
 
@@ -551,9 +551,8 @@ name: project_name
         verify(
           () => launchingTestRunner
               .fail(any(that: equals('Failed to start test driver'))),
-        ).called(equals(1));
-        verify(() => logger.err(any(that: equals('fake failure'))))
-            .called(equals(1));
+        ).called(1);
+        verify(() => logger.err(any(that: equals('fake failure')))).called(1);
 
         await future;
 
@@ -677,6 +676,13 @@ name: project_name
           expect(testStepStates, equals([StepState('stepName')]));
         });
       });
+    });
+
+    test('creates a Fluttium version constraints correctly', () {
+      expect(
+        FluttiumDriver.fluttiumVersionConstraint,
+        isA<VersionConstraint>(),
+      );
     });
   });
 }
