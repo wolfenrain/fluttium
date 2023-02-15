@@ -1,3 +1,3 @@
 description: {{{description}}}
 ---
-- tapOn: 'The text or a semantic label on the screen'
+- log: "Hello World!"

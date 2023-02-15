@@ -12,12 +12,12 @@ environment:
 
 # Register actions which can be used within your Fluttium flows.
 actions:
-  # The following adds the hello action to your project.
-  hello: 0.1.0+1
+  # The following adds the log action to your project.
+  log_action: 0.1.0+1
   # Actions can also be imported via git url.
   # Uncomment the following lines to import
-  # an action from a remote git url.
-  # my_action
+  # the log_action from a remote git url.
+  # log_action
   #   git:
   #     url: https://github.com/wolfenrain/fluttium.git
-  #     path: actions/my_action
+  #     path: actions/log_action
