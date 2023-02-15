@@ -80,6 +80,7 @@ void main() {
     late StreamController<List<StepState>> stepStateController;
     late Stdin stdin;
     late File testFile;
+    late Completer<void> runCompleter;
 
     setUpAll(() {
       registerFallbackValue(_FakeLogger());
@@ -87,9 +88,14 @@ void main() {
 
     setUp(() {
       driver = _MockFluttiumDriver();
-      when(driver.run).thenAnswer((_) async {});
+      runCompleter = Completer();
+      when(driver.run).thenAnswer((_) => runCompleter.future);
 
-      stepStateController = StreamController.broadcast();
+      final userFlow = _MockUserFlowYaml();
+      when(() => userFlow.description).thenReturn('description');
+      when(() => driver.userFlow).thenReturn(userFlow);
+
+      stepStateController = StreamController();
       when(() => driver.steps).thenAnswer((_) => stepStateController.stream);
 
       logger = _MockLogger();
@@ -218,8 +224,15 @@ environment:
       )..testArgResults = argResults;
 
       await runWithMocks(() async {
-        final result = await command.run();
-        expect(result, equals(ExitCode.success.code));
+        final future = command.run();
+
+        final step =
+            StepState('Expect visible "text"', status: StepStatus.done);
+        stepStateController.add([step]);
+        await Future<void>.delayed(Duration.zero);
+
+        runCompleter.complete();
+        expect(await future, equals(ExitCode.success.code));
       });
     });
 
@@ -234,8 +247,78 @@ environment:
       )..testArgResults = argResults;
 
       await runWithMocks(() async {
-        final result = await command.run();
-        expect(result, equals(ExitCode.success.code));
+        final future = command.run();
+
+        final step =
+            StepState('Expect visible "text"', status: StepStatus.done);
+        stepStateController.add([step]);
+        await Future<void>.delayed(Duration.zero);
+
+        runCompleter.complete();
+        expect(await future, equals(ExitCode.success.code));
+      });
+    });
+
+    test('exits when a fatal exception occurred', () async {
+      when(driver.quit).thenAnswer((_) async {});
+
+      final command = TestCommand(
+        logger: logger,
+        processManager: processManager,
+        driver: _driver(driver),
+      )..testArgResults = argResults;
+
+      await runWithMocks(() async {
+        final future = command.run();
+
+        final step = StepState('Expect visible "text"');
+        stepStateController.add([step]);
+        await Future<void>.delayed(Duration.zero);
+
+        stepStateController.addError(FatalDriverException('fatal reason'));
+        await Future<void>.delayed(Duration.zero);
+
+        runCompleter.complete();
+        expect(await future, equals(ExitCode.tempFail.code));
+
+        verify(
+          () => logger.err(
+            any(
+              that: equals(' Fatal driver exception occurred: fatal reason'),
+            ),
+          ),
+        ).called(1);
+        verify(driver.quit).called(1);
+      });
+    });
+
+    test('logs when an unknown exception occurred', () async {
+      when(driver.quit).thenAnswer((_) async {});
+
+      final command = TestCommand(
+        logger: logger,
+        processManager: processManager,
+        driver: _driver(driver),
+      )..testArgResults = argResults;
+
+      await runWithMocks(() async {
+        final future = command.run();
+
+        final step = StepState('Expect visible "text"');
+        stepStateController.add([step]);
+        await Future<void>.delayed(Duration.zero);
+
+        stepStateController.addError('unknown reason');
+        await Future<void>.delayed(Duration.zero);
+
+        runCompleter.complete();
+        expect(await future, equals(ExitCode.tempFail.code));
+
+        verify(
+          () => logger.err(
+            any(that: equals('Unknown exception occurred: unknown reason')),
+          ),
+        ).called(1);
       });
     });
 
@@ -381,6 +464,13 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           ]),
         );
 
+        // Recreate the controller
+        stepStateController = StreamController();
+
+        // Recreate the completer.
+        runCompleter = Completer();
+        when(() => driver.run()).thenAnswer((_) => runCompleter.future);
+
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
@@ -389,7 +479,16 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
         await runWithMocks(
           () async {
-            final result = await command.run();
+            final future = command.run();
+
+            final step =
+                StepState('Expect visible "text"', status: StepStatus.done);
+            stepStateController.add([step]);
+            await Future<void>.delayed(Duration.zero);
+
+            runCompleter.complete();
+
+            expect(await future, equals(ExitCode.success.code));
 
             verify(
               () => logger.progress(any(that: equals('Retrieving devices'))),
@@ -403,8 +502,6 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
                 display: any(named: 'display'),
               ),
             );
-
-            expect(result, equals(ExitCode.success.code));
           },
         );
       }
@@ -438,8 +535,16 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         )..testArgResults = argResults;
 
         await runWithMocks(() async {
-          final result = await command.run();
-          expect(result, equals(ExitCode.success.code));
+          final future = command.run();
+
+          final step =
+              StepState('Expect visible "text"', status: StepStatus.done);
+          stepStateController.add([step]);
+          await Future<void>.delayed(Duration.zero);
+
+          runCompleter.complete();
+
+          expect(await future, equals(ExitCode.success.code));
 
           verify(
             () => logger.progress(any(that: equals('Retrieving devices'))),
@@ -505,8 +610,16 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
             },
           );
 
-          final result = await command.run();
-          expect(result, equals(ExitCode.success.code));
+          final future = command.run();
+
+          final step =
+              StepState('Expect visible "text"', status: StepStatus.done);
+          stepStateController.add([step]);
+          await Future<void>.delayed(Duration.zero);
+
+          runCompleter.complete();
+
+          expect(await future, equals(ExitCode.success.code));
 
           verify(
             () => logger.progress(any(that: equals('Retrieving devices'))),
@@ -534,8 +647,16 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         )..testArgResults = argResults;
 
         await runWithMocks(() async {
-          final result = await command.run();
-          expect(result, equals(ExitCode.unavailable.code));
+          final future = command.run();
+
+          final step =
+              StepState('Expect visible "text"', status: StepStatus.done);
+          stepStateController.add([step]);
+          await Future<void>.delayed(Duration.zero);
+
+          runCompleter.complete();
+
+          expect(await future, equals(ExitCode.unavailable.code));
 
           verify(
             () => logger.progress(any(that: equals('Retrieving devices'))),
@@ -562,9 +683,6 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       when(() => userFlow.description).thenReturn('description');
       when(() => driver.userFlow).thenReturn(userFlow);
 
-      final stepsController = StreamController<List<StepState>>();
-      when(() => driver.steps).thenAnswer((_) => stepsController.stream);
-
       final command = TestCommand(
         logger: logger,
         processManager: processManager,
@@ -578,14 +696,14 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         final step2 = StepState('Expect not visible "text"');
         final step3 = StepState('Tap on "text"');
 
-        stepsController.add([step1, step2, step3]);
+        stepStateController.add([step1, step2, step3]);
         await Future<void>.delayed(Duration.zero);
 
         verify(() => logger.info('  🔲  Expect visible "text"')).called(1);
         verify(() => logger.info('  🔲  Expect not visible "text"')).called(1);
         verify(() => logger.info('  🔲  Tap on "text"')).called(1);
 
-        stepsController
+        stepStateController
             .add([step1.copyWith(status: StepStatus.running), step2, step3]);
         await Future<void>.delayed(Duration.zero);
 
@@ -593,7 +711,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         verify(() => logger.info('  🔲  Expect not visible "text"')).called(1);
         verify(() => logger.info('  🔲  Tap on "text"')).called(1);
 
-        stepsController.add([
+        stepStateController.add([
           step1.copyWith(status: StepStatus.done),
           step2.copyWith(status: StepStatus.running),
           step3
@@ -604,7 +722,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         verify(() => logger.info('  ⏳  Expect not visible "text"')).called(1);
         verify(() => logger.info('  🔲  Tap on "text"')).called(1);
 
-        stepsController.add([
+        stepStateController.add([
           step1.copyWith(status: StepStatus.done),
           step2.copyWith(status: StepStatus.failed),
           step3
@@ -619,7 +737,8 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           () => logger.info(any(that: contains('description'))),
         ).called(4);
 
-        expect(await future, equals(ExitCode.success.code));
+        runCompleter.complete();
+        expect(await future, equals(ExitCode.tempFail.code));
       });
     });
 
@@ -631,15 +750,12 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
         when(() => argResults['watch']).thenReturn(true);
 
-        when(() => stdin.listen(any())).thenAnswer((invocation) {
+        when(() => stdin.listen(any())).thenAnswer((_) {
           return _MockStreamSubscription();
         });
       });
 
       test('trigger short cuts', () async {
-        final stepsController = StreamController<List<StepState>>();
-        when(() => driver.steps).thenAnswer((_) => stepsController.stream);
-
         when(() => stdin.listen(any())).thenAnswer((invocation) {
           final onData = invocation.positionalArguments[0] as void Function(
             List<int> event,
@@ -651,9 +767,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         });
 
         when(() => driver.run(watch: any(named: 'watch')))
-            .thenAnswer((invocation) async {});
-        when(driver.restart).thenAnswer((invocation) async {});
-        when(driver.quit).thenAnswer((invocation) async {});
+            .thenAnswer((_) async {});
+        when(driver.restart).thenAnswer((_) async {});
+        when(driver.quit).thenAnswer((_) async {});
 
         final command = TestCommand(
           logger: logger,
@@ -668,14 +784,14 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           final step2 = StepState('Expect not visible "text"');
           final step3 = StepState('Tap on "text"');
 
-          stepsController.add([step1, step2, step3]);
+          stepStateController.add([step1, step2, step3]);
           await Future<void>.delayed(Duration.zero);
 
           verify(
             () => logger.info(any(that: contains('restart'))),
           ).called(1);
 
-          stepsController.add([
+          stepStateController.add([
             step1.copyWith(
               status: StepStatus.done,
               files: {
@@ -697,7 +813,8 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
             () => testFile.writeAsBytesSync(any(that: equals([1, 2, 3]))),
           ).called(1);
 
-          expect(await future, equals(ExitCode.success.code));
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.tempFail.code));
 
           verify(driver.restart).called(1);
           verify(driver.quit).called(1);

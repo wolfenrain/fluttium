@@ -266,44 +266,58 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       processManager: _process,
     );
 
-    driver.steps.listen((steps) {
-      // Reset the cursor to the top of the screen and clear the screen.
-      _logger.info('''
+    final stepStates = <StepState>[];
+    driver.steps.listen(
+      (steps) {
+        stepStates
+          ..clear()
+          ..addAll(steps);
+
+        // Reset the cursor to the top of the screen and clear the screen.
+        _logger.info('''
 \u001b[0;0H\u001b[0J
   ${styleBold.wrap(driver.userFlow.description)}
 ''');
 
-      // Render the steps.
-      for (final step in steps) {
-        switch (step.status) {
-          case StepStatus.initial:
-            _logger.info('  🔲  ${step.description}');
-            break;
-          case StepStatus.running:
-            _logger.info('  ⏳  ${step.description}');
-            break;
-          case StepStatus.done:
-            _logger.info('  ✅  ${step.description}');
-            for (final file in step.files.entries) {
-              _logger.detail('Writing ${file.value.length} bytes to $file');
-              File(file.key)
-                ..createSync(recursive: true)
-                ..writeAsBytesSync(file.value);
-            }
-            break;
-          case StepStatus.failed:
-            _logger.info('  ❌  ${step.description}');
-            break;
+        // Render the steps.
+        for (final step in steps) {
+          switch (step.status) {
+            case StepStatus.initial:
+              _logger.info('  🔲  ${step.description}');
+              break;
+            case StepStatus.running:
+              _logger.info('  ⏳  ${step.description}');
+              break;
+            case StepStatus.done:
+              _logger.info('  ✅  ${step.description}');
+              for (final file in step.files.entries) {
+                _logger.detail('Writing ${file.value.length} bytes to $file');
+                File(file.key)
+                  ..createSync(recursive: true)
+                  ..writeAsBytesSync(file.value);
+              }
+              break;
+            case StepStatus.failed:
+              _logger.info('  ❌  ${step.description}');
+              break;
+          }
         }
-      }
 
-      _logger.info('');
-      if (watch) {
-        _logger.info('''
+        _logger.info('');
+        if (watch) {
+          _logger.info('''
   ${styleDim.wrap('Press')} r ${styleDim.wrap('to restart the test.')}
   ${styleDim.wrap('Press')} q ${styleDim.wrap('to quit.')}''');
-      }
-    });
+        }
+      },
+      onError: (Object err) {
+        if (err is FatalDriverException) {
+          _logger.err(' Fatal driver exception occurred: ${err.reason}');
+          return driver.quit();
+        }
+        _logger.err('Unknown exception occurred: $err');
+      },
+    );
 
     if (watch) {
       stdin
@@ -325,6 +339,11 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       stdin
         ..lineMode = true
         ..echoMode = true;
+    }
+
+    if (!stepStates.every((s) => s.status == StepStatus.done) ||
+        stepStates.isEmpty) {
+      return ExitCode.tempFail.code;
     }
 
     return ExitCode.success.code;
