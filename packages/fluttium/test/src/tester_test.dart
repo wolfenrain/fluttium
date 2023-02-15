@@ -62,6 +62,7 @@ void main() {
         () => emitter.fail(any(), reason: any(named: 'reason')),
       ).thenAnswer((_) async {});
       when(() => emitter.done(any())).thenAnswer((_) async {});
+      when(() => emitter.fatal(any())).thenAnswer((_) async {});
     });
 
     setUpAll(() {
@@ -117,6 +118,9 @@ void main() {
           throwsException,
         );
 
+        verify(
+          () => emitter.fatal(any(that: equals('Exception: Action not found'))),
+        ).called(1);
         verifyNever(() => emitter.announce('action'));
       });
 
