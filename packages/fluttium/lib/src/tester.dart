@@ -28,21 +28,26 @@ class Tester {
   ) async {
     return Future.wait(
       steps.map((step) async {
-        final action = _registry.getAction(step.actionName, step.arguments);
-        final actionRepresentation = action.description();
-        await _emitter.announce(actionRepresentation);
+        try {
+          final action = _registry.getAction(step.actionName, step.arguments);
+          final actionRepresentation = action.description();
+          await _emitter.announce(actionRepresentation);
 
-        return () async {
-          try {
-            await _emitter.start(actionRepresentation);
-            if (await action.execute(this)) {
-              return _emitter.done(actionRepresentation);
+          return () async {
+            try {
+              await _emitter.start(actionRepresentation);
+              if (await action.execute(this)) {
+                return _emitter.done(actionRepresentation);
+              }
+              return _emitter.fail(actionRepresentation);
+            } catch (err) {
+              return _emitter.fail(actionRepresentation, reason: '$err');
             }
-            return _emitter.fail(actionRepresentation);
-          } catch (err) {
-            return _emitter.fail(actionRepresentation, reason: '$err');
-          }
-        };
+          };
+        } catch (err) {
+          await _emitter.fatal('$err');
+          rethrow;
+        }
       }).toList(),
     );
   }

@@ -105,6 +105,24 @@ void main() {
       });
     });
 
+    test('emit fatal', () async {
+      await runWithPrint((printed) async {
+        final emitter = Emitter();
+        await emitter.fatal('reason');
+
+        await printingDone;
+
+        expect(
+          printed,
+          equals([
+            '{"type":"start"}',
+            r'{"type":"data","data":"\"{\\\"type\\\":\\\"fatal\\\",\\\"data\\\":\\\"\\\\\\\"reason\\\\\\\"\\\"}\""}',
+            '{"type":"done"}'
+          ]),
+        );
+      });
+    });
+
     test('emit fail', () async {
       await runWithPrint((printed) async {
         final emitter = Emitter();

@@ -31,6 +31,11 @@ class Message extends Equatable {
 
   /// {@macro message}
   ///
+  /// Send when a fatal exception has occurred.
+  const Message.fatal(String reason) : this._(MessageType.fatal, reason);
+
+  /// {@macro message}
+  ///
   /// Send when some [data] is being stored with the given [fileName].
   Message.store(String fileName, List<int> bytes)
       : this._(MessageType.store, [fileName, bytes]);
@@ -82,6 +87,9 @@ enum MessageType {
 
   /// A step has failed.
   fail,
+
+  /// A fatal message.
+  fatal,
 
   /// Some data is being stored.
   store;

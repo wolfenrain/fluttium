@@ -31,6 +31,12 @@ class Emitter {
     _hasFailed = true;
   }
 
+  /// Indicate that a fatal exception has occurred.
+  Future<void> fatal(String reason) async {
+    await _emit(Message.fatal(reason));
+    _hasFailed = true;
+  }
+
   Future<void> _emit(Message message) async {
     if (_hasFailed) return Completer<void>().future;
 

@@ -66,8 +66,6 @@ void main() {
     late StreamController<List<int>> stderrController;
     late Completer<int> processExitCode;
 
-    late List<StepState> testStepStates;
-
     setUpAll(() {
       registerFallbackValue(_FakeDirectoryGeneratorTarget());
     });
@@ -217,8 +215,6 @@ name: project_name
           workingDirectory: any(named: 'workingDirectory'),
         ),
       ).thenAnswer((_) async => process);
-
-      testStepStates = [];
     });
 
     FluttiumDriver createDriver({
@@ -227,7 +223,7 @@ name: project_name
       List<String> dartDefines = const [],
       Map<String, ActionLocation> actions = const {},
     }) {
-      final driver = FluttiumDriver(
+      return FluttiumDriver(
         configuration: DriverConfiguration(
           deviceId: 'deviceId',
           dartDefines: dartDefines,
@@ -245,8 +241,6 @@ name: project_name
             ? (path, {Duration? pollingDelay}) => fileWatcher
             : null,
       );
-
-      return driver..steps.listen((steps) => testStepStates = steps);
     }
 
     test('can be instantiated', () {
@@ -296,6 +290,7 @@ name: project_name
 
     test('can run a flow test', () async {
       await runWithMocks(() async {
+        var testStepStates = <StepState>[];
         final driver = createDriver(
           actions: {
             'hosted_action': ActionLocation(
@@ -318,7 +313,7 @@ name: project_name
             ),
             'path_action': ActionLocation(path: './path_action'),
           },
-        );
+        )..steps.listen((steps) => testStepStates = steps);
         verify(() => userFlowFile.readAsStringSync()).called(1);
 
         final future = driver.run();
@@ -528,9 +523,11 @@ name: project_name
       });
     });
 
-    test('can run a flow test', () async {
+    test('fails to start driver if error occurred in building', () async {
       await runWithMocks(() async {
-        final driver = createDriver();
+        var testStepStates = <StepState>[];
+        final driver = createDriver()
+          ..steps.listen((steps) => testStepStates = steps);
         verify(() => userFlowFile.readAsStringSync()).called(1);
 
         final future = driver.run();
@@ -560,6 +557,46 @@ name: project_name
       });
     });
 
+    test('propagates fatal exceptions', () async {
+      await runWithMocks(() async {
+        var testStepStates = <StepState>[];
+        final driver = createDriver()
+          ..steps.listen(
+            (steps) => testStepStates = steps,
+            onError: (Object err) {
+              expect(err, isA<FatalDriverException>());
+              expect(
+                '$err',
+                equals(
+                  'A fatal exception happened on the driver: fatal reason',
+                ),
+              );
+            },
+          );
+
+        final future = driver.run();
+        // Wait for the process to start.
+        await Future<void>.delayed(Duration.zero);
+
+        // Trigger the attach by sending the first announce.
+        stdoutController.addAll(MessageType.announce.toData('stepName'));
+        await Future<void>.delayed(Duration.zero);
+
+        // Trigger a fatal exception from the emitter.
+        stdoutController.addAll(MessageType.fatal.toData('stepName'));
+        await Future<void>.delayed(Duration.zero);
+
+        // Should be ignored because we had a fatal exception.
+        stdoutController.addAll(MessageType.announce.toData('anotherSTep'));
+        await Future<void>.delayed(Duration.zero);
+
+        processExitCode.complete(ExitCode.success.code);
+        await future;
+
+        expect(testStepStates, equals([StepState('stepName')]));
+      });
+    });
+
     group('watch mode', () {
       late DirectoryWatcher directoryWatcher;
       late StreamController<WatchEvent> watchEventController;
@@ -580,10 +617,11 @@ name: project_name
 
       test('restart if a project file changes', () async {
         await runWithMocks(() async {
+          var testStepStates = <StepState>[];
           final driver = createDriver(
             directoryWatcher: directoryWatcher,
             fileWatcher: fileWatcher,
-          );
+          )..steps.listen((steps) => testStepStates = steps);
 
           final future = driver.run(watch: true);
           // Wait for the process to start.
@@ -610,10 +648,11 @@ name: project_name
 
       test('logs an error if it temporary cant watch a file', () async {
         await runWithMocks(() async {
+          var testStepStates = <StepState>[];
           final driver = createDriver(
             directoryWatcher: directoryWatcher,
             fileWatcher: fileWatcher,
-          );
+          )..steps.listen((steps) => testStepStates = steps);
 
           final future = driver.run(watch: true);
           // Wait for the process to start.
@@ -647,10 +686,11 @@ name: project_name
 
       test('regenerate test runner if the flow file change', () async {
         await runWithMocks(() async {
+          var testStepStates = <StepState>[];
           final driver = createDriver(
             directoryWatcher: directoryWatcher,
             fileWatcher: fileWatcher,
-          );
+          )..steps.listen((steps) => testStepStates = steps);
 
           final future = driver.run(watch: true);
           // Wait for the process to start.
@@ -690,6 +730,15 @@ name: project_name
 extension on MessageType {
   Iterable<List<int>> toData(String stepName) {
     switch (this) {
+      case MessageType.fatal:
+        return [
+          {'type': 'start'},
+          {
+            'type': 'data',
+            'data': r'"{\"type\":\"fatal\",\"data\":\"\\\"fatal reason\\\"\"}"'
+          },
+          {'type': 'done'}
+        ].map((data) => utf8.encode('${json.encode(data)}\n'));
       case MessageType.announce:
         return [
           {'type': 'start'},

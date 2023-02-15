@@ -26,6 +26,13 @@ void main() {
       expect(message.data, equals('step'));
     });
 
+    test('fatal', () {
+      final message = Message.fatal('reason');
+
+      expect(message.type, equals(MessageType.fatal));
+      expect(message.data, equals('reason'));
+    });
+
     test('fail', () {
       final message = Message.fail('step', reason: 'error');
 

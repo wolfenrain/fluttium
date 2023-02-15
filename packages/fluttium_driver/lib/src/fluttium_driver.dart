@@ -99,6 +99,8 @@ class FluttiumDriver {
 
   var _restarting = false;
 
+  var _fatalError = false;
+
   /// Run the driver.
   ///
   /// This will setup the driver generated code, generate the runner, and start
@@ -115,6 +117,9 @@ class FluttiumDriver {
 
     _subscriptions.add(
       _listener.messages.listen((message) async {
+        // Skip everything if a fatal error had occurred.
+        if (_fatalError) return;
+
         if (!_didAttach) {
           _didAttach = true;
           _launchingTestRunner?.complete();
@@ -150,6 +155,9 @@ class FluttiumDriver {
         }
 
         switch (message.type) {
+          case MessageType.fatal:
+            _fatalError = true;
+            break;
           case MessageType.announce:
             _stepStates.add(StepState(message.data as String));
             break;
@@ -198,6 +206,14 @@ class FluttiumDriver {
         // Don't do anything past this point if the runner is still announcing.
         if (message.type == MessageType.announce) return;
         _stepStateController.add(_stepStates);
+
+        // If it was a fatal message, emit that as an error AFTER we emitted
+        // the step states.
+        if (message.type == MessageType.fatal) {
+          _stepStateController.addError(
+            FatalDriverException(message.data as String),
+          );
+        }
         _restarting = false;
 
         // If all steps were done, or if a step failed, stop the process unless

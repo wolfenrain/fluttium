@@ -75,7 +75,6 @@ class ActionRegistration {
       throw Exception('Invalid data type: ${data.runtimeType}');
     }
 
-    // TODO(wolfen): catch error and throw better errors
     return Function.apply(
       actionFactory,
       [],
