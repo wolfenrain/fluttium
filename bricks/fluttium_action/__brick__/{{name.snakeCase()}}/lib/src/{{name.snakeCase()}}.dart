@@ -1,26 +1,26 @@
 import 'package:fluttium/fluttium.dart';
 
-/// {@template my_action}
-/// A custom action for Fluttium.
+/// {@template {{name.snakeCase()}}}
+/// {{{description}}}
 ///
 /// An action is immutable and it represents a step in the user flow.
 ///
 /// This action can be invoked either using the short-hand version:
 ///
 /// ```yaml
-/// - myAction: "Hello World"
+/// - {{name.camelCase()}}: "Hello World"
 /// ```
 ///
 /// Or using the verbose version:
 ///
 /// ```yaml
-/// - myAction:
+/// - {{name.camelCase()}}:
 ///     text: "Hello World"
 /// ```
 /// {@endtemplate}
-class MyAction extends Action {
-  /// {@macro my_action}
-  const MyAction({
+class {{name.pascalCase()}} extends Action {
+  /// {@macro {{name.snakeCase()}}}
+  const {{name.pascalCase()}}({
     required this.text,
   });
 
@@ -40,14 +40,5 @@ class MyAction extends Action {
   }
 
   @override
-  String description() => 'My action "$text"';
-}
-
-/// Will be executed by Fluttium on startup.
-void register(Registry registry) {
-  registry.registerAction(
-    'myAction',
-    MyAction.new,
-    shortHandIs: #text,
-  );
+  String description() => '{{name.sentenceCase()}} "$text"';
 }

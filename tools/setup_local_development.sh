@@ -2,10 +2,13 @@
 #
 # This is a one-time setup script.
 
-echo "dependency_overrides:
+localSetup="dependency_overrides:
   fluttium:
     path: $(pwd)/packages/fluttium
   fluttium_protocol:
     path: $(pwd)/packages/fluttium_protocol
   fluttium_interfaces:
-    path: $(pwd)/packages/fluttium_interfaces" | tee example/pubspec_overrides.yaml > bricks/fluttium_test_runner/__brick__/pubspec_overrides.yaml
+    path: $(pwd)/packages/fluttium_interfaces"
+    
+echo "$localSetup" > example/pubspec_overrides.yaml 
+echo "$localSetup" > bricks/fluttium_test_runner/__brick__/pubspec_overrides.yaml

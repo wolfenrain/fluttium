@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart' hide Action;
 import 'package:fluttium/fluttium.dart';
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 {{#actions}}
-import 'package:{{name}}/action.dart' as {{name.snakeCase()}};{{/actions}}
+import 'package:{{name.snakeCase()}}/{{name.snakeCase()}}.dart' as {{name.snakeCase()}};{{/actions}}
 
 Future<void> run(WidgetsBinding binding) async{
   final registry = Registry();{{#actions}}
