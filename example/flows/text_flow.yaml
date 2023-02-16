@@ -3,13 +3,13 @@ description: Testing the text page
 # Validate that the app page is displayed
 - expectEnvironmentText:
 # Go to the text page
-- tapOn: Text
+- tapOn: "Text"
 # Validate that the text page is displayed and there is no result
-- expectVisible: Text
+- expectVisible: "Text"
 - expectVisible: "Result: "
 - tapOn: "Enter text"
-- inputText: Testing the text page
+- inputText: "Testing the text page"
 - expectVisible: "Result: Testing the text page"
 # Return to the app page
-- tapOn: Back
+- tapOn: "Back"
 - expectEnvironmentText:

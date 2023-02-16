@@ -8,24 +8,24 @@ import 'package:fluttium/fluttium.dart';
 /// This action can be invoked either using the short-hand version:
 ///
 /// ```yaml
-/// - takeScreenshot: "my_screenshot"
+/// - takeScreenshot: "my_screenshot.png"
 /// ```
 ///
 /// Or using the verbose version:
 ///
 /// ```yaml
 /// - takeScreenshot:
-///     text: "my_screenshot"
+///     path: "my_screenshot.png"
 /// ```
 /// {@endtemplate}
 class TakeScreenshot extends Action {
   /// {@macro take_screenshot}
   const TakeScreenshot({
-    required this.fileName,
+    required this.path,
   });
 
-  /// The file name to save the screenshot to.
-  final String fileName;
+  /// The file path to save the screenshot to.
+  final String path;
 
   @override
   Future<bool> execute(Tester tester) async {
@@ -37,11 +37,11 @@ class TakeScreenshot extends Action {
     final image = await boundary.toImage();
     final byteData = await image.toByteData(format: ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
-    await tester.storeFile('screenshots/$fileName.png', pngBytes);
+    await tester.storeFile(path, pngBytes);
 
     return true;
   }
 
   @override
-  String description() => 'Screenshot "$fileName"';
+  String description() => 'Screenshot "$path"';
 }

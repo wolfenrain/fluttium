@@ -46,7 +46,7 @@ void main() {
     });
 
     test('takes screenshot of root node', () async {
-      final takeScreenshot = TakeScreenshot(fileName: 'fileName');
+      final takeScreenshot = TakeScreenshot(path: 'fileName.png');
 
       expect(await takeScreenshot.execute(tester), isTrue);
 
@@ -64,7 +64,7 @@ void main() {
 
       verify(
         () => tester.storeFile(
-          'screenshots/fileName.png',
+          'fileName.png',
           Uint8List.fromList([1, 2, 3, 4]),
         ),
       ).called(1);
@@ -72,7 +72,7 @@ void main() {
 
     test('stops early if no repaint boundary was found', () async {
       when(() => tester.getRenderRepaintBoundary()).thenReturn(null);
-      final takeScreenshot = TakeScreenshot(fileName: 'fileName');
+      final takeScreenshot = TakeScreenshot(path: 'fileName.png');
 
       expect(await takeScreenshot.execute(tester), isFalse);
 
@@ -89,16 +89,16 @@ void main() {
 
       verifyNever(
         () => tester.storeFile(
-          'screenshots/fileName.png',
+          'fileName.png',
           Uint8List.fromList([1, 2, 3, 4]),
         ),
       );
     });
 
     test('Readable representation', () {
-      final takeScreenshot = TakeScreenshot(fileName: 'fileName');
+      final takeScreenshot = TakeScreenshot(path: 'fileName.png');
 
-      expect(takeScreenshot.description(), 'Screenshot "fileName"');
+      expect(takeScreenshot.description(), 'Screenshot "fileName.png"');
     });
   });
 }
