@@ -46,6 +46,17 @@ void main() {
         expect(registry.actions.containsKey('action'), isTrue);
       });
 
+      test('registers a new action with a short hand', () {
+        registry.registerAction(
+          'action',
+          _TestActionWithArguments.new,
+          shortHandIs: #key,
+        );
+
+        expect(registry.actions.containsKey('action'), isTrue);
+        expect(registry.actions['action']!.shortHand, equals(#key));
+      });
+
       test('throws if the action is already registered', () {
         registry.registerAction('action', _TestAction.new);
 
