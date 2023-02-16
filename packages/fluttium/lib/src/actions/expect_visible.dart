@@ -27,7 +27,7 @@ class ExpectVisible extends Action {
   /// The text to search for.
   final String text;
 
-  /// The timeout to wait for the node to be visible in milliseconds.
+  /// The timeout to wait for the node to be available in milliseconds.
   final int? timeout;
 
   @override
