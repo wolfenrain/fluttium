@@ -108,6 +108,7 @@ void main() {
       verify(
         () => logger.progress(any(that: equals('Installing actions'))),
       ).called(1);
+      verify(() => installingActions.fail()).called(1);
       verifyNever(() => installingActions.complete());
     });
   });

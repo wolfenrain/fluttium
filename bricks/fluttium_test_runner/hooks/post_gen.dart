@@ -27,6 +27,7 @@ Future<void> postGen(
   );
 
   if (result.exitCode != 0) {
+    installingActions.fail();
     throw Exception('Failed to install actions: ${result.stderr}');
   }
   installingActions.complete();

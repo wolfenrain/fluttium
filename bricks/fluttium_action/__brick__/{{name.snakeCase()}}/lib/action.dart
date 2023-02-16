@@ -15,7 +15,7 @@ import 'package:fluttium/fluttium.dart';
 ///
 /// ```yaml
 /// - {{name.camelCase()}}:
-///   - text: "Hello World"
+///     text: "Hello World"
 /// ```
 /// {@endtemplate}
 class {{name.pascalCase()}} extends Action {
