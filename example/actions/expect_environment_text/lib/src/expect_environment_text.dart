@@ -27,11 +27,3 @@ class ExpectEnvironmentText extends Action {
   @override
   String description() => 'Expect environment label to be set';
 }
-
-/// Will be executed by Fluttium on startup.
-void register(Registry registry) {
-  registry.registerAction(
-    'expectEnvironmentText',
-    ExpectEnvironmentText.new,
-  );
-}
