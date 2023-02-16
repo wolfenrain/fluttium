@@ -2,6 +2,20 @@ import 'package:fluttium/fluttium.dart';
 
 /// {@template expect_not_visible}
 /// Asserts that a node that matches the arguments is not visible.
+///
+/// This action can be invoked either using the short-hand version:
+///
+/// ```yaml
+/// - expectNotVisible: "Hello World"
+/// ```
+///
+/// Or using the verbose version:
+///
+/// ```yaml
+/// - expectNotVisible:
+///     text: "Hello World"
+///     timeout: 1000
+/// ```
 /// {@endtemplate}
 class ExpectNotVisible extends Action {
   /// {@macro expect_not_visible}

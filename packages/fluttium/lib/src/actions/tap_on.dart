@@ -4,9 +4,20 @@ import 'package:fluttium/fluttium.dart';
 /// {@template tap_on}
 /// Tap on a node that matches the arguments.
 ///
-/// tapOn: text
-/// tapOn:
-///   - offset: [0.5, 0.5]
+/// This action can be invoked either using the short-hand version:
+///
+/// ```yaml
+/// - tapOn: "Hello World"
+/// ```
+///
+/// Or using the verbose version:
+///
+/// ```yaml
+/// - tapOn:
+///     text: "Hello World"
+/// - tapOn:
+///     offset: [0.5, 0.5]
+/// ```
 /// {@endtemplate}
 class TapOn extends Action {
   /// {@macro tap_on}

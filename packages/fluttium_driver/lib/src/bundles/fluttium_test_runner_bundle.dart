@@ -16,7 +16,7 @@ final fluttiumTestRunnerBundle = MasonBundle.fromJson(<String, dynamic>{
       "data":
           "bmFtZTogZmx1dHRpdW1fdGVzdF9ydW5uZXIKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE5LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICBmbHV0dGl1bTogIj49MC4xLjAtZGV2LjEgPDAuMS4wInt7I2FjdGlvbnN9fQogIHt7bmFtZS5zbmFrZUNhc2UoKX19OiB7e3tzb3VyY2V9fX17ey9hY3Rpb25zfX0=",
       "type": "text"
-    },
+    }
   ],
   "hooks": [
     {

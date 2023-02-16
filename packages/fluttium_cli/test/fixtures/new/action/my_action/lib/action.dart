@@ -15,7 +15,7 @@ import 'package:fluttium/fluttium.dart';
 ///
 /// ```yaml
 /// - myAction:
-///   - text: "Hello World"
+///     text: "Hello World"
 /// ```
 /// {@endtemplate}
 class MyAction extends Action {

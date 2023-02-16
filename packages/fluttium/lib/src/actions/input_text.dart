@@ -3,6 +3,19 @@ import 'package:fluttium/fluttium.dart';
 
 /// {@template input_text}
 /// Input text automatically.
+///
+/// This action can be invoked either using the short-hand version:
+///
+/// ```yaml
+/// - inputText: "Hello World"
+/// ```
+///
+/// Or using the verbose version:
+///
+/// ```yaml
+/// - inputText:
+///     text: "Hello World"
+/// ```
 /// {@endtemplate}
 class InputText extends Action {
   /// {@macro input_text}

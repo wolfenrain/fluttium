@@ -4,6 +4,19 @@ import 'package:fluttium/fluttium.dart';
 
 /// {@template take_screenshot}
 /// Takes a screenshot of the current screen.
+///
+/// This action can be invoked either using the short-hand version:
+///
+/// ```yaml
+/// - takeScreenshot: "my_screenshot"
+/// ```
+///
+/// Or using the verbose version:
+///
+/// ```yaml
+/// - takeScreenshot:
+///     text: "my_screenshot"
+/// ```
 /// {@endtemplate}
 class TakeScreenshot extends Action {
   /// {@macro take_screenshot}

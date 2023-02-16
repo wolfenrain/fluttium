@@ -2,6 +2,20 @@ import 'package:fluttium/fluttium.dart';
 
 /// {@template expect_visible}
 /// Asserts that a node that matches the arguments is visible.
+///
+/// This action can be invoked either using the short-hand version:
+///
+/// ```yaml
+/// - expectVisible: "Hello World"
+/// ```
+///
+/// Or using the verbose version:
+///
+/// ```yaml
+/// - expectVisible:
+///     text: "Hello World"
+///     timeout: 1000
+/// ```
 /// {@endtemplate}
 class ExpectVisible extends Action {
   /// {@macro expect_visible}
