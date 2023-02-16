@@ -20,9 +20,11 @@ Fluttium, the user flow testing tool for Flutter.
 
 | Package                                                                                        | Pub                                                                                                       |
 | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [fluttium](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium) | [![pub package](https://img.shields.io/pub/v/fluttium.svg)](https://pub.dev/packages/fluttium)    |
 | [fluttium_cli](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_cli)       | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_cli)    |
-| [fluttium_flow](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_flow)     | [![pub package](https://img.shields.io/pub/v/fluttium_flow.svg)](https://pub.dev/packages/fluttium_flow)   |
-| [fluttium_runner](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_runner) | [![pub package](https://img.shields.io/pub/v/fluttium_runner.svg)](https://pub.dev/packages/fluttium_runner) |
+| [fluttium_driver](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_driver)     | [![pub package](https://img.shields.io/pub/v/fluttium_driver.svg)](https://pub.dev/packages/fluttium_driver)   |
+| [fluttium_interfaces](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_interfaces) | [![pub package](https://img.shields.io/pub/v/fluttium_interfaces.svg)](https://pub.dev/packages/fluttium_interfaces) |
+| [fluttium_protocol](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_protocol) | [![pub package](https://img.shields.io/pub/v/fluttium_protocol.svg)](https://pub.dev/packages/fluttium_protocol) |
 
 ## Quick Start
 
@@ -41,8 +43,6 @@ fluttium test your_flow.yaml
 
 View the full documentation [here](https://fluttium.dev/).
 
-[fluttium_demo]: https://raw.githubusercontent.com/wolfenrain/fluttium/main/docs/static/img/hero.gif
-
 ## Examples
 
 The [example](https://github.com/wolfenrain/fluttium/tree/main/example) directory contains 
@@ -50,3 +50,5 @@ The [example](https://github.com/wolfenrain/fluttium/tree/main/example) director
 written for the example application.
 
 These tests are used for testing of new features and will be kept up to date.
+
+[fluttium_demo]: https://raw.githubusercontent.com/wolfenrain/fluttium/main/docs/static/img/hero.gif

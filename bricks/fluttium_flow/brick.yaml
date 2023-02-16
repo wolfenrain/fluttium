@@ -1,6 +1,18 @@
 name: fluttium_flow
-description: Generate a Fluttium Flow.
-version: 0.1.0+1
+description: Generate a new Fluttium flow file.
+version: 0.1.0
 
 environment:
-  mason: ">=0.1.0-dev.26 <0.1.0"
+  mason: ">=0.1.0-dev.42 <0.1.0"
+
+vars:
+  name:
+    type: string
+    description: The name of the flow file
+    default: my_flow
+    prompt: What is the name of the flow file?
+  description:
+    type: string
+    description: The description of the flow
+    default: My first Fluttium flow.
+    prompt: What is the description of the flow?

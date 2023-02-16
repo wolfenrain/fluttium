@@ -18,10 +18,14 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
-    directory: "/packages/fluttium_flow"
+    directory: "/packages/fluttium_driver"
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
-    directory: "/packages/fluttium_runner"
+    directory: "/packages/fluttium_interfaces"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/packages/fluttium_protocol"
     schedule:
       interval: "daily"

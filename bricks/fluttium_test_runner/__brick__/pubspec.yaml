@@ -1,0 +1,11 @@
+name: fluttium_test_runner
+publish_to: none
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  fluttium: ">=0.1.0-dev.1 <0.1.0"{{#actions}}
+  {{name.snakeCase()}}: {{{source}}}{{/actions}}

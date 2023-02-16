@@ -6,7 +6,7 @@ import 'package:example/text/text.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
-  const App({super.key, required this.environment});
+  const App({required this.environment, super.key});
 
   final String environment;
 
@@ -19,7 +19,7 @@ class App extends StatelessWidget {
 }
 
 class AppView extends StatelessWidget {
-  const AppView({super.key, required this.environment});
+  const AppView({required this.environment, super.key});
 
   final String environment;
 

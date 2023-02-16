@@ -1,0 +1,61 @@
+name: pub_publish
+
+on:
+  push:
+    tags:
+      - '([a-z_]+)-v\d+.\d+.\d+(?:[a-z.\-+\d]+){0,1}'
+
+jobs:
+  find_package:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: read
+
+    outputs:
+      packages: ${{ steps.package.outputs.package }}
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+      - id: package
+        name: Find package
+        run: |
+          tag=${GITHUB_REF#refs/*/}
+          package=$(echo $tag | sed -En "s/^(.*)-v(.*)/\1/p")
+          if [[ ! -d "packages/$package" ]]; then
+            echo "Package $package not found"
+            exit 1
+          fi
+          echo "::set-output name=package::${package}"
+
+  pub_publish:
+    needs: find_package
+    name: Publish to Pub
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: packages/${{ needs.find_package.outputs.packages }}
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: 📦 Get Dependencies
+        run: dart pub get
+
+      - name: 🔐 Setup Pub Credentials
+        run: echo '${{ secrets.PUB_CREDENTIALS }}' > "$XDG_CONFIG_HOME/dart/pub-credentials.json"
+
+      - name: 🌵 Dry Run
+        run: dart pub publish --dry-run
+
+      - name: 📢 Publish
+        run: dart pub publish -f

@@ -79,6 +79,6 @@ class DrawerText extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final value = context.watch<DrawerCubit>().state;
-    return Text('Clicked: $value', style: theme.textTheme.headline2);
+    return Text('Clicked: $value', style: theme.textTheme.displayMedium);
   }
 }

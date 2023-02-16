@@ -46,7 +46,7 @@ class ProgressView extends StatelessWidget {
               children: [
                 Text(
                   state == 100 ? 'Done' : 'Progress: $state%',
-                  style: Theme.of(context).textTheme.headline4,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
                 LinearProgressIndicator(value: state / 100),

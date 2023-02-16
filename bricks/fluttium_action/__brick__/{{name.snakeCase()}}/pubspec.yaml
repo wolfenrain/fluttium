@@ -1,0 +1,11 @@
+name: {{name.snakeCase()}} 
+description: {{{description}}}
+version: 0.1.0+1
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+
+dependencies:
+  fluttium: ^0.1.0-dev.1
+  flutter:
+    sdk: flutter

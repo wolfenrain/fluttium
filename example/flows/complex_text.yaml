@@ -1,15 +1,15 @@
 description: Testing the complex text page
 ---
 # Validate that the app page is displayed
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- expectEnvironmentText:
 # Go to the complex text page
-- tapOn: Complex Text
+- tapOn: "Complex Text"
 # Validate that the complex text page is displayed and there is no result
-- expectVisible: Complex Text
+- expectVisible: "Complex Text"
 - expectVisible: "Simple text"
 - expectVisible: "Text with regexp syntax: (15) [a-z]"
 - expectVisible: "Text with regexp syntax: \\(\\d+\\) \\[a-z\\]"
 - expectVisible: "Text with special characters like: m², m³, m/s²"
 # Return to the app page
-- tapOn: Back
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- tapOn: "Back"
+- expectEnvironmentText:

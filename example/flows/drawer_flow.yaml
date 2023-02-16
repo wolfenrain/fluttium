@@ -1,30 +1,30 @@
 description: Testing the drawer page
 ---
 # Validate that the app page is displayed
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- expectEnvironmentText:
 # Go to the drawer page
-- tapOn: Drawer
+- tapOn: "Drawer"
 # Validate that the drawer page is displayed and nothing is clicked
-- expectVisible: Drawer
+- expectVisible: "Drawer"
 - expectVisible: "Clicked: None"
 # Open the drawer
-- tapOn: Open Drawer
-- expectVisible: Value 1
-- expectVisible: Value 2
-- expectVisible: Value 3
+- tapOn: "Open Drawer"
+- expectVisible: "Value 1"
+- expectVisible: "Value 2"
+- expectVisible: "Value 3"
 # Tap on the first value and it should close the drawer
-- tapOn: Value 1
+- tapOn: "Value 1"
 - expectVisible: "Clicked: Value 1"
-- expectNotVisible: Value 2
-- expectNotVisible: Value 3
+- expectNotVisible: "Value 2"
+- expectNotVisible: "Value 3"
 # Open the drawer again
-- tapOn: Open Drawer
-- expectVisible: Value 1
-- expectVisible: Value 2
-- expectVisible: Value 3
+- tapOn: "Open Drawer"
+- expectVisible: "Value 1"
+- expectVisible: "Value 2"
+- expectVisible: "Value 3"
 # Tap on the second value and it should close the drawer
-- tapOn: Value 2
+- tapOn: "Value 2"
 - expectVisible: "Clicked: Value 2"
 # Return to the app page
-- tapOn: Back
-- expectVisible: "Environment: (Development|Staging|Production|None){1}"
+- tapOn: "Back"
+- expectEnvironmentText:

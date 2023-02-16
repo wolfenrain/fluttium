@@ -1,4 +1,6 @@
 @Tags(['version-verify'])
+library ensure_build;
+
 import 'package:build_verify/build_verify.dart';
 import 'package:test/test.dart';
 
