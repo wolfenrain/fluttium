@@ -230,7 +230,7 @@ Version solving failed:
   The Fluttium CLI uses "${FluttiumDriver.fluttiumVersionConstraint}" as the version constraint.
   The current project uses "${fluttium.environment.fluttium}" as defined in the fluttium.yaml.
 
-Either adjust the constraint in the Fluttium configuration or update the CLI to a newer version.''',
+Either adjust the constraint in the Fluttium configuration or update the CLI to a compatible version.''',
       );
       return ExitCode.unavailable.code;
     }
