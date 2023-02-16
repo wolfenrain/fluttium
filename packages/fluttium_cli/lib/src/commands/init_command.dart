@@ -31,14 +31,14 @@ class InitCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
-    final fetchProgress = _logger.progress('Initializing');
+    final initProgress = _logger.progress('Initializing');
     final generator = _FluttiumYamlGenerator();
     await generator.generate(
       DirectoryGeneratorTarget(Directory.current),
       vars: <String, String>{'name': '{{name}}'},
       logger: _logger,
     );
-    fetchProgress.complete('Initialized a new Fluttium project.');
+    initProgress.complete('Initialized a new Fluttium project.');
 
     _logger
       ..info('')
