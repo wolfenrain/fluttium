@@ -14,7 +14,7 @@ final fluttiumTestRunnerBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZTogZmx1dHRpdW1fdGVzdF9ydW5uZXIKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE4LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICBmbHV0dGl1bTogIj49MC4xLjAtZGV2LjEgPDAuMS4wInt7I2FjdGlvbnN9fQogIHt7bmFtZS5zbmFrZUNhc2UoKX19OiB7e3tzb3VyY2V9fX17ey9hY3Rpb25zfX0=",
+          "bmFtZTogZmx1dHRpdW1fdGVzdF9ydW5uZXIKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE5LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICBmbHV0dGl1bTogIj49MC4xLjAtZGV2LjEgPDAuMS4wInt7I2FjdGlvbnN9fQogIHt7bmFtZS5zbmFrZUNhc2UoKX19OiB7e3tzb3VyY2V9fX17ey9hY3Rpb25zfX0=",
       "type": "text"
     },
   ],
@@ -28,7 +28,7 @@ final fluttiumTestRunnerBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZTogdGVzdF9ob29rcwoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjEyLjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIG1hc29uOiAiPj0wLjEuMC1kZXYuNDIgPDAuMS4wIgogIG1vY2t0YWlsOiBeMC4zLjAKCmRldl9kZXBlbmRlbmNpZXM6CiAgdGVzdDogXjEuMTkuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjQuMC4wCg==",
+          "bmFtZTogdGVzdF9ob29rcwoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE5LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIG1hc29uOiAiPj0wLjEuMC1kZXYuNDIgPDAuMS4wIgogIG1vY2t0YWlsOiBeMC4zLjAKCmRldl9kZXBlbmRlbmNpZXM6CiAgdGVzdDogXjEuMTkuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjQuMC4wCg==",
       "type": "text"
     },
     {

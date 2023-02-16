@@ -28,7 +28,7 @@ final fluttiumLauncherBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZTogdGVzdF9ob29rcwoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjEyLjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIG1hc29uOiAiPj0wLjEuMC1kZXYuNDIgPDAuMS4wIgogIG1vY2t0YWlsOiBeMC4zLjAKCmRldl9kZXBlbmRlbmNpZXM6CiAgdGVzdDogXjEuMTkuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjQuMC4wCg==",
+          "bmFtZTogdGVzdF9ob29rcwoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE5LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIG1hc29uOiAiPj0wLjEuMC1kZXYuNDIgPDAuMS4wIgogIG1vY2t0YWlsOiBeMC4zLjAKCmRldl9kZXBlbmRlbmNpZXM6CiAgdGVzdDogXjEuMTkuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjQuMC4wCg==",
       "type": "text"
     },
     {

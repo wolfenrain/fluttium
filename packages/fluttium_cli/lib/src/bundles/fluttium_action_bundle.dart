@@ -14,7 +14,7 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3tuYW1lLnNuYWtlQ2FzZSgpfX0gCmRlc2NyaXB0aW9uOiB7e3tkZXNjcmlwdGlvbn19fQp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTguMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRpdW06IF4wLjEuMC1kZXYuMQogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIK",
+          "bmFtZToge3tuYW1lLnNuYWtlQ2FzZSgpfX0gCmRlc2NyaXB0aW9uOiB7e3tkZXNjcmlwdGlvbn19fQp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRpdW06IF4wLjEuMC1kZXYuMQogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIK",
       "type": "text"
     }
   ],
