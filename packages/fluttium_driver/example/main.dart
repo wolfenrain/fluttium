@@ -39,7 +39,8 @@ Future<void> main() async {
             break;
           case StepStatus.failed:
             stdout.writeln(
-                ' 🔴 ${step.description} - reason: ${step.failReason}');
+              ' 🔴 ${step.description} - reason: ${step.failReason}',
+            );
             break;
         }
       }
