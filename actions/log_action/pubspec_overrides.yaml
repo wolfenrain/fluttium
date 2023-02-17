@@ -1,7 +1,7 @@
 dependency_overrides:
   fluttium:
-    path: /Users/wolfen/Projects/personal/fluttium/packages/fluttium
+    path: ../fluttium
   fluttium_protocol:
-    path: /Users/wolfen/Projects/personal/fluttium/packages/fluttium_protocol
+    path: ../fluttium_protocol
   fluttium_interfaces:
-    path: /Users/wolfen/Projects/personal/fluttium/packages/fluttium_interfaces
+    path: ../fluttium_interfaces
