@@ -8,13 +8,13 @@ import 'package:fluttium/fluttium.dart';
 /// This action can be invoked either using the short-hand version:
 ///
 /// ```yaml
-/// - logAction: "Hello World"
+/// - log: "Hello World"
 /// ```
 ///
 /// Or using the verbose version:
 ///
 /// ```yaml
-/// - logAction:
+/// - log:
 ///     text: "Hello World"
 /// ```
 /// {@endtemplate}
