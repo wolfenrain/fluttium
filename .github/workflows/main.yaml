@@ -101,6 +101,30 @@ jobs:
               - ./.github/actions/dart_package
               - packages/fluttium_protocol/**
 
+  # Run pana on the packages that have changed.
+  #
+  # If the matrix is empty, no jobs will be created.
+  pana:
+    needs: package_changes
+
+    # TODO(wolfen): remove after release of packages
+    continue-on-error: true
+
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.package_changes.outputs.packages) }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 📊 Verify Pana Score (${{ matrix.package }})
+        uses: ./.github/actions/pana
+        with:
+          working_directory: packages/${{ matrix.package }}
+
   # Build and test the dart packages that have changed.
   #
   # If the matrix is empty, no jobs will be created.
@@ -131,30 +155,6 @@ jobs:
       - name: 💙 Flutter Format, Analyze and Test (${{ matrix.package }})
         if: steps.dart_or_flutter.outputs.dart_or_flutter == 'true'
         uses: ./.github/actions/flutter_package
-        with:
-          working_directory: packages/${{ matrix.package }}
-
-  # Run pana on the packages that have changed.
-  #
-  # If the matrix is empty, no jobs will be created.
-  pana:
-    needs: package_changes
-
-    # TODO(wolfen): remove after release of packages
-    continue-on-error: true
-
-    strategy:
-      matrix:
-        package: ${{ fromJSON(needs.package_changes.outputs.packages) }}
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 📚 Git Checkout
-        uses: actions/checkout@v3
-
-      - name: 📊 Verify Pana Score (${{ matrix.package }})
-        uses: ./.github/actions/pana
         with:
           working_directory: packages/${{ matrix.package }}
 
@@ -202,6 +202,45 @@ jobs:
           analyze_directories: .
           report_on: post_gen.dart,pre_gen.dart
 
+  actions_changes:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: read
+
+    outputs:
+      bricks: ${{ steps.filter.outputs.changes }}
+
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            log_action:
+              - ./.github/actions/flutter_package
+              - actions/log_action/**
+
+  # Build and test the actions that have changed.
+  #
+  # If the matrix is empty, no jobs will be created.
+  build_actions:
+    needs: actions_changes
+
+    strategy:
+      matrix:
+        brick: ${{ fromJSON(needs.actions_changes.outputs.bricks) }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: ✨ Format, Analyze and Test (${{ matrix.brick }})
+        uses: ./.github/actions/flutter_package
+        with:
+          working_directory: actions/${{ matrix.brick }}
+
   # Simply exists to be the final job in the workflow. This is required to
   # ensure that the workflow fails if any of the needed jobs fail.
   #
@@ -214,9 +253,10 @@ jobs:
         semantic_pull_request,
         docs,
         example,
-        build_packages,
         pana,
+        build_packages,
         build_bricks,
+        build_actions,
       ]
 
     runs-on: ubuntu-latest
