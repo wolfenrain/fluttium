@@ -1,0 +1,7 @@
+dependency_overrides:
+  fluttium:
+    path: /Users/wolfen/Projects/personal/fluttium/packages/fluttium
+  fluttium_protocol:
+    path: /Users/wolfen/Projects/personal/fluttium/packages/fluttium_protocol
+  fluttium_interfaces:
+    path: /Users/wolfen/Projects/personal/fluttium/packages/fluttium_interfaces

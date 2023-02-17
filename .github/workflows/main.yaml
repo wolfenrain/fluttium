@@ -104,7 +104,7 @@ jobs:
   # Run pana on the packages that have changed.
   #
   # If the matrix is empty, no jobs will be created.
-  pana:
+  package_pana:
     needs: package_changes
 
     # TODO(wolfen): remove after release of packages
@@ -219,6 +219,27 @@ jobs:
             log_action:
               - ./.github/actions/flutter_package
               - actions/log_action/**
+
+  action_pana:
+    needs: actions_changes
+
+    # TODO(wolfen): remove after release of packages
+    continue-on-error: true
+
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.actions_changes.outputs.packages) }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 📊 Verify Pana Score (${{ matrix.package }})
+        uses: ./.github/actions/pana
+        with:
+          working_directory: actions/${{ matrix.package }}
 
   # Build and test the actions that have changed.
   #
