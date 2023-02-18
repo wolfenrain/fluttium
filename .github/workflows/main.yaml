@@ -209,7 +209,7 @@ jobs:
       pull-requests: read
 
     outputs:
-      bricks: ${{ steps.filter.outputs.changes }}
+      actions: ${{ steps.filter.outputs.changes }}
 
     steps:
       - uses: dorny/paths-filter@v2
@@ -231,7 +231,7 @@ jobs:
 
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.changes_actions.outputs.packages) }}
+        package: ${{ fromJSON(needs.changes_actions.outputs.actions) }}
 
     runs-on: ubuntu-latest
 
@@ -252,7 +252,7 @@ jobs:
 
     strategy:
       matrix:
-        brick: ${{ fromJSON(needs.changes_actions.outputs.bricks) }}
+        brick: ${{ fromJSON(needs.changes_actions.outputs.actions) }}
 
     runs-on: ubuntu-latest
 
