@@ -15,6 +15,7 @@
 Fluttium, the user flow testing tool for Flutter.
 
 ![Fluttium Demo][fluttium_demo]
+
 ## Packages
 
 | Package                                                                                        | Pub                                                                                                       |
