@@ -68,21 +68,23 @@ jobs:
         with:
           working_directory: example
 
-  # Creates a list of packages that have changed and stores them in the
-  # outputs. Jobs like build and pana uses these values to determine which
-  # packages to build and test.
-  changes_packages:
+  # Generate a map of items in the output, each key indicates
+  # a certain group where it's value is a list of "types" that
+  # had changes within the scope of that group.
+  changes:
     runs-on: ubuntu-latest
 
     permissions:
       pull-requests: read
 
     outputs:
-      packages: ${{ steps.filter.outputs.changes }}
+      packages: ${{ steps.packages.outputs.changes }}
+      bricks: ${{ steps.bricks.outputs.changes }}
+      actions: ${{ steps.actions.outputs.changes }}
 
     steps:
       - uses: dorny/paths-filter@v2
-        id: filter
+        id: packages
         with:
           filters: |
             fluttium:
@@ -101,18 +103,37 @@ jobs:
               - ./.github/actions/dart_package
               - packages/fluttium_protocol/**
 
+      - uses: dorny/paths-filter@v2
+        id: bricks
+        with:
+          filters: |
+            fluttium_launcher:
+              - ./.github/actions/dart_package
+              - bricks/fluttium_launcher/hooks/**
+            fluttium_test_runner:
+              - ./.github/actions/dart_package
+              - bricks/fluttium_test_runner/hooks/**
+
+      - uses: dorny/paths-filter@v2
+        id: actions
+        with:
+          filters: |
+            log_action:
+              - ./.github/actions/flutter_package
+              - actions/log_action/**
+
   # Run pana on the packages that have changed.
   #
   # If the matrix is empty, no jobs will be created.
   pana_packages:
-    needs: changes_packages
+    needs: changes
 
     # TODO(wolfen): remove after release of packages
     continue-on-error: true
 
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.changes_packages.outputs.packages) }}
+        package: ${{ fromJSON(needs.changes.outputs.packages) }}
 
     runs-on: ubuntu-latest
 
@@ -129,11 +150,11 @@ jobs:
   #
   # If the matrix is empty, no jobs will be created.
   build_packages:
-    needs: changes_packages
+    needs: changes
 
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.changes_packages.outputs.packages) }}
+        package: ${{ fromJSON(needs.changes.outputs.packages) }}
 
     runs-on: ubuntu-latest
 
@@ -158,36 +179,15 @@ jobs:
         with:
           working_directory: packages/${{ matrix.package }}
 
-  changes_bricks:
-    runs-on: ubuntu-latest
-
-    permissions:
-      pull-requests: read
-
-    outputs:
-      bricks: ${{ steps.filter.outputs.changes }}
-
-    steps:
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            fluttium_launcher:
-              - ./.github/actions/dart_package
-              - bricks/fluttium_launcher/hooks/**
-            fluttium_test_runner:
-              - ./.github/actions/dart_package
-              - bricks/fluttium_test_runner/hooks/**
-
   # Build and test the bricks that have changed.
   #
   # If the matrix is empty, no jobs will be created.
   build_bricks:
-    needs: changes_bricks
+    needs: changes
 
     strategy:
       matrix:
-        brick: ${{ fromJSON(needs.changes_bricks.outputs.bricks) }}
+        brick: ${{ fromJSON(needs.changes.outputs.bricks) }}
 
     runs-on: ubuntu-latest
 
@@ -202,36 +202,18 @@ jobs:
           analyze_directories: .
           report_on: post_gen.dart,pre_gen.dart
 
-  changes_actions:
-    runs-on: ubuntu-latest
-
-    permissions:
-      pull-requests: read
-
-    outputs:
-      actions: ${{ steps.filter.outputs.changes }}
-
-    steps:
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            log_action:
-              - ./.github/actions/flutter_package
-              - actions/log_action/**
-
   # Run pana on the actions that have changed.
   #
   # If the matrix is empty, no jobs will be created.
   pana_actions:
-    needs: changes_actions
+    needs: changes
 
     # TODO(wolfen): remove after release of packages
     continue-on-error: true
 
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.changes_actions.outputs.actions) }}
+        package: ${{ fromJSON(needs.changes.outputs.actions) }}
 
     runs-on: ubuntu-latest
 
@@ -248,11 +230,11 @@ jobs:
   #
   # If the matrix is empty, no jobs will be created.
   build_actions:
-    needs: changes_actions
+    needs: changes
 
     strategy:
       matrix:
-        brick: ${{ fromJSON(needs.changes_actions.outputs.actions) }}
+        brick: ${{ fromJSON(needs.changes.outputs.actions) }}
 
     runs-on: ubuntu-latest
 
