@@ -24,6 +24,7 @@ class LogAction extends Action {
     required this.text,
   });
 
+  /// The text to log.
   final String text;
 
   @override

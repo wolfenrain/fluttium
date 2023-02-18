@@ -1,5 +1,5 @@
 name: log_action
-description: A simple log action for Fluttium.
+description: A simple log action for the Fluttium user flow testing framework.
 version: 0.1.0+1
 repository: https://github.com/wolfenrain/fluttium/tree/main/actions/log_action
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
@@ -8,11 +8,12 @@ environment:
   sdk: ">=2.19.0 <3.0.0"
 
 dependencies:
-  fluttium: ^0.1.0-dev.1
   flutter:
     sdk: flutter
+  fluttium: ^0.1.0-dev.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   mocktail: ^0.3.0
+  very_good_analysis: ^4.0.0

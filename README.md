@@ -15,7 +15,6 @@
 Fluttium, the user flow testing tool for Flutter.
 
 ![Fluttium Demo][fluttium_demo]
-
 ## Packages
 
 | Package                                                                                        | Pub                                                                                                       |
@@ -25,6 +24,12 @@ Fluttium, the user flow testing tool for Flutter.
 | [fluttium_driver](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_driver)     | [![pub package](https://img.shields.io/pub/v/fluttium_driver.svg)](https://pub.dev/packages/fluttium_driver)   |
 | [fluttium_interfaces](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_interfaces) | [![pub package](https://img.shields.io/pub/v/fluttium_interfaces.svg)](https://pub.dev/packages/fluttium_interfaces) |
 | [fluttium_protocol](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_protocol) | [![pub package](https://img.shields.io/pub/v/fluttium_protocol.svg)](https://pub.dev/packages/fluttium_protocol) |
+
+## Actions
+
+| Action                                                                                        | Pub                                                                                                       |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [log_action](https://github.com/wolfenrain/fluttium/tree/main/actions/log_action) | [![pub package](https://img.shields.io/pub/v/log_action.svg)](https://pub.dev/packages/log_action)    |
 
 ## Quick Start
 

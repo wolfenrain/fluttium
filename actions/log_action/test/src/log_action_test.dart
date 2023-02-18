@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttium/fluttium.dart';
 import 'package:log_action/log_action.dart';

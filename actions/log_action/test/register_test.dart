@@ -8,8 +8,13 @@ class _MockRegister extends Mock implements Registry {}
 void main() {
   test('can be registered', () {
     final registry = _MockRegister();
-    when(() => registry.registerAction(any(), any(),
-        shortHandIs: any(named: 'shortHandIs'))).thenAnswer((_) {});
+    when(
+      () => registry.registerAction(
+        any(),
+        any(),
+        shortHandIs: any(named: 'shortHandIs'),
+      ),
+    ).thenAnswer((_) {});
 
     register(registry);
 
