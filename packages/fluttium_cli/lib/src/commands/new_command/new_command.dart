@@ -1,6 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:fluttium_cli/src/bundles/bundles.dart';
 import 'package:fluttium_cli/src/commands/new_command/new_bundle_command.dart';
+import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:mason/mason.dart';
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
@@ -29,6 +30,9 @@ class NewCommand extends Command<int> {
         logger: logger,
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,
+        defaultVars: {
+          'fluttiumVersion': FluttiumDriver.fluttiumVersionConstraint.min,
+        },
       ),
     );
 

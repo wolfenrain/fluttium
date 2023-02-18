@@ -20,7 +20,7 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3tuYW1lLnNuYWtlQ2FzZSgpfX0gCmRlc2NyaXB0aW9uOiB7e3tkZXNjcmlwdGlvbn19fQp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRpdW06IF4wLjEuMC1kZXYuMQogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIK",
+          "bmFtZToge3tuYW1lLnNuYWtlQ2FzZSgpfX0gCmRlc2NyaXB0aW9uOiB7e3tkZXNjcmlwdGlvbn19fQp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIGZsdXR0aXVtOiBee3tmbHV0dGl1bVZlcnNpb259fQo=",
       "type": "text"
     }
   ],
@@ -58,6 +58,11 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
       "description": "The description of the action",
       "default": "A custom action for Fluttium.",
       "prompt": "What is the description of the action?"
+    },
+    "fluttiumVersion": {
+      "type": "string",
+      "description": "The Fluttium version for this action",
+      "prompt": "What Fluttium version should be used?"
     }
   }
 });

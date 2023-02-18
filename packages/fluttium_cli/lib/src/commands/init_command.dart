@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:mason/mason.dart';
 
@@ -55,11 +56,11 @@ class _FluttiumYamlGenerator extends MasonGenerator {
           files: [TemplateFile(FluttiumYaml.file, _fluttiumYamlContent)],
         );
 
-  static const _fluttiumYamlContent = '''
+  static final _fluttiumYamlContent = '''
 # The following defines the environment for your Fluttium project. It includes 
 # the version of Fluttium that the project requires.
 environment:
-  fluttium: ">=0.1.0-dev.1 <0.1.0"
+  fluttium: "${FluttiumDriver.fluttiumVersionConstraint}"
 
 # The driver can be configured with default values. Uncomment the following 
 # lines to automatically run Fluttium using a different flavor and dart-defines.

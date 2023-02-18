@@ -22,6 +22,7 @@ class NewBundleCommand extends Command<int> {
     required MasonGeneratorFromBundle? generatorFromBundle,
     required MasonGeneratorFromBrick? generatorFromBrick,
     required MasonBundle bundle,
+    this.defaultVars = const {},
   })  : _bundle = bundle,
         _logger = logger,
         _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
@@ -35,6 +36,9 @@ class NewBundleCommand extends Command<int> {
     for (final entry in _bundle.vars.entries) {
       // Skipping name entries.
       if (entry.key == 'name') continue;
+
+      // Skip default vars.
+      if (defaultVars.containsKey(entry.key)) continue;
 
       final props = entry.value;
       switch (props.type) {
@@ -62,6 +66,8 @@ class NewBundleCommand extends Command<int> {
 
   @override
   String get invocation => 'fluttium new $name <name> [arguments]';
+
+  final Map<String, dynamic> defaultVars;
 
   final MasonBundle _bundle;
 
@@ -114,6 +120,7 @@ class NewBundleCommand extends Command<int> {
     final generator = await _getGeneratorForTemplate();
     final vars = bundle.vars.map((key, _) {
       if (key == 'name') return MapEntry(key, name);
+      if (defaultVars.containsKey(key)) return MapEntry(key, defaultVars[key]);
       return MapEntry(key, argResults[key]);
     });
 
