@@ -38,7 +38,13 @@ driver:
 
 actions:
   custom_action: ^0.1.0-dev.1
-  some_other_action: 1.2.3
+  some_other_action: 
+    path: ../some_other_action
+  and_final_action:
+    git: 
+      url: https://github.com/wolfenrain/fluttium.git
+      path: actions/and_final_action
+      ref: development
 ''');
 
       expect(
@@ -62,7 +68,6 @@ actions:
         ),
       );
 
-      expect(config.actions.length, equals(2));
       expect(
         config.actions,
         equals({
@@ -73,9 +78,13 @@ actions:
             ),
           ),
           'some_other_action': ActionLocation(
-            hosted: HostedPath(
-              url: 'https://pub.dartlang.org',
-              version: VersionConstraint.parse('1.2.3'),
+            path: '../some_other_action',
+          ),
+          'and_final_action': ActionLocation(
+            git: GitPath(
+              url: 'https://github.com/wolfenrain/fluttium.git',
+              path: 'actions/and_final_action',
+              ref: 'development',
             ),
           ),
         }),

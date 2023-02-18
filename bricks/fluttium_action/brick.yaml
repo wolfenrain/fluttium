@@ -16,3 +16,7 @@ vars:
     description: The description of the action
     default: A custom action for Fluttium.
     prompt: What is the description of the action?
+  fluttiumVersion:
+    type: string
+    description: The Fluttium version for this action
+    prompt: What Fluttium version should be used?

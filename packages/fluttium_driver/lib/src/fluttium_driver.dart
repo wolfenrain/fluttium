@@ -410,7 +410,7 @@ class FluttiumDriver {
   }
 
   /// The current Fluttium version constraint that the driver needs to work.
-  static VersionConstraint get fluttiumVersionConstraint {
+  static VersionRange get fluttiumVersionConstraint {
     final content = utf8.decode(
       base64.decode(
         fluttiumTestRunnerBundle.files
@@ -420,7 +420,7 @@ class FluttiumDriver {
     );
 
     final version = RegExp('fluttium: "(.*?)"{').firstMatch(content)!;
-    return VersionConstraint.parse(version.group(1)!);
+    return VersionConstraint.parse(version.group(1)!) as VersionRange;
   }
 }
 
