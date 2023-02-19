@@ -29,6 +29,7 @@
         "embedder",
         "fluttium",
         "linux",
+        "LTRB",
         "microtasks",
         "pubspec",
         "sigint",

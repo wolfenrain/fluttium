@@ -8,7 +8,7 @@ import 'package:fluttium/fluttium.dart';
 class Registry {
   final Map<String, ActionRegistration> _actions = {
     // TODO(wolfen): deprecate
-    'pressOn': ActionRegistration(PressOn.new, #text),
+    'tapOn': ActionRegistration(PressOn.new, #text),
     'pressOn': ActionRegistration(PressOn.new, #text),
     'longPressOn': ActionRegistration(LongPressOn.new, #text),
     'inputText': ActionRegistration(InputText.new, #text),
