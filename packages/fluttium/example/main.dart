@@ -34,7 +34,7 @@ class CustomAction extends Action {
     }
 
     if (await ExpectVisible(text: text!).execute(tester)) {
-      return TapOn(text: text).execute(tester);
+      return PressOn(text: text).execute(tester);
     }
     return false;
   }

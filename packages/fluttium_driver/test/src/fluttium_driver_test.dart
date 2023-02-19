@@ -159,7 +159,7 @@ void main() {
       when(() => userFlowFile.readAsStringSync()).thenReturn('''
 description: test
 ---
-- tapOn: Text
+- pressOn: Text
 - expectVisible: Text
 ''');
       when(() => userFlowFile.path).thenReturn('flow.yaml');
@@ -374,7 +374,7 @@ name: project_name
                 ],
                 'steps': [
                   {
-                    'step': json.encode({'tapOn': 'Text'})
+                    'step': json.encode({'pressOn': 'Text'})
                   },
                   {
                     'step': json.encode({'expectVisible': 'Text'})

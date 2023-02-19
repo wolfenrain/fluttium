@@ -7,7 +7,10 @@ import 'package:fluttium/fluttium.dart';
 /// {@endtemplate}
 class Registry {
   final Map<String, ActionRegistration> _actions = {
-    'tapOn': ActionRegistration(TapOn.new, #text),
+    // TODO(wolfen): deprecate
+    'pressOn': ActionRegistration(PressOn.new, #text),
+    'pressOn': ActionRegistration(PressOn.new, #text),
+    'longPressOn': ActionRegistration(LongPressOn.new, #text),
     'inputText': ActionRegistration(InputText.new, #text),
     'expectVisible': ActionRegistration(ExpectVisible.new, #text),
     'expectNotVisible': ActionRegistration(ExpectNotVisible.new, #text),

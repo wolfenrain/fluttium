@@ -12,7 +12,7 @@ import '../../helpers/helpers.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('TapOn', () {
+  group('PressOn', () {
     late Tester tester;
     late SemanticsNode node;
 
@@ -38,14 +38,14 @@ void main() {
     });
 
     test('returns false if no valid parameters are given', () {
-      final tapOn = TapOn();
-      expect(tapOn.execute(tester), completion(isFalse));
+      final pressOn = PressOn();
+      expect(pressOn.execute(tester), completion(isFalse));
     });
 
     test('taps on offset when given given', () async {
-      final tapOn = TapOn(offset: Offset.zero);
+      final pressOn = PressOn(offset: Offset.zero);
 
-      expect(await tapOn.execute(tester), isTrue);
+      expect(await pressOn.execute(tester), isTrue);
 
       verify(
         () => tester.emitPointerEvent(
@@ -66,9 +66,9 @@ void main() {
 
     group('if text is given', () {
       test('and a node is found it taps on the center of the node', () async {
-        final tapOn = TapOn(text: 'hello');
+        final pressOn = PressOn(text: 'hello');
 
-        expect(await tapOn.execute(tester), isTrue);
+        expect(await pressOn.execute(tester), isTrue);
 
         verify(
           () => tester.emitPointerEvent(
@@ -88,12 +88,12 @@ void main() {
       });
 
       test('and a node is not found it returns false', () async {
-        final tapOn = TapOn(text: 'hello');
+        final pressOn = PressOn(text: 'hello');
 
         when(() => tester.find(any(), timeout: any(named: 'timeout')))
             .thenAnswer((_) async => null);
 
-        expect(await tapOn.execute(tester), isFalse);
+        expect(await pressOn.execute(tester), isFalse);
 
         verifyNever(
           () => tester.emitPointerEvent(
@@ -115,18 +115,18 @@ void main() {
 
     group('Readable representation', () {
       test('with text', () {
-        final tapOn = TapOn(text: 'hello');
-        expect(tapOn.description(), 'Tap on "hello"');
+        final pressOn = PressOn(text: 'hello');
+        expect(pressOn.description(), 'Tap on "hello"');
       });
 
       test('with offset', () {
-        final tapOn = TapOn(offset: Offset.zero);
-        expect(tapOn.description(), 'Tap on [0.0, 0.0]');
+        final pressOn = PressOn(offset: Offset.zero);
+        expect(pressOn.description(), 'Tap on [0.0, 0.0]');
       });
 
       test('with none', () {
-        final tapOn = TapOn();
-        expect(tapOn.description, throwsUnsupportedError);
+        final pressOn = PressOn();
+        expect(pressOn.description, throwsUnsupportedError);
       });
     });
   });

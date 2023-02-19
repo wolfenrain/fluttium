@@ -7,11 +7,11 @@ void main() {
   group('UserFlowStep', () {
     test('can be instantiated', () {
       final step = UserFlowStep(
-        'tapOn',
+        'pressOn',
         arguments: 'Increment',
       );
 
-      expect(step.actionName, equals('tapOn'));
+      expect(step.actionName, equals('pressOn'));
       expect(step.arguments, equals('Increment'));
     });
 
@@ -27,17 +27,17 @@ void main() {
     });
 
     test('toJson', () {
-      final step = UserFlowStep('tapOn', arguments: 'Increment');
+      final step = UserFlowStep('pressOn', arguments: 'Increment');
 
       expect(
         step.toJson(),
-        equals({'tapOn': 'Increment'}),
+        equals({'pressOn': 'Increment'}),
       );
     });
 
     test('equality', () {
-      final step = UserFlowStep('tapOn', arguments: 'Increment');
-      final otherStep = UserFlowStep('tapOn', arguments: 'Increment');
+      final step = UserFlowStep('pressOn', arguments: 'Increment');
+      final otherStep = UserFlowStep('pressOn', arguments: 'Increment');
 
       expect(step, equals(otherStep));
     });

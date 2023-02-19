@@ -12,7 +12,7 @@ import '../../helpers/helpers.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('LongTapOn', () {
+  group('LongPressOn', () {
     late Tester tester;
     late SemanticsNode node;
 
@@ -38,14 +38,14 @@ void main() {
     });
 
     test('returns false if no valid parameters are given', () {
-      final longTapOn = LongTapOn();
-      expect(longTapOn.execute(tester), completion(isFalse));
+      final longPressOn = LongPressOn();
+      expect(longPressOn.execute(tester), completion(isFalse));
     });
 
     test('taps on offset when given given', () async {
-      final longTapOn = LongTapOn(offset: Offset.zero);
+      final longPressOn = LongPressOn(offset: Offset.zero);
 
-      expect(await longTapOn.execute(tester), isTrue);
+      expect(await longPressOn.execute(tester), isTrue);
 
       verify(
         () => tester.emitPointerEvent(
@@ -69,9 +69,9 @@ void main() {
 
     group('if text is given', () {
       test('and a node is found it taps on the center of the node', () async {
-        final longTapOn = LongTapOn(text: 'hello');
+        final longPressOn = LongPressOn(text: 'hello');
 
-        expect(await longTapOn.execute(tester), isTrue);
+        expect(await longPressOn.execute(tester), isTrue);
 
         verify(
           () => tester.emitPointerEvent(
@@ -94,12 +94,12 @@ void main() {
       });
 
       test('and a node is not found it returns false', () async {
-        final longTapOn = LongTapOn(text: 'hello');
+        final longPressOn = LongPressOn(text: 'hello');
 
         when(() => tester.find(any(), timeout: any(named: 'timeout')))
             .thenAnswer((_) async => null);
 
-        expect(await longTapOn.execute(tester), isFalse);
+        expect(await longPressOn.execute(tester), isFalse);
 
         verifyNever(
           () => tester.emitPointerEvent(
@@ -124,18 +124,18 @@ void main() {
 
     group('Readable representation', () {
       test('with text', () {
-        final longTapOn = LongTapOn(text: 'hello');
-        expect(longTapOn.description(), 'Long tap on "hello"');
+        final longPressOn = LongPressOn(text: 'hello');
+        expect(longPressOn.description(), 'Long tap on "hello"');
       });
 
       test('with offset', () {
-        final longTapOn = LongTapOn(offset: Offset.zero);
-        expect(longTapOn.description(), 'Long tap on [0.0, 0.0]');
+        final longPressOn = LongPressOn(offset: Offset.zero);
+        expect(longPressOn.description(), 'Long tap on [0.0, 0.0]');
       });
 
       test('with none', () {
-        final longTapOn = LongTapOn();
-        expect(longTapOn.description, throwsUnsupportedError);
+        final longPressOn = LongPressOn();
+        expect(longPressOn.description, throwsUnsupportedError);
       });
     });
   });

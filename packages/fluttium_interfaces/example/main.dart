@@ -16,7 +16,7 @@ void main() {
   const flow = UserFlowYaml(
     description: 'A simple flow',
     steps: [
-      UserFlowStep('tapOn', arguments: 'Increment'),
+      UserFlowStep('pressOn', arguments: 'Increment'),
       UserFlowStep('expectVisible', arguments: {'text': '0'}),
     ],
   );
