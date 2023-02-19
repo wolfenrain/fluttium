@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,7 +12,7 @@ import '../../helpers/helpers.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('TapOn', () {
+  group('PressOn', () {
     late Tester tester;
     late SemanticsNode node;
 
@@ -28,6 +29,8 @@ void main() {
       when(() => tester.pumpAndSettle(timeout: any(named: 'timeout')))
           .thenAnswer((_) async {});
       when(() => tester.emitPointerEvent(any())).thenAnswer((_) async {});
+      when(() => tester.pump(duration: any(named: 'duration')))
+          .thenAnswer((_) async {});
     });
 
     setUpAll(() {
@@ -35,18 +38,23 @@ void main() {
     });
 
     test('returns false if no valid parameters are given', () {
-      final action = TapOn();
-      expect(action.execute(tester), completion(isFalse));
+      final pressOn = PressOn();
+      expect(pressOn.execute(tester), completion(isFalse));
     });
 
     test('taps on offset when given given', () async {
-      final tapOn = TapOn(offset: Offset.zero);
+      final pressOn = PressOn(offset: Offset.zero);
 
-      expect(await tapOn.execute(tester), isTrue);
+      expect(await pressOn.execute(tester), isTrue);
 
       verify(
         () => tester.emitPointerEvent(
           any(that: isPointerEvent<PointerDownEvent>(position: Offset.zero)),
+        ),
+      ).called(1);
+      verify(
+        () => tester.pump(
+          duration: any(named: 'duration', that: equals(kPressTimeout)),
         ),
       ).called(1);
       verify(
@@ -58,13 +66,18 @@ void main() {
 
     group('if text is given', () {
       test('and a node is found it taps on the center of the node', () async {
-        final tapOn = TapOn(text: 'hello');
+        final pressOn = PressOn(text: 'hello');
 
-        expect(await tapOn.execute(tester), isTrue);
+        expect(await pressOn.execute(tester), isTrue);
 
         verify(
           () => tester.emitPointerEvent(
             any(that: isPointerEvent<PointerDownEvent>(position: Offset.zero)),
+          ),
+        ).called(1);
+        verify(
+          () => tester.pump(
+            duration: any(named: 'duration', that: equals(kPressTimeout)),
           ),
         ).called(1);
         verify(
@@ -75,16 +88,21 @@ void main() {
       });
 
       test('and a node is not found it returns false', () async {
-        final tapOn = TapOn(text: 'hello');
+        final pressOn = PressOn(text: 'hello');
 
         when(() => tester.find(any(), timeout: any(named: 'timeout')))
             .thenAnswer((_) async => null);
 
-        expect(await tapOn.execute(tester), isFalse);
+        expect(await pressOn.execute(tester), isFalse);
 
         verifyNever(
           () => tester.emitPointerEvent(
             any(that: isPointerEvent<PointerDownEvent>(position: Offset.zero)),
+          ),
+        );
+        verifyNever(
+          () => tester.pump(
+            duration: any(named: 'duration', that: equals(kPressTimeout)),
           ),
         );
         verifyNever(
@@ -97,19 +115,18 @@ void main() {
 
     group('Readable representation', () {
       test('with text', () {
-        final tapOn = TapOn(text: 'hello');
-        expect(tapOn.description(), 'Tap on "hello"');
+        final pressOn = PressOn(text: 'hello');
+        expect(pressOn.description(), 'Press on "hello"');
       });
 
       test('with offset', () {
-        final tapOn = TapOn(offset: Offset.zero);
-        expect(tapOn.description(), 'Tap on [0.0, 0.0]');
+        final pressOn = PressOn(offset: Offset.zero);
+        expect(pressOn.description(), 'Press on [0.0, 0.0]');
       });
 
       test('with none', () {
-        final tapOn = TapOn();
-
-        expect(tapOn.description, throwsUnsupportedError);
+        final pressOn = PressOn();
+        expect(pressOn.description, throwsUnsupportedError);
       });
     });
   });

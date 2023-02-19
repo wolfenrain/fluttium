@@ -2,6 +2,7 @@ import 'package:example/complex_text/complex_text.dart';
 import 'package:example/counter/counter.dart';
 import 'package:example/drawer/drawer.dart';
 import 'package:example/progress/progress.dart';
+import 'package:example/simple_menu/simple_menu.dart';
 import 'package:example/text/text.dart';
 import 'package:flutter/material.dart';
 
@@ -51,6 +52,12 @@ class AppView extends StatelessWidget {
               ComplexTextPage.route(),
             ),
             child: const Text('Complex Text'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).push(
+              SimpleMenuPage.route(),
+            ),
+            child: const Text('Simple Menu'),
           )
         ],
       ),

@@ -4,14 +4,14 @@ description: Testing the progress page
 - expectEnvironmentText:
 - takeScreenshot: "screenshots/app_page.png"
 # Go to the progress page
-- tapOn: "Progress"
+- pressOn: "Progress"
 # Validate that the progress page is displayed and the start button is there
 - expectVisible: "Progress"
 - expectVisible: "Start"
 # Start the progress
-- tapOn: "Start"
+- pressOn: "Start"
 - expectVisible: "Progress: \\d+%"
 - expectVisible: "Done"
 # Return to the app page
-- tapOn: "Back"
+- pressOn: "Back"
 - expectEnvironmentText:

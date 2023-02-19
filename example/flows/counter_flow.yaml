@@ -3,17 +3,17 @@ description: Testing the counter page
 # Validate that the app page is displayed
 - expectEnvironmentText:
 # Go to the counter page
-- tapOn: "Counter"
+- pressOn: "Counter"
 # Validate that the counter page is displayed and the counter is 0
 - expectVisible: "Counter"
 - expectVisible: 0
 # Increment and decrement the counter
-- tapOn: "Increment"
+- pressOn: "Increment"
 - expectVisible: 1
-- tapOn: "Increment"
+- pressOn: "Increment"
 - expectVisible: 2
-- tapOn: "Decrement"
+- pressOn: "Decrement"
 - expectVisible: 1
 # Return to the app page
-- tapOn: "Back"
+- pressOn: "Back"
 - expectEnvironmentText:

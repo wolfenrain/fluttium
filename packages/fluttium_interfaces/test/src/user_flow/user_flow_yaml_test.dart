@@ -18,7 +18,7 @@ void main() {
       final flow = UserFlowYaml(
         description: 'test',
         steps: const [
-          UserFlowStep('tapOn', arguments: 'Increment'),
+          UserFlowStep('pressOn', arguments: 'Increment'),
           UserFlowStep('expectVisible', arguments: {'text': 'findByText'}),
         ],
       );
@@ -27,7 +27,7 @@ void main() {
       expect(
         flow.steps,
         equals([
-          UserFlowStep('tapOn', arguments: 'Increment'),
+          UserFlowStep('pressOn', arguments: 'Increment'),
           UserFlowStep(
             'expectVisible',
             arguments: const {'text': 'findByText'},
@@ -40,14 +40,14 @@ void main() {
       final flow = UserFlowYaml.fromData('''
 description: test description
 ---
-- tapOn: "Increment"
+- pressOn: "Increment"
 - expectVisible: 
     text: "0"
 ''');
       expect(flow.description, equals('test description'));
       expect(flow.steps.length, equals(2));
 
-      expect(flow.steps.first.actionName, equals('tapOn'));
+      expect(flow.steps.first.actionName, equals('pressOn'));
       expect(flow.steps.first.arguments, equals('Increment'));
 
       expect(flow.steps.last.actionName, equals('expectVisible'));
@@ -58,7 +58,7 @@ description: test description
       final flow = UserFlowYaml(
         description: 'test description',
         steps: const [
-          UserFlowStep('tapOn', arguments: 'Increment'),
+          UserFlowStep('pressOn', arguments: 'Increment'),
           UserFlowStep('expectVisible', arguments: {'text': '0'}),
         ],
       );
@@ -66,7 +66,7 @@ description: test description
       final otherFlow = UserFlowYaml(
         description: 'test description',
         steps: const [
-          UserFlowStep('tapOn', arguments: 'Increment'),
+          UserFlowStep('pressOn', arguments: 'Increment'),
           UserFlowStep('expectVisible', arguments: {'text': '0'}),
         ],
       );

@@ -1,27 +1,27 @@
 import 'package:flutter/gestures.dart';
 import 'package:fluttium/fluttium.dart';
 
-/// {@template tap_on}
-/// Tap on a node that matches the arguments.
+/// {@template press_on}
+/// Press on a node that matches the arguments.
 ///
 /// This action can be invoked either using the short-hand version:
 ///
 /// ```yaml
-/// - tapOn: "Hello World"
+/// - pressOn: "Hello World"
 /// ```
 ///
 /// Or using the verbose version:
 ///
 /// ```yaml
-/// - tapOn:
+/// - pressOn:
 ///     text: "Hello World"
-/// - tapOn:
+/// - pressOn:
 ///     offset: [0.5, 0.5]
 /// ```
 /// {@endtemplate}
-class TapOn extends Action {
-  /// {@macro tap_on}
-  const TapOn({
+class PressOn extends Action {
+  /// {@macro press_on}
+  const PressOn({
     this.text,
     this.offset,
   });
@@ -53,7 +53,7 @@ class TapOn extends Action {
     tester.emitPointerEvent(
       PointerDownEvent(pointer: pointer, position: center),
     );
-    await Future<void>.delayed(kPressTimeout);
+    await tester.pump(duration: kPressTimeout);
     tester.emitPointerEvent(
       PointerUpEvent(pointer: pointer, position: center),
     );
@@ -65,10 +65,10 @@ class TapOn extends Action {
   @override
   String description() {
     if (text != null) {
-      return 'Tap on "$text"';
+      return 'Press on "$text"';
     } else if (offset != null) {
-      return 'Tap on [${offset!.dx}, ${offset!.dy}]';
+      return 'Press on [${offset!.dx}, ${offset!.dy}]';
     }
-    throw UnsupportedError('TapOn must have either text or offset');
+    throw UnsupportedError('PressOn must have either text or offset');
   }
 }

@@ -1,0 +1,16 @@
+description: Testing the progress page
+---
+# Validate that the app page is displayed
+- expectEnvironmentText:
+# Go to the simple menu page
+- pressOn: "Simple Menu"
+# Validate that the simple menu page is displayed and the menu button is visible
+- expectVisible: "Simple Menu"
+- expectVisible: "Show Menu"
+# Press the button using a long press
+- longPressOn: "Show Menu"
+- expectVisible: "Menu Item 1"
+- pressOn: "Menu Item 1"
+# Return to the app page
+- pressOn: "Back"
+- expectEnvironmentText:
