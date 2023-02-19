@@ -1,27 +1,27 @@
 import 'package:flutter/gestures.dart';
 import 'package:fluttium/fluttium.dart';
 
-/// {@template tap_on}
+/// {@template long_tap_on}
 /// Tap on a node that matches the arguments.
 ///
 /// This action can be invoked either using the short-hand version:
 ///
 /// ```yaml
-/// - tapOn: "Hello World"
+/// - longTapOn: "Hello World"
 /// ```
 ///
 /// Or using the verbose version:
 ///
 /// ```yaml
-/// - tapOn:
+/// - longTapOn:
 ///     text: "Hello World"
-/// - tapOn:
+/// - longTapOn:
 ///     offset: [0.5, 0.5]
 /// ```
 /// {@endtemplate}
-class TapOn extends Action {
-  /// {@macro tap_on}
-  const TapOn({
+class LongTapOn extends Action {
+  /// {@macro long_tap_on}
+  const LongTapOn({
     this.text,
     this.offset,
   });
@@ -53,7 +53,7 @@ class TapOn extends Action {
     tester.emitPointerEvent(
       PointerDownEvent(pointer: pointer, position: center),
     );
-    await tester.pump(duration:  kPressTimeout);
+    await tester.pump(duration: kLongPressTimeout + kPressTimeout);
     tester.emitPointerEvent(
       PointerUpEvent(pointer: pointer, position: center),
     );
@@ -65,10 +65,10 @@ class TapOn extends Action {
   @override
   String description() {
     if (text != null) {
-      return 'Tap on "$text"';
+      return 'Long tap on "$text"';
     } else if (offset != null) {
-      return 'Tap on [${offset!.dx}, ${offset!.dy}]';
+      return 'Long tap on [${offset!.dx}, ${offset!.dy}]';
     }
-    throw UnsupportedError('TapOn must have either text or offset');
+    throw UnsupportedError('LongTapOn must have either text or offset');
   }
 }

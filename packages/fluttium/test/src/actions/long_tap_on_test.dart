@@ -12,7 +12,7 @@ import '../../helpers/helpers.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('TapOn', () {
+  group('LongTapOn', () {
     late Tester tester;
     late SemanticsNode node;
 
@@ -38,14 +38,14 @@ void main() {
     });
 
     test('returns false if no valid parameters are given', () {
-      final tapOn = TapOn();
-      expect(tapOn.execute(tester), completion(isFalse));
+      final longTapOn = LongTapOn();
+      expect(longTapOn.execute(tester), completion(isFalse));
     });
 
     test('taps on offset when given given', () async {
-      final tapOn = TapOn(offset: Offset.zero);
+      final longTapOn = LongTapOn(offset: Offset.zero);
 
-      expect(await tapOn.execute(tester), isTrue);
+      expect(await longTapOn.execute(tester), isTrue);
 
       verify(
         () => tester.emitPointerEvent(
@@ -54,7 +54,10 @@ void main() {
       ).called(1);
       verify(
         () => tester.pump(
-          duration: any(named: 'duration', that: equals(kPressTimeout)),
+          duration: any(
+            named: 'duration',
+            that: equals(kLongPressTimeout + kPressTimeout),
+          ),
         ),
       ).called(1);
       verify(
@@ -66,9 +69,9 @@ void main() {
 
     group('if text is given', () {
       test('and a node is found it taps on the center of the node', () async {
-        final tapOn = TapOn(text: 'hello');
+        final longTapOn = LongTapOn(text: 'hello');
 
-        expect(await tapOn.execute(tester), isTrue);
+        expect(await longTapOn.execute(tester), isTrue);
 
         verify(
           () => tester.emitPointerEvent(
@@ -77,7 +80,10 @@ void main() {
         ).called(1);
         verify(
           () => tester.pump(
-            duration: any(named: 'duration', that: equals(kPressTimeout)),
+            duration: any(
+              named: 'duration',
+              that: equals(kLongPressTimeout + kPressTimeout),
+            ),
           ),
         ).called(1);
         verify(
@@ -88,12 +94,12 @@ void main() {
       });
 
       test('and a node is not found it returns false', () async {
-        final tapOn = TapOn(text: 'hello');
+        final longTapOn = LongTapOn(text: 'hello');
 
         when(() => tester.find(any(), timeout: any(named: 'timeout')))
             .thenAnswer((_) async => null);
 
-        expect(await tapOn.execute(tester), isFalse);
+        expect(await longTapOn.execute(tester), isFalse);
 
         verifyNever(
           () => tester.emitPointerEvent(
@@ -102,7 +108,10 @@ void main() {
         );
         verifyNever(
           () => tester.pump(
-            duration: any(named: 'duration', that: equals(kPressTimeout)),
+            duration: any(
+              named: 'duration',
+              that: equals(kLongPressTimeout + kPressTimeout),
+            ),
           ),
         );
         verifyNever(
@@ -115,18 +124,18 @@ void main() {
 
     group('Readable representation', () {
       test('with text', () {
-        final tapOn = TapOn(text: 'hello');
-        expect(tapOn.description(), 'Tap on "hello"');
+        final longTapOn = LongTapOn(text: 'hello');
+        expect(longTapOn.description(), 'Long tap on "hello"');
       });
 
       test('with offset', () {
-        final tapOn = TapOn(offset: Offset.zero);
-        expect(tapOn.description(), 'Tap on [0.0, 0.0]');
+        final longTapOn = LongTapOn(offset: Offset.zero);
+        expect(longTapOn.description(), 'Long tap on [0.0, 0.0]');
       });
 
       test('with none', () {
-        final tapOn = TapOn();
-        expect(tapOn.description, throwsUnsupportedError);
+        final longTapOn = LongTapOn();
+        expect(longTapOn.description, throwsUnsupportedError);
       });
     });
   });
