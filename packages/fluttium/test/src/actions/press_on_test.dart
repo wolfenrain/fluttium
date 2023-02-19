@@ -116,12 +116,12 @@ void main() {
     group('Readable representation', () {
       test('with text', () {
         final pressOn = PressOn(text: 'hello');
-        expect(pressOn.description(), 'Tap on "hello"');
+        expect(pressOn.description(), 'Press on "hello"');
       });
 
       test('with offset', () {
         final pressOn = PressOn(offset: Offset.zero);
-        expect(pressOn.description(), 'Tap on [0.0, 0.0]');
+        expect(pressOn.description(), 'Press on [0.0, 0.0]');
       });
 
       test('with none', () {

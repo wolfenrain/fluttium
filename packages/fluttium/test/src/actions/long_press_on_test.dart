@@ -125,12 +125,12 @@ void main() {
     group('Readable representation', () {
       test('with text', () {
         final longPressOn = LongPressOn(text: 'hello');
-        expect(longPressOn.description(), 'Long tap on "hello"');
+        expect(longPressOn.description(), 'Long press on "hello"');
       });
 
       test('with offset', () {
         final longPressOn = LongPressOn(offset: Offset.zero);
-        expect(longPressOn.description(), 'Long tap on [0.0, 0.0]');
+        expect(longPressOn.description(), 'Long press on [0.0, 0.0]');
       });
 
       test('with none', () {
