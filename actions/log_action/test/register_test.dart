@@ -21,7 +21,7 @@ void main() {
     verify(
       () => registry.registerAction(
         any(that: equals('log')),
-        any(that: isA<Function>()),
+        any(that: equals(LogAction.new)),
         shortHandIs: any(named: 'shortHandIs', that: equals(#text)),
       ),
     ).called(1);
