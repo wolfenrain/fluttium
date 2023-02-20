@@ -20,8 +20,6 @@ class Tester {
 
   final Registry _registry;
 
-  KeyEventManager get keyEventManager => _binding.keyEventManager;
-
   SemanticsOwner get _semanticsOwner => _binding.pipelineOwner.semanticsOwner!;
 
   /// Converts the [steps] into a list of executable actions.
@@ -62,6 +60,11 @@ class Tester {
   /// Dispatch an event to the targets found by a hit test on its position.
   void emitPointerEvent(PointerEvent event) {
     return _binding.handlePointerEvent(event);
+  }
+
+  /// Dispatch an event on the keyboard.
+  void emitKeyEvent(KeyEvent event) {
+    _binding.keyboard.handleKeyEvent(event);
   }
 
   /// Dispatch a message to the platform.

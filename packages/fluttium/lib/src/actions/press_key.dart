@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/services.dart';
 import 'package:fluttium/fluttium.dart';
 
@@ -29,32 +27,21 @@ class PressKey extends Action {
       return logicalKey.debugName == key.debugName;
     });
 
-    HardwareKeyboard.instance.addHandler((event) {
-      print(event);
-      return false;
-    });
-
-    tester.keyEventManager.handleKeyData(
-      KeyData(
-        type: KeyEventType.down,
-        physical: PhysicalKeyboardKey.keyA.usbHidUsage,
-        logical: LogicalKeyboardKey.keyA.keyId,
+    tester.emitKeyEvent(
+      KeyDownEvent(
+        physicalKey: physicalKey,
+        logicalKey: logicalKey,
         timeStamp: Duration.zero,
-        character: null,
-        synthesized: false,
       ),
     );
 
     await tester.pump(duration: Duration(milliseconds: downFor));
 
-    tester.keyEventManager.handleKeyData(
-      KeyData(
-        type: KeyEventType.up,
-        physical: physicalKey.usbHidUsage,
-        logical: logicalKey.keyId,
+    tester.emitKeyEvent(
+      KeyUpEvent(
+        physicalKey: physicalKey,
+        logicalKey: logicalKey,
         timeStamp: Duration.zero,
-        character: null,
-        synthesized: false,
       ),
     );
 
