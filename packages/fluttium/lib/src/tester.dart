@@ -20,6 +20,8 @@ class Tester {
 
   final Registry _registry;
 
+  KeyEventManager get keyEventManager => _binding.keyEventManager;
+
   SemanticsOwner get _semanticsOwner => _binding.pipelineOwner.semanticsOwner!;
 
   /// Converts the [steps] into a list of executable actions.

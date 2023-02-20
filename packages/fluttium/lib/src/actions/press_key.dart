@@ -22,18 +22,23 @@ class PressKey extends Action {
   @override
   Future<bool> execute(Tester tester) async {
     final logicalKey = LogicalKeyboardKey.knownLogicalKeys.firstWhere((key) {
-      return key.debugName == this.key;
+      return key.debugName?.toLowerCase() == this.key.toLowerCase();
     });
 
     final physicalKey = PhysicalKeyboardKey.knownPhysicalKeys.firstWhere((key) {
       return logicalKey.debugName == key.debugName;
     });
 
+    HardwareKeyboard.instance.addHandler((event) {
+      print(event);
+      return false;
+    });
+
     tester.keyEventManager.handleKeyData(
       KeyData(
         type: KeyEventType.down,
-        physical: physicalKey.usbHidUsage,
-        logical: logicalKey.keyId,
+        physical: PhysicalKeyboardKey.keyA.usbHidUsage,
+        logical: LogicalKeyboardKey.keyA.keyId,
         timeStamp: Duration.zero,
         character: null,
         synthesized: false,
