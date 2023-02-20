@@ -10,6 +10,11 @@ description: Testing the text page
 - pressOn: "Enter text"
 - inputText: "Testing the text page"
 - expectVisible: "Result: Testing the text page"
+- removeText: 
+    amount: 5
+- expectVisible: "Result: Testing the text"
+- inputText: " actions"
+- expectVisible: "Result: Testing the text actions"
 # Return to the app page
 - pressOn: "Back"
 - expectEnvironmentText:

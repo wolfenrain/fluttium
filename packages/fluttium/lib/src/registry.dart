@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:fluttium/fluttium.dart';
+import 'package:fluttium/src/actions/remove_text.dart';
 
 /// {@template registry}
 /// The registry of all the actions a [Tester] can perform.
@@ -12,6 +13,7 @@ class Registry {
     'pressOn': ActionRegistration(PressOn.new, #text),
     'longPressOn': ActionRegistration(LongPressOn.new, #text),
     'inputText': ActionRegistration(InputText.new, #text),
+    'removeText': ActionRegistration(RemoveText.new, #amount),
     'expectVisible': ActionRegistration(ExpectVisible.new, #text),
     'expectNotVisible': ActionRegistration(ExpectNotVisible.new, #text),
     'takeScreenshot': ActionRegistration(TakeScreenshot.new, #fileName),
