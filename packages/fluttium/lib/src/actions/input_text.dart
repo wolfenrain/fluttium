@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttium/fluttium.dart';
 
@@ -15,21 +16,29 @@ import 'package:fluttium/fluttium.dart';
 /// ```yaml
 /// - inputText:
 ///     text: "Hello World"
+///     replaceCurrentText: true
 /// ```
 /// {@endtemplate}
 class InputText extends Action {
   /// {@macro input_text}
-  const InputText({
+  InputText({
     required this.text,
+    this.replaceCurrentText = false,
   });
 
   /// The text to input.
   final String text;
 
+  /// If the text should replace the current text
+  final bool replaceCurrentText;
+
+  final _textInputController = TextInputController();
+
   Future<void> _enterText(Tester tester, String text) async {
-    final value = TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(offset: text.length),
+    final fullText = _textInputController.value.text + text;
+    _textInputController.value = _textInputController.value.copyWith(
+      text: fullText,
+      selection: TextSelection.collapsed(offset: fullText.length),
     );
 
     await tester.emitPlatformMessage(
@@ -37,7 +46,7 @@ class InputText extends Action {
       SystemChannels.textInput.codec.encodeMethodCall(
         MethodCall(
           'TextInputClient.updateEditingState',
-          <dynamic>[-1, value.toJSON()],
+          [-1, _textInputController.value.toJSON()],
         ),
       ),
     );
@@ -45,10 +54,19 @@ class InputText extends Action {
 
   @override
   Future<bool> execute(Tester tester) async {
-    final chars = <String>[];
+    if (!replaceCurrentText) {
+      TextInput.setInputControl(_textInputController);
+      await tester.emitPlatformMessage(
+        SystemChannels.textInput.name,
+        SystemChannels.textInput.codec.encodeMethodCall(
+          const MethodCall('TextInputClient.requestExistingInputState'),
+        ),
+      );
+      TextInput.restorePlatformInputControl();
+    }
+
     for (final char in text.split('')) {
-      chars.add(char);
-      await _enterText(tester, chars.join());
+      await _enterText(tester, char);
       await tester.pumpAndSettle();
     }
     return true;
@@ -56,4 +74,18 @@ class InputText extends Action {
 
   @override
   String description() => 'Input text "$text"';
+}
+
+/// {@template text_input_controller}
+/// Used to retrieve the current editing state of an input
+/// {@endtemplate}
+@visibleForTesting
+class TextInputController with TextInputControl {
+  /// The current editing state.
+  TextEditingValue value = TextEditingValue.empty;
+
+  @override
+  void setEditingState(TextEditingValue value) {
+    this.value = value;
+  }
 }
