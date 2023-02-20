@@ -23,14 +23,14 @@ class InputText extends Action {
   /// {@macro input_text}
   InputText({
     required this.text,
-    this.replaceCurrentText = false,
+    this.overwrite = false,
   });
 
   /// The text to input.
   final String text;
 
   /// If the text should replace the current text
-  final bool replaceCurrentText;
+  final bool overwrite;
 
   final _textInputController = TextInputController();
 
@@ -54,7 +54,7 @@ class InputText extends Action {
 
   @override
   Future<bool> execute(Tester tester) async {
-    if (!replaceCurrentText) {
+    if (!overwrite) {
       TextInput.setInputControl(_textInputController);
       await tester.emitPlatformMessage(
         SystemChannels.textInput.name,

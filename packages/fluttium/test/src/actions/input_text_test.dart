@@ -63,8 +63,8 @@ void main() {
       ]);
     });
 
-    test('erase existing text and inputs given text one by one', () async {
-      final inputText = InputText(text: 'hello', replaceCurrentText: true);
+    test('overwrite existing text and inputs given text one by one', () async {
+      final inputText = InputText(text: 'hello', overwrite: true);
       await inputText.execute(tester);
 
       verifyNever(
