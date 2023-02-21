@@ -1,36 +1,31 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttium/fluttium.dart';
+import 'package:fluttium/src/text_input_controller.dart';
 
-/// {@template input_text}
-/// Input text automatically.
+/// {@template write_text}
+/// Write text automatically.
 ///
 /// This action can be invoked either using the short-hand version:
 ///
 /// ```yaml
-/// - inputText: "Hello World"
+/// - writeText: "Hello World"
 /// ```
 ///
 /// Or using the verbose version:
 ///
 /// ```yaml
-/// - inputText:
+/// - writeText:
 ///     text: "Hello World"
-///     replaceCurrentText: true
 /// ```
 /// {@endtemplate}
-class InputText extends Action {
-  /// {@macro input_text}
-  InputText({
+class WriteText extends Action {
+  /// {@macro write_text}
+  WriteText({
     required this.text,
-    this.overwrite = false,
   });
 
-  /// The text to input.
+  /// The text to write.
   final String text;
-
-  /// If the text should replace the current text
-  final bool overwrite;
 
   final _textInputController = TextInputController();
 
@@ -54,16 +49,14 @@ class InputText extends Action {
 
   @override
   Future<bool> execute(Tester tester) async {
-    if (!overwrite) {
-      TextInput.setInputControl(_textInputController);
-      await tester.emitPlatformMessage(
-        SystemChannels.textInput.name,
-        SystemChannels.textInput.codec.encodeMethodCall(
-          const MethodCall('TextInputClient.requestExistingInputState'),
-        ),
-      );
-      TextInput.restorePlatformInputControl();
-    }
+    TextInput.setInputControl(_textInputController);
+    await tester.emitPlatformMessage(
+      SystemChannels.textInput.name,
+      SystemChannels.textInput.codec.encodeMethodCall(
+        const MethodCall('TextInputClient.requestExistingInputState'),
+      ),
+    );
+    TextInput.restorePlatformInputControl();
 
     for (final char in text.split('')) {
       await _enterText(tester, char);
@@ -73,19 +66,5 @@ class InputText extends Action {
   }
 
   @override
-  String description() => 'Input text "$text"';
-}
-
-/// {@template text_input_controller}
-/// Used to retrieve the current editing state of an input
-/// {@endtemplate}
-@visibleForTesting
-class TextInputController with TextInputControl {
-  /// The current editing state.
-  TextEditingValue value = TextEditingValue.empty;
-
-  @override
-  void setEditingState(TextEditingValue value) {
-    this.value = value;
-  }
+  String description() => 'Write text "$text"';
 }

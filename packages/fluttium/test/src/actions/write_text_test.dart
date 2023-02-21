@@ -10,7 +10,7 @@ import '../../helpers/helpers.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('InputText', () {
+  group('$WriteText', () {
     late Tester tester;
 
     setUp(() {
@@ -21,8 +21,8 @@ void main() {
           .thenAnswer((_) async {});
     });
 
-    test('inputs given text one by one', () async {
-      final inputText = InputText(text: 'hello');
+    test('writes given text', () async {
+      final inputText = WriteText(text: 'hello');
       await inputText.execute(tester);
 
       verifyInOrder([
@@ -63,66 +63,10 @@ void main() {
       ]);
     });
 
-    test('overwrite existing text and inputs given text one by one', () async {
-      final inputText = InputText(text: 'hello', overwrite: true);
-      await inputText.execute(tester);
-
-      verifyNever(
-        () => tester.emitPlatformMessage(
-          any(that: equals(SystemChannels.textInput.name)),
-          any(that: isRequestExistingInputState),
-        ),
-      );
-      verifyInOrder([
-        () => tester.emitPlatformMessage(
-              any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('h')),
-            ),
-        () =>
-            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
-        () => tester.emitPlatformMessage(
-              any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('he')),
-            ),
-        () =>
-            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
-        () => tester.emitPlatformMessage(
-              any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('hel')),
-            ),
-        () =>
-            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
-        () => tester.emitPlatformMessage(
-              any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('hell')),
-            ),
-        () =>
-            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
-        () => tester.emitPlatformMessage(
-              any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('hello')),
-            ),
-        () =>
-            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
-      ]);
-    });
-
     test('Readable representation', () {
-      final inputText = InputText(text: 'hello');
+      final inputText = WriteText(text: 'hello');
 
-      expect(inputText.description(), 'Input text "hello"');
-    });
-  });
-
-  group('TextInputController', () {
-    test('set editing state', () {
-      final textInputController = TextInputController();
-      final textEditingValue = TextEditingValue(text: 'Hello world');
-
-      expect(textInputController.value, isNot(equals(textEditingValue)));
-
-      textInputController.setEditingState(textEditingValue);
-      expect(textInputController.value, equals(textEditingValue));
+      expect(inputText.description(), 'Write text "hello"');
     });
   });
 }
