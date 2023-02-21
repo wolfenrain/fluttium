@@ -3,6 +3,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttium/fluttium.dart';
+import 'package:fluttium/src/actions/clear_text.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/helpers.dart';
@@ -10,7 +11,7 @@ import '../../helpers/helpers.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('$WriteText', () {
+  group('$ClearText', () {
     late Tester tester;
 
     setUp(() {
@@ -21,9 +22,10 @@ void main() {
           .thenAnswer((_) async {});
     });
 
-    test('writes given text', () async {
-      final writeText = WriteText(text: 'hello');
-      await writeText.execute(tester);
+    test('clear text by given amount', () async {
+      final clearText = ClearText(characters: 2);
+      clearText.textInputController.value = TextEditingValue(text: 'test');
+      await clearText.execute(tester);
 
       verifyInOrder([
         () => tester.emitPlatformMessage(
@@ -32,41 +34,67 @@ void main() {
             ),
         () => tester.emitPlatformMessage(
               any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('h')),
+              any(that: isDeleteBackward),
             ),
         () =>
             tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
         () => tester.emitPlatformMessage(
               any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('he')),
-            ),
-        () =>
-            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
-        () => tester.emitPlatformMessage(
-              any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('hel')),
-            ),
-        () =>
-            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
-        () => tester.emitPlatformMessage(
-              any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('hell')),
-            ),
-        () =>
-            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
-        () => tester.emitPlatformMessage(
-              any(that: equals(SystemChannels.textInput.name)),
-              any(that: isText('hello')),
+              any(that: isDeleteBackward),
             ),
         () =>
             tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
       ]);
     });
 
-    test('Readable representation', () {
-      final writeText = WriteText(text: 'hello');
+    test('exits early when text is empty', () async {
+      final clearText = ClearText(characters: 2);
+      await clearText.execute(tester);
 
-      expect(writeText.description(), 'Write text "hello"');
+      verify(
+        () => tester.emitPlatformMessage(
+          any(that: equals(SystemChannels.textInput.name)),
+          any(that: isRequestExistingInputState),
+        ),
+      ).called(1);
+      verifyNever(
+        () => tester.emitPlatformMessage(
+          any(that: equals(SystemChannels.textInput.name)),
+          any(that: isDeleteBackward),
+        ),
+      );
+      verifyNever(
+        () =>
+            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
+      );
+      verifyNever(
+        () => tester.emitPlatformMessage(
+          any(that: equals(SystemChannels.textInput.name)),
+          any(that: isDeleteBackward),
+        ),
+      );
+      verifyNever(
+        () =>
+            tester.pumpAndSettle(timeout: any(named: 'timeout', that: isNull)),
+      );
+    });
+
+    test('Readable representation', () {
+      final clearText = ClearText();
+      expect(clearText.description(), 'Clear text');
     });
   });
+}
+
+Matcher get isRequestExistingInputState {
+  final data = JSONMessageCodec().encodeMessage(<String, Object?>{
+    'method': 'TextInputClient.requestExistingInputState',
+    'args': null,
+  });
+
+  return isA<ByteData?>().having(
+    (p0) => p0?.buffer.asUint8List().toList(),
+    'buffer',
+    equals(data?.buffer.asUint8List().toList()),
+  );
 }
