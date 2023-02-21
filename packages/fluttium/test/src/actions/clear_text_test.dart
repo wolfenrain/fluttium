@@ -48,7 +48,7 @@ void main() {
     });
 
     test('exits early when text is empty', () async {
-      final clearText = ClearText(characters: 2);
+      final clearText = ClearText();
       await clearText.execute(tester);
 
       verify(

@@ -6,6 +6,10 @@ import 'package:fluttium/src/text_input_controller.dart';
 /// {@template clear_text}
 /// Clear text automatically.
 ///
+/// It will clear any text until the text input no longer contains any text, if
+/// you want to only clear a certain amount of characters you can set the
+/// [characters] variable.
+///
 /// This action can be invoked either using the short-hand version:
 ///
 /// ```yaml

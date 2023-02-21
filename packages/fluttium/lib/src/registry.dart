@@ -14,7 +14,7 @@ class Registry {
 
     'pressOn': ActionRegistration(PressOn.new, #text),
     'longPressOn': ActionRegistration(LongPressOn.new, #text),
-    'clearText': ActionRegistration(ClearText.new, #amount),
+    'clearText': ActionRegistration(ClearText.new, #characters),
     'writeText': ActionRegistration(WriteText.new, #text),
     'expectVisible': ActionRegistration(ExpectVisible.new, #text),
     'expectNotVisible': ActionRegistration(ExpectNotVisible.new, #text),
