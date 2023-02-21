@@ -27,7 +27,7 @@ class PressKey extends Action {
       return logicalKey.debugName == key.debugName;
     });
 
-    tester.emitKeyEvent(
+    await tester.emitKeyEvent(
       KeyDownEvent(
         physicalKey: physicalKey,
         logicalKey: logicalKey,
@@ -37,7 +37,7 @@ class PressKey extends Action {
 
     await tester.pump(duration: Duration(milliseconds: downFor));
 
-    tester.emitKeyEvent(
+    await tester.emitKeyEvent(
       KeyUpEvent(
         physicalKey: physicalKey,
         logicalKey: logicalKey,

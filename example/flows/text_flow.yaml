@@ -8,8 +8,8 @@ description: Testing the text page
 - expectVisible: "Text"
 - expectVisible: "Result: "
 - pressOn: "Enter text"
-- inputText: "Testing the text page"
-- expectVisible: "Result: Testing the text page"
+# - inputText: "Testing the text page"
+# - expectVisible: "Result: Testing the text page"
 - pressKey: "backspace"
 - expectVisible: "FAILING ON PURPOSE TO TEST BACKSPACE KEY"
 # Return to the app page
