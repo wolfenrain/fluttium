@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:fluttium/fluttium.dart';
+import 'package:fluttium/src/actions/press_key.dart';
 
 /// {@template registry}
 /// The registry of all the actions a [Tester] can perform.
@@ -15,6 +16,7 @@ class Registry {
     'expectVisible': ActionRegistration(ExpectVisible.new, #text),
     'expectNotVisible': ActionRegistration(ExpectNotVisible.new, #text),
     'takeScreenshot': ActionRegistration(TakeScreenshot.new, #fileName),
+    'pressKey': ActionRegistration(PressKey.new, #key),
   };
 
   /// Map of all the action that are registered.

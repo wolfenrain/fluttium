@@ -29,11 +29,18 @@ class TextView extends StatefulWidget {
 
 class _TextViewState extends State<TextView> {
   late TextEditingController _controller;
+  late FocusNode focusNode;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    focusNode = FocusNode(
+      onKey: (node, event) {
+        print(event);
+        return KeyEventResult.handled;
+      },
+    );
 
     _controller.addListener(_onChange);
   }
@@ -59,6 +66,7 @@ class _TextViewState extends State<TextView> {
         child: Column(
           children: [
             TextField(
+              focusNode: focusNode,
               controller: _controller,
               decoration: const InputDecoration(labelText: 'Enter text'),
             ),
