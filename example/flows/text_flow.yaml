@@ -8,8 +8,13 @@ description: Testing the text page
 - expectVisible: "Text"
 - expectVisible: "Result: "
 - pressOn: "Enter text"
-- inputText: "Testing the text page"
+- writeText: "Testing the text page"
 - expectVisible: "Result: Testing the text page"
+- clearText: 
+    characters: 5
+- expectVisible: "Result: Testing the text"
+- writeText: " actions"
+- expectVisible: "Result: Testing the text actions"
 # Return to the app page
 - pressOn: "Back"
 - expectEnvironmentText:

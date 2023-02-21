@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:fluttium/fluttium.dart';
+import 'package:fluttium/src/actions/clear_text.dart';
 
 /// {@template registry}
 /// The registry of all the actions a [Tester] can perform.
@@ -13,6 +14,7 @@ class Registry {
 
     'pressOn': ActionRegistration(PressOn.new, #text),
     'longPressOn': ActionRegistration(LongPressOn.new, #text),
+    'clearText': ActionRegistration(ClearText.new, #characters),
     'writeText': ActionRegistration(WriteText.new, #text),
     'expectVisible': ActionRegistration(ExpectVisible.new, #text),
     'expectNotVisible': ActionRegistration(ExpectNotVisible.new, #text),
