@@ -8,7 +8,9 @@ import 'package:mocktail/mocktail.dart';
 import '../../helpers/helpers.dart';
 
 void main() {
-  group('InputText', () {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('$WriteText', () {
     late Tester tester;
 
     setUp(() {
@@ -19,11 +21,15 @@ void main() {
           .thenAnswer((_) async {});
     });
 
-    test('inputs given text one by one', () async {
-      final inputText = InputText(text: 'hello');
+    test('writes given text', () async {
+      final inputText = WriteText(text: 'hello');
       await inputText.execute(tester);
 
       verifyInOrder([
+        () => tester.emitPlatformMessage(
+              any(that: equals(SystemChannels.textInput.name)),
+              any(that: isRequestExistingInputState),
+            ),
         () => tester.emitPlatformMessage(
               any(that: equals(SystemChannels.textInput.name)),
               any(that: isText('h')),
@@ -58,11 +64,24 @@ void main() {
     });
 
     test('Readable representation', () {
-      final inputText = InputText(text: 'hello');
+      final inputText = WriteText(text: 'hello');
 
-      expect(inputText.description(), 'Input text "hello"');
+      expect(inputText.description(), 'Write text "hello"');
     });
   });
+}
+
+Matcher get isRequestExistingInputState {
+  final data = JSONMessageCodec().encodeMessage(<String, Object?>{
+    'method': 'TextInputClient.requestExistingInputState',
+    'args': null,
+  });
+
+  return isA<ByteData?>().having(
+    (p0) => p0?.buffer.asUint8List().toList(),
+    'buffer',
+    equals(data?.buffer.asUint8List().toList()),
+  );
 }
 
 Matcher isText(String text) {
