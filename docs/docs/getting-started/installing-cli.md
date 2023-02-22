@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Installing Fluttium CLI
+# 🧑‍💻 Installing Fluttium CLI
 
 :::info
 In order to install Fluttium CLI you must have the Flutter SDK installed on your machine.
@@ -19,7 +19,7 @@ Once you have successfully installed the `fluttium_cli` you can verify that it w
 `fluttium` command in your terminal. You should see the following output:
 
 ```shell
-Fluttium, the user flow testing tool for Flutter.
+Fluttium, a user flow testing tool for Flutter.
 
 Usage: fluttium <command> [arguments]
 
@@ -30,5 +30,3 @@ Global options:
 
 Available commands: ...
 ```
-
-For more information on the CLI, see the [Fluttium CLI](/docs/cli) documentation.

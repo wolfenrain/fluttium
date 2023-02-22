@@ -1,0 +1,13 @@
+{
+  "label": "🧰 Built-in actions",
+  "position": 1,
+  "link": {
+    "title": "🧰 Built-in actions",
+    "type": "generated-index",
+    "description": "Fluttium comes with a set of built-in actions to make your life easier.",
+    "slug": "actions/built-in"
+  },
+  "customProps": {
+    "description": "Fluttium comes with a set of built-in actions to make your life easier."
+  }
+}
