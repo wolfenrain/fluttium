@@ -43,7 +43,7 @@ void main() {
     });
 
     test('taps on offset when given given', () async {
-      final pressOn = PressOn(offset: Offset.zero);
+      final pressOn = PressOn(offset: const [0, 0]);
 
       expect(await pressOn.execute(tester), isTrue);
 
@@ -120,7 +120,7 @@ void main() {
       });
 
       test('with offset', () {
-        final pressOn = PressOn(offset: Offset.zero);
+        final pressOn = PressOn(offset: const [0, 0]);
         expect(pressOn.description(), 'Press on [0.0, 0.0]');
       });
 

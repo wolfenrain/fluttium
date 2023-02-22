@@ -18,7 +18,7 @@ class Registry {
     'writeText': ActionRegistration(WriteText.new, #text),
     'expectVisible': ActionRegistration(ExpectVisible.new, #text),
     'expectNotVisible': ActionRegistration(ExpectNotVisible.new, #text),
-    'takeScreenshot': ActionRegistration(TakeScreenshot.new, #fileName),
+    'takeScreenshot': ActionRegistration(TakeScreenshot.new, #path),
   };
 
   /// Map of all the action that are registered.

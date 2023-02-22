@@ -30,7 +30,7 @@ class PressOn extends Action {
   final String? text;
 
   /// Optional offset to tap on.
-  final Offset? offset;
+  final List<double>? offset;
 
   static int _pointerId = 0;
 
@@ -44,7 +44,7 @@ class PressOn extends Action {
       }
       center = node.center;
     } else if (offset != null) {
-      center = offset!;
+      center = Offset(offset!.first, offset!.last);
     } else {
       return false;
     }
@@ -67,7 +67,7 @@ class PressOn extends Action {
     if (text != null) {
       return 'Press on "$text"';
     } else if (offset != null) {
-      return 'Press on [${offset!.dx}, ${offset!.dy}]';
+      return 'Press on [${offset!.first}, ${offset!.last}]';
     }
     throw UnsupportedError('PressOn must have either text or offset');
   }
