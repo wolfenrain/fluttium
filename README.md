@@ -58,3 +58,12 @@ written for the example application.
 These tests are used for testing of new features and will be kept up to date.
 
 [fluttium_demo]: https://raw.githubusercontent.com/wolfenrain/fluttium/main/docs/static/img/hero.gif
+
+## Contributing
+
+Have you found a bug or have a suggestion of how to enhance Fluttium? Open an issue and we will 
+take a look at it as soon as possible.
+
+Do you want to contribute with a PR? PRs are always welcome, just make sure to create it from the
+correct branch (main) and follow the [checklist](.github/pull_request_template.md) which will
+appear when you open the PR.
