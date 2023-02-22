@@ -33,12 +33,12 @@ class MyAction extends Action {
       return false;
     }
 
-    if (!await ExpectVisible(text: text!).execute(tester)) {
+    if (!await ExpectVisible(text: text).execute(tester)) {
       return false;
     }
     return true;
   }
 
   @override
-  String description() => 'My action "$text"';
+  String description() => 'My action: "$text"';
 }

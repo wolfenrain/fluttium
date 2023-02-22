@@ -19,7 +19,8 @@
     ],
     "useGitignore": true,
     "ignorePaths": [
-        ".github/workflows/**"
+        ".github/workflows/**",
+        "packages/**/*_bundle.dart"
     ],
     "words": [
         "Appium",

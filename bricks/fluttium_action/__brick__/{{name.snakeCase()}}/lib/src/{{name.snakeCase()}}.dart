@@ -33,12 +33,12 @@ class {{name.pascalCase()}} extends Action {
       return false;
     }
 
-    if (!await ExpectVisible(text: text!).execute(tester)) {
+    if (!await ExpectVisible(text: text).execute(tester)) {
       return false;
     }
     return true;
   }
 
   @override
-  String description() => '{{name.sentenceCase()}} "$text"';
+  String description() => '{{name.sentenceCase()}}: "$text"';
 }

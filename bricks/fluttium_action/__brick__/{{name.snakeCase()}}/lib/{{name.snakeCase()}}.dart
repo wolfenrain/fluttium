@@ -1,5 +1,5 @@
 import 'package:fluttium/fluttium.dart';
-import 'package:{{name.snakeCase()}}/src/register.dart';
+import 'package:{{name.snakeCase()}}/{{name.snakeCase()}}.dart';
 
 export 'src/{{name.snakeCase()}}.dart';
 

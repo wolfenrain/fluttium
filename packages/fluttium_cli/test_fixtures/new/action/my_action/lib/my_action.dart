@@ -1,5 +1,5 @@
 import 'package:fluttium/fluttium.dart';
-import 'package:my_action/src/register.dart';
+import 'package:my_action/my_action.dart';
 
 export 'src/my_action.dart';
 
