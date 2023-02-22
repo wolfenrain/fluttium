@@ -76,7 +76,7 @@ actions:
   # Actions can also be imported via git url.
   # Uncomment the following lines to import
   # the log_action from a remote git url.
-  # log_action
+  # log_action:
   #   git:
   #     url: https://github.com/wolfenrain/fluttium.git
   #     path: actions/log_action

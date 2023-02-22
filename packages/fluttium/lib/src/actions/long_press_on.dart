@@ -30,7 +30,7 @@ class LongPressOn extends Action {
   final String? text;
 
   /// Optional offset to tap on.
-  final Offset? offset;
+  final List<double>? offset;
 
   static int _pointerId = 0;
 
@@ -44,7 +44,7 @@ class LongPressOn extends Action {
       }
       center = node.center;
     } else if (offset != null) {
-      center = offset!;
+      center = Offset(offset!.first, offset!.last);
     } else {
       return false;
     }
@@ -67,7 +67,7 @@ class LongPressOn extends Action {
     if (text != null) {
       return 'Long press on "$text"';
     } else if (offset != null) {
-      return 'Long press on [${offset!.dx}, ${offset!.dy}]';
+      return 'Long press on [${offset!.first}, ${offset!.last}]';
     }
     throw UnsupportedError('LongPressOn must have either text or offset');
   }

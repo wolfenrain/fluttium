@@ -43,7 +43,7 @@ void main() {
     });
 
     test('taps on offset when given given', () async {
-      final longPressOn = LongPressOn(offset: Offset.zero);
+      final longPressOn = LongPressOn(offset: const [0, 0]);
 
       expect(await longPressOn.execute(tester), isTrue);
 
@@ -129,7 +129,7 @@ void main() {
       });
 
       test('with offset', () {
-        final longPressOn = LongPressOn(offset: Offset.zero);
+        final longPressOn = LongPressOn(offset: const [0, 0]);
         expect(longPressOn.description(), 'Long press on [0.0, 0.0]');
       });
 
