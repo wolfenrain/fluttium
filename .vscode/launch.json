@@ -49,6 +49,18 @@
         "--target",
         "lib/main.dart"
       ]
+    },
+    {
+      "name": "Launch CLI",
+      "request": "launch",
+      "type": "dart",
+      "program": "../packages/fluttium_cli/bin/fluttium.dart",
+      "cwd": "example",
+      "args": [
+        "test",
+        "flows/text_flow.yaml",
+        "-d macos"
+      ]
     }
   ]
 }
