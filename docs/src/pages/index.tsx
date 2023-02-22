@@ -44,7 +44,10 @@ function HomepageCTA() {
       >
         Get Started
       </Link>
-      <Link className="button button--secondary button--lg" to="/docs/why-fluttium">
+      <Link
+        className="button button--secondary button--lg"
+        to="/docs/why-fluttium"
+      >
         Learn More
       </Link>
     </div>

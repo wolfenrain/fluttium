@@ -15,10 +15,10 @@ Once we run, `fluttium new flow my_flow`, we should see a `my_flow.yaml` that lo
 ```yaml
 description: My first Fluttium flow.
 ---
-- log: "Hello World!"
+- log: 'Hello World!'
 ```
 
-You can also pass extra options to the command to control the output, for the full overview of 
+You can also pass extra options to the command to control the output, for the full overview of
 options run:
 
 ```shell

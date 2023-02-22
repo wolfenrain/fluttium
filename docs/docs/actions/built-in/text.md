@@ -16,7 +16,7 @@ whatever the current text value is as a user.
 The full YAML syntax of this action is as followed:
 
 ```yaml
-- writeText: "Your Text"
+- writeText: 'Your Text'
 ```
 
 ## Clearing text

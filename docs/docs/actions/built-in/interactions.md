@@ -15,14 +15,14 @@ action is as followed:
 
 ```yaml
 - pressOn:
-    text: "Your Text" # An optional text regexp that is used to find a widget by semantic labels and visible text
+    text: 'Your Text' # An optional text regexp that is used to find a widget by semantic labels and visible text
     offset: [10, 150] # An optional offset to tap somewhere on the screen.
 ```
 
 The short-hand syntax for this action will assume you are using the text search:
 
 ```yaml
-- pressOn: "Your Text"
+- pressOn: 'Your Text'
 ```
 
 ## Long press
@@ -32,14 +32,14 @@ of this action is as followed:
 
 ```yaml
 - longPressOn:
-    text: "Your Text" # An optional text regexp that is used to find a widget by semantic labels and visible text
+    text: 'Your Text' # An optional text regexp that is used to find a widget by semantic labels and visible text
     offset: [10, 150] # An optional offset to tap somewhere on the screen.
 ```
 
 The short-hand syntax for this action will assume you are using the text search:
 
 ```yaml
-- longPressOn: "Your Text"
+- longPressOn: 'Your Text'
 ```
 
 ## Drag gestures

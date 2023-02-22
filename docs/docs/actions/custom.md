@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # 🎨 Custom Actions
 
-Fluttium supports custom actions, that you can install to be used in your user flows. 
+Fluttium supports custom actions, that you can install to be used in your user flows.
 
 Actions are defined as Dart packages, they can be published to [pub.dev](https://pub.dev) and have their own dependencies.
 
@@ -59,7 +59,7 @@ my_action/
 └── README.md
 ```
 
-You can also pass extra options to the command to control the output, for the full overview of 
+You can also pass extra options to the command to control the output, for the full overview of
 options run:
 
 ```shell
