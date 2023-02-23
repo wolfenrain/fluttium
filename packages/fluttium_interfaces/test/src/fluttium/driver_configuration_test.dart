@@ -19,20 +19,47 @@ void main() {
       expect(driver.deviceId, equals('1234'));
     });
 
-    test('fromJson', () {
-      final driver = DriverConfiguration.fromJson(const {
-        'mainEntry': 'lib/main_development.dart',
-        'flavor': 'development',
-        'dartDefines': [
-          'SOME_API_KEY=development',
-        ],
-        'deviceId': '1234',
+    group('fromJson', () {
+      test('can parse a json file', () {
+        final driver = DriverConfiguration.fromJson(const {
+          'target': 'lib/main_development.dart',
+          'flavor': 'development',
+          'dart_defines': [
+            'SOME_API_KEY=development',
+          ],
+          'deviceId': '1234',
+        });
+
+        expect(driver.mainEntry, equals('lib/main_development.dart'));
+        expect(driver.flavor, equals('development'));
+        expect(driver.dartDefines, equals(['SOME_API_KEY=development']));
+        expect(driver.deviceId, equals('1234'));
       });
 
-      expect(driver.mainEntry, equals('lib/main_development.dart'));
-      expect(driver.flavor, equals('development'));
-      expect(driver.dartDefines, equals(['SOME_API_KEY=development']));
-      expect(driver.deviceId, equals('1234'));
+      test('can parse a json file with deprecated values', () {
+        final driver = DriverConfiguration.fromJson(const {
+          'mainEntry': 'lib/main_development.dart',
+          'flavor': 'development',
+          'dartDefines': [
+            'SOME_API_KEY=development',
+          ],
+          'deviceId': '1234',
+        });
+
+        expect(driver.mainEntry, equals('lib/main_development.dart'));
+        expect(driver.flavor, equals('development'));
+        expect(driver.dartDefines, equals(['SOME_API_KEY=development']));
+        expect(driver.deviceId, equals('1234'));
+      });
+
+      test('can parse an empty json file', () {
+        final driver = DriverConfiguration.fromJson(const {});
+
+        expect(driver.mainEntry, equals('lib/main.dart'));
+        expect(driver.flavor, isNull);
+        expect(driver.dartDefines, isEmpty);
+        expect(driver.deviceId, isNull);
+      });
     });
 
     test('copyWith', () {

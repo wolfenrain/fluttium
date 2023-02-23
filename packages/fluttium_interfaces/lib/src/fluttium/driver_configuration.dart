@@ -17,9 +17,14 @@ class DriverConfiguration extends Equatable {
   /// Converts a json map to a [DriverConfiguration].
   factory DriverConfiguration.fromJson(Map<String, dynamic> json) {
     return DriverConfiguration(
-      mainEntry: json['mainEntry'] as String? ?? 'lib/main.dart',
+      mainEntry: json['target'] as String? ??
+          json['mainEntry'] as String? ??
+          'lib/main.dart',
       flavor: json['flavor'] as String?,
-      dartDefines: (json['dartDefines'] as List<dynamic>? ?? []).cast<String>(),
+      dartDefines: (json['dart_defines'] as List<dynamic>? ??
+              json['dartDefines'] as List<dynamic>? ??
+              [])
+          .cast<String>(),
       deviceId: (json['deviceId'])?.toString(),
     );
   }
