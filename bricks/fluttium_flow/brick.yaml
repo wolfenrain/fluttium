@@ -1,6 +1,7 @@
 name: fluttium_flow
 description: Generate a new Fluttium flow file.
 version: 0.1.0
+repository: https://github.com/wolfenrain/fluttium
 
 environment:
   mason: ">=0.1.0-dev.42 <0.1.0"
