@@ -1,3 +1,7 @@
+# 0.1.0-dev.16
+
+- feat: add support for custom actions ([#112](https://github.com/wolfenrain/fluttium/issues/112))
+
 # 0.1.0-dev.15
 
 - chore: update `fluttium_runner` to v0.1.0-dev.11 ([#110](https://github.com/wolfenrain/fluttium/issues/110))
