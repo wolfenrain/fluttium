@@ -2,7 +2,7 @@ name: fluttium
 description: The core package for the Fluttium user flow testing framework
 version: 0.1.0-dev.1
 homepage: https://fluttium.dev
-repository: https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium
+repository: https://github.com/wolfenrain/fluttium
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
 documentation: https://fluttium.dev/docs/why-fluttium
 
