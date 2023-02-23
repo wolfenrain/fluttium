@@ -410,7 +410,7 @@ name: project_name
               that: equals({
                 'runner_id': 'fluttium_xxxxxxx',
                 'project_name': 'project_name',
-                'main_entry': 'main.dart',
+                'target': 'main.dart',
                 'runner_path': '/tmp/fluttium_xxxxxxx',
               }),
             ),
@@ -424,7 +424,7 @@ name: project_name
               that: equals({
                 'runner_id': 'fluttium_xxxxxxx',
                 'project_name': 'project_name',
-                'main_entry': 'main.dart',
+                'target': 'main.dart',
                 'runner_path': '/tmp/fluttium_xxxxxxx',
               }),
             ),

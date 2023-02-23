@@ -9,7 +9,7 @@ Future<void> main() async {
     logger: Logger(level: Level.verbose),
     configuration: const DriverConfiguration(
       flavor: 'development',
-      mainEntry: 'lib/main_development.dart',
+      target: 'lib/main_development.dart',
       deviceId: 'chrome',
     ),
     actions: {
