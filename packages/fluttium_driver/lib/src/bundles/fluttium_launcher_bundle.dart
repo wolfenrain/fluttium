@@ -8,7 +8,7 @@ final fluttiumLauncherBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": ".{{runner_id}}_launcher.dart",
       "data":
-          "aW1wb3J0ICdwYWNrYWdlOnt7e3Byb2plY3RfbmFtZX19fS97e3ttYWluX2VudHJ5fX19JyBhcyBhcHA7CmltcG9ydCAncGFja2FnZTpmbHV0dGVyL21hdGVyaWFsLmRhcnQnOwoKaW1wb3J0ICdwYWNrYWdlOmZsdXR0aXVtX3Rlc3RfcnVubmVyL2ZsdXR0aXVtX3Rlc3RfcnVubmVyLmRhcnQnIGFzIHRlc3RfcnVubmVyOwoKdm9pZCBtYWluKCkgYXN5bmMgewogIGZpbmFsIGJpbmRpbmcgPSBXaWRnZXRzRmx1dHRlckJpbmRpbmcuZW5zdXJlSW5pdGlhbGl6ZWQoKQogICAgLi5zZXRTZW1hbnRpY3NFbmFibGVkKHRydWUpOwoKICBhd2FpdCBGdXR1cmUoYXBwLm1haW4pOwogIGF3YWl0IGJpbmRpbmcuZW5kT2ZGcmFtZTsKICBhd2FpdCB0ZXN0X3J1bm5lci5ydW4oYmluZGluZyk7Cn0K",
+          "aW1wb3J0ICdwYWNrYWdlOnt7e3Byb2plY3RfbmFtZX19fS97e3t0YXJnZXR9fX0nIGFzIGFwcDsKaW1wb3J0ICdwYWNrYWdlOmZsdXR0ZXIvbWF0ZXJpYWwuZGFydCc7CgppbXBvcnQgJ3BhY2thZ2U6Zmx1dHRpdW1fdGVzdF9ydW5uZXIvZmx1dHRpdW1fdGVzdF9ydW5uZXIuZGFydCcgYXMgdGVzdF9ydW5uZXI7Cgp2b2lkIG1haW4oKSBhc3luYyB7CiAgZmluYWwgYmluZGluZyA9IFdpZGdldHNGbHV0dGVyQmluZGluZy5lbnN1cmVJbml0aWFsaXplZCgpCiAgICAuLnNldFNlbWFudGljc0VuYWJsZWQodHJ1ZSk7CgogIGF3YWl0IEZ1dHVyZShhcHAubWFpbik7CiAgYXdhaXQgYmluZGluZy5lbmRPZkZyYW1lOwogIGF3YWl0IHRlc3RfcnVubmVyLnJ1bihiaW5kaW5nKTsKfQo=",
       "type": "text"
     }
   ],
@@ -49,6 +49,7 @@ final fluttiumLauncherBundle = MasonBundle.fromJson(<String, dynamic>{
       "Brick for generating a file that can launch a Fluttium runner.",
   "version": "0.1.0+1",
   "environment": {"mason": ">=0.1.0-dev.42 <0.1.0"},
+  "publish_to": "none",
   "vars": {
     "runner_id": {
       "type": "string",
@@ -66,7 +67,7 @@ final fluttiumLauncherBundle = MasonBundle.fromJson(<String, dynamic>{
       "description": "The name of the project",
       "prompt": "What is the name of the project?"
     },
-    "main_entry": {
+    "target": {
       "type": "string",
       "description": "The main entry point of the project",
       "prompt": "What is the main entry point of the project?"

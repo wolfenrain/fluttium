@@ -42,6 +42,7 @@ final fluttiumTestRunnerBundle = MasonBundle.fromJson(<String, dynamic>{
   "description": "A brick for generating the Fluttium registry and tester.",
   "version": "0.1.0+1",
   "environment": {"mason": ">=0.1.0-dev.42 <0.1.0"},
+  "publish_to": "none",
   "vars": {
     "actions": {
       "type": "string",

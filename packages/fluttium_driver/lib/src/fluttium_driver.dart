@@ -290,7 +290,7 @@ class FluttiumDriver {
     final launcherVars = {
       'runner_id': basename(_testRunnerDirectory.path),
       'project_name': projectData['name'],
-      'main_entry': configuration.mainEntry
+      'target': configuration.target
           .replaceFirst('${projectDirectory.path}/', '')
           .replaceFirst('lib/', ''),
       'runner_path': _testRunnerDirectory.path,
