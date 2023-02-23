@@ -1,3 +1,7 @@
+# 0.1.0-dev.17
+
+- fix: driver configuration is not being read correctly from `fluttium.yaml` ([#182](https://github.com/wolfenrain/fluttium/issues/182))
+
 # 0.1.0-dev.16
 
 - feat: add support for custom actions ([#112](https://github.com/wolfenrain/fluttium/issues/112))
