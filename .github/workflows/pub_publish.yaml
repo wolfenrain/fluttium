@@ -3,7 +3,8 @@ name: pub_publish
 on:
   push:
     tags:
-      - '([a-z_]+)-v\d+.\d+.\d+(?:[a-z.\-+\d]+){0,1}'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-[a-z.0-9]+'
 
 jobs:
   to_publish:
