@@ -5,7 +5,7 @@ sidebar_position: 2
 # 📁 Initializing Fluttium
 
 Once `fluttium_cli` is installed, we can use the `init` command to initialize Fluttium in the
-current project. This command will generate a `fluttium.yaml` in the current directory. This allow
+current project. This command will generate a `fluttium.yaml` in the current directory. This allows
 you to install custom actions and configure the Fluttium driver.
 
 ```shell

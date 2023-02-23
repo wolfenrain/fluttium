@@ -10,9 +10,9 @@ application are visible.
 
 ## Visibility expectations
 
-To check if a specific text, through a semantic value or not, is visible, you can use the
+To check if a specific text is visible (through a semantic value or not), you can use the
 `expectVisible` action. This action goes through the semantic tree and checks semantic labels,
-tooltips, text nodes and other values to determine if something with the given text is visible.
+tooltips, text nodes, and other values to determine if something with the given text is visible.
 
 By default it will timeout after 10 seconds of searching.
 

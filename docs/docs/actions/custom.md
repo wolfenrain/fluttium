@@ -4,9 +4,9 @@ sidebar_position: 2
 
 # 🎨 Custom Actions
 
-Fluttium supports custom actions, that you can install to be used in your user flows.
+Fluttium supports custom actions that you can install to be used in your user flows.
 
-Actions are defined as Dart packages, they can be published to [pub.dev](https://pub.dev) and have their own dependencies.
+Actions are defined as Dart packages, which can be published to [pub.dev](https://pub.dev) and have their own dependencies.
 
 You can add custom actions by adding them to the `actions` section in your `fluttium.yaml`:
 
@@ -17,7 +17,7 @@ actions:
 
 Fluttium will automatically install this action from [pub.dev](https://pub.dev) when testing.
 
-You can also add actions from GIT or from your local filesystem:
+You can also add actions from Git or from your local filesystem:
 
 ```yaml
 actions:
@@ -39,7 +39,7 @@ We can use the `new action` command to generate a custom action.
 fluttium new action <action-name>
 ```
 
-Once we run, `fluttium new create my_action`, we should see a `my_action` directory whose structure should look something like:
+Once we run `fluttium new create my_action`, we should see a `my_action` directory whose structure should look something like:
 
 ```
 my_action/

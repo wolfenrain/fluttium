@@ -28,7 +28,7 @@ The short-hand syntax for this action will assume you are using the text search:
 ## Long press
 
 To emit a long press to the application you can use the `longPressOn` action. The full YAML syntax
-of this action is as followed:
+of this action is as follows:
 
 ```yaml
 - longPressOn:

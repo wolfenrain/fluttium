@@ -6,7 +6,7 @@ description: Fluttium focuses on the real user, the tests a developer writes wit
 # 💭 Why Fluttium
 
 There are quite a few app automation frameworks out there like [Appium](https://appium.io)
-and [Maestro](https://maestro.mobile.dev), some are even dedicated to specific platforms, like
+and [Maestro](https://maestro.mobile.dev). Some are even dedicated to specific platforms, like
 [UIAutomator](https://developer.android.com/training/testing/other-components/ui-automator) and
 [XCTest](https://developer.apple.com/documentation/xctest). But they all have one thing in common,
 their main focus is not the [Flutter](https://flutter.dev) ecosystem.
@@ -14,19 +14,19 @@ their main focus is not the [Flutter](https://flutter.dev) ecosystem.
 Thankfully the Flutter community has already created a beautiful set of tools to fill in the gap of
 end-to-end testing in Flutter. Tools like [Patrol](https://patrol.leancode.co/) and
 [Honey](https://honey.dev/) allow Flutter developers to easily write end-to-end tests
-for their applications. But these tools have one thing in common, the tests written by a developer
-does not have to directly reflect how a real user would use an application.
+for their applications. But these tools have one thing in common: the tests written by a developer
+may not directly reflect how a real user would use an application.
 
 A user in the real world can navigate and use an application by seeing it with their own eyes or by
 using a screen reader that reads the semantic labels that an application has defined. And that is
 exactly where Fluttium comes into play.
 
-Fluttium focuses on the real user, the tests a developer writes with Fluttium are a direct
-representation of the actions that an user of an application would perform. Fluttium exposes a set
+Fluttium focuses on the end user. The tests a developer writes with Fluttium are a direct
+representation of the actions that a user of an application would perform. Fluttium exposes a set
 of actions that a developer can use to write a user flow test. Developers can also define their own custom actions if needed.
 
-These user flow tests are powered by the semantic tree of the Flutter application, this allows
-Fluttium to fully act like the real user and execution actions. Fluttium optimizes these actions as
+These user flow tests are powered by the semantic tree of the Flutter application. This allows
+Fluttium to fully act like the real user and execute actions. Fluttium optimizes these actions as
 well, for example by automatically waiting till an action is truly completed.
 
 As a result, Fluttium does not support certain features that a Flutter developer would expect. For
