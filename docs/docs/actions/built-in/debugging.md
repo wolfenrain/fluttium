@@ -1,6 +1,7 @@
 ---
 sidebar_position: 4
-description: A set of actions to handle text manipulation within your application.
+description: A set of actions that will allow you to debug your flow and your application.
+
 ---
 
 # 🪲 Debugging
