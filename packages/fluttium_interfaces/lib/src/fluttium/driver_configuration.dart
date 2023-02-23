@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 class DriverConfiguration extends Equatable {
   /// {@macro driver_configuration}
   const DriverConfiguration({
-    this.mainEntry = 'lib/main.dart',
+    this.target = 'lib/main.dart',
     this.flavor,
     this.dartDefines = const [],
     this.deviceId,
@@ -17,15 +17,24 @@ class DriverConfiguration extends Equatable {
   /// Converts a json map to a [DriverConfiguration].
   factory DriverConfiguration.fromJson(Map<String, dynamic> json) {
     return DriverConfiguration(
-      mainEntry: json['mainEntry'] as String? ?? 'lib/main.dart',
+      target: json['target'] as String? ??
+          json['mainEntry'] as String? ??
+          'lib/main.dart',
       flavor: json['flavor'] as String?,
-      dartDefines: (json['dartDefines'] as List<dynamic>? ?? []).cast<String>(),
+      dartDefines: (json['dart_defines'] as List<dynamic>? ??
+              json['dartDefines'] as List<dynamic>? ??
+              [])
+          .cast<String>(),
       deviceId: (json['deviceId'])?.toString(),
     );
   }
 
+  /// The main entry-point of the application to use for the driver.
+  final String target;
+
   /// The entrypoint of the application to use for the driver.
-  final String mainEntry;
+  @Deprecated('Use `target` instead')
+  String get mainEntry => target;
 
   /// The flavor of the application to use for the driver.
   final String? flavor;
@@ -37,18 +46,19 @@ class DriverConfiguration extends Equatable {
   final String? deviceId;
 
   @override
-  List<Object?> get props => [mainEntry, flavor, dartDefines, deviceId];
+  List<Object?> get props => [target, flavor, dartDefines, deviceId];
 
   /// Copy the configuration to a new instance with optional overrides.
   DriverConfiguration copyWith({
     String? deviceId,
-    String? mainEntry,
+    String? target,
+    @Deprecated('Use `target` instead') String? mainEntry,
     String? flavor,
     List<String>? dartDefines,
   }) {
     return DriverConfiguration(
       deviceId: deviceId ?? this.deviceId,
-      mainEntry: mainEntry ?? this.mainEntry,
+      target: target ?? mainEntry ?? this.target,
       flavor: flavor ?? this.flavor,
       dartDefines: dartDefines ?? this.dartDefines,
     );

@@ -60,7 +60,7 @@ actions:
         config.driver,
         equals(
           DriverConfiguration(
-            mainEntry: 'lib/main_development.dart',
+            target: 'lib/main_development.dart',
             flavor: 'development',
             dartDefines: const ['SOME_API_KEY=development'],
             deviceId: '1234',
@@ -106,7 +106,7 @@ actions:
       );
 
       final driver = DriverConfiguration(
-        mainEntry: 'lib/main_development.dart',
+        target: 'lib/main_development.dart',
         flavor: 'development',
         dartDefines: const ['SOME_API_KEY=development'],
         deviceId: '1234',
