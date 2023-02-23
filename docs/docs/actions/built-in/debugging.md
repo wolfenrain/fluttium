@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 description: A set of actions to handle text manipulation within your application.
 ---
 
