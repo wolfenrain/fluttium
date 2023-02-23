@@ -2,9 +2,7 @@ name: pub_publish
 
 on:
   push:
-    tags:
-      - '*-v*.*.*'
-      - '*-v*.*.*-*'
+    tags: [*-v*.*.*, *-v*.*.*-*]
 
 jobs:
   to_publish:
