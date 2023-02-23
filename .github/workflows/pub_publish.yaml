@@ -94,13 +94,14 @@ jobs:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3
 
-      - name: 🎯 Setup Dart
-        uses: dart-lang/setup-dart@v1
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          sdk: stable
+          channel: stable
+          cache: true
 
       - name: 📦 Get Dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: 🔐 Setup Pub Credentials
         run: |
@@ -108,7 +109,7 @@ jobs:
           echo '${{ secrets.PUB_CREDENTIALS }}' > "$XDG_CONFIG_HOME/dart/pub-credentials.json"
 
       - name: 🌵 Dry Run
-        run: dart pub publish --dry-run
+        run: flutter pub publish --dry-run
 
       - name: 📢 Publish
-        run: dart pub publish -f
+        run: flutter pub publish -f
