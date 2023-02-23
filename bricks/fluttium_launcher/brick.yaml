@@ -1,6 +1,7 @@
 name: fluttium_launcher
 description: Brick for generating a file that can launch a Fluttium runner.
 version: 0.1.0+1
+publish_to: none
 
 environment:
   mason: ">=0.1.0-dev.42 <0.1.0"
