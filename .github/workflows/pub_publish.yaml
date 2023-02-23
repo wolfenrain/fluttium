@@ -3,8 +3,8 @@ name: pub_publish
 on:
   push:
     tags:
-      - v*.*.*
-      - v*.*.*-*
+      - '*-v*.*.*'
+      - '*-v*.*.*-*'
 
 jobs:
   to_publish:
