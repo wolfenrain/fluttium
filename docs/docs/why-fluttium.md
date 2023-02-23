@@ -3,30 +3,30 @@ sidebar_position: 1
 description: Fluttium focuses on the real user, the tests a developer writes with Fluttium are a direct representation of the actions that an user of an application would perform.
 ---
 
-# Why Fluttium
+# 💭 Why Fluttium
 
 There are quite a few app automation frameworks out there like [Appium](https://appium.io)
-and [Maestro](https://maestro.mobile.dev), some are even dedicated to specific platforms, like
+and [Maestro](https://maestro.mobile.dev). Some are even dedicated to specific platforms, like
 [UIAutomator](https://developer.android.com/training/testing/other-components/ui-automator) and
 [XCTest](https://developer.apple.com/documentation/xctest). But they all have one thing in common,
 their main focus is not the [Flutter](https://flutter.dev) ecosystem.
 
 Thankfully the Flutter community has already created a beautiful set of tools to fill in the gap of
 end-to-end testing in Flutter. Tools like [Patrol](https://patrol.leancode.co/) and
-[Honey](https://github.com/clickup/honey) allow Flutter developers to easily write end-to-end tests
-for their applications. But these tools have one thing in common, the tests written by a developer
-does not have to directly reflect how a real user would use an application.
+[Honey](https://honey.dev/) allow Flutter developers to easily write end-to-end tests
+for their applications. But these tools have one thing in common: the tests written by a developer
+may not directly reflect how a real user would use an application.
 
 A user in the real world can navigate and use an application by seeing it with their own eyes or by
 using a screen reader that reads the semantic labels that an application has defined. And that is
 exactly where Fluttium comes into play.
 
-Fluttium focuses on the real user, the tests a developer writes with Fluttium are a direct
-representation of the actions that an user of an application would perform. Fluttium exposes a set
-of actions that a developer can use to write a user flow test.
+Fluttium focuses on the end user. The tests a developer writes with Fluttium are a direct
+representation of the actions that a user of an application would perform. Fluttium exposes a set
+of actions that a developer can use to write a user flow test. Developers can also define their own custom actions if needed.
 
-These user flow tests are powered by the semantic tree of the Flutter application, this allows
-Fluttium to fully act like the real user and execution actions. Fluttium optimizes these actions as
+These user flow tests are powered by the semantic tree of the Flutter application. This allows
+Fluttium to fully act like the real user and execute actions. Fluttium optimizes these actions as
 well, for example by automatically waiting till an action is truly completed.
 
 As a result, Fluttium does not support certain features that a Flutter developer would expect. For
@@ -46,6 +46,7 @@ Out of the box Fluttium provides the following:
   that are easy to read and understand. Represented by a simple YAML file.
 - Actions are only executed once your app settles. Fluttium uses the application's semantic tree
   under the hood and that allows it to wait until an action is completed.
+- Install custom actions to add extra functionality to Fluttium.
 
 ## Example
 
@@ -54,10 +55,10 @@ An example for an application that allows you to search the weather in a specifi
 ```yaml
 description: Find the weather in Chicago
 ---
-- tapOn: Search
-- tapOn: City
-- inputText: Chicago
-- tapOn: Submit
+- pressOn: Search
+- pressOn: City
+- writeText: Chicago
+- pressOn: Submit
 - expectVisible: Chicago
 ```
 
@@ -68,10 +69,10 @@ description: Find the weather in Chicago
 flutter pub global activate fluttium_cli
 
 # 🖥 Create a test flow file
-fluttium create my_flow.yaml --desc "My cool flow"
+fluttium new flow my_flow --description "My cool flow"
 
 # 🧪 Run a test flow file
-fluttium test your_flow.yaml
+fluttium test my_flow.yaml
 ```
 
 ## Supported Platforms
@@ -82,8 +83,7 @@ Fluttium supports all platforms that Flutter supports:
 | ------- | --- | --- | ----- | ------- | ----- |
 | ✅      | ✅  | ✅  | ✅    | ✅      | ✅    |
 
-Fluttium can in theory supports any custom embedder for Flutter but this has not been tested
-out yet.
+> **Note**: Fluttium can in theory supports any custom embedder for Flutter but your mileage may vary.
 
 ## Other awesome Flutter testing tools
 
@@ -92,4 +92,4 @@ in the gaps that Flutter has in the E2E space. So here is a list of other awesom
 packages that, while having different goals, try to fill up those gaps:
 
 - [Patrol](https://patrol.leancode.co/) by LeanCode
-- [Honey](https://github.com/clickup/honey) by ClickUp
+- [Honey](https://honey.dev/) by ClickUp
