@@ -12,7 +12,7 @@ you to install custom actions and configure the Fluttium driver.
 fluttium init
 ```
 
-Once we run, `fluttium init`, we should have a `fluttium.yaml` that looks like:
+Once we run `fluttium init`, we should have a `fluttium.yaml` that looks like:
 
 ```yaml
 # The following defines the environment for your Fluttium project. It includes
