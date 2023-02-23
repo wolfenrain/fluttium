@@ -1,3 +1,3 @@
-# 0.1.0-dev.1
+# 0.1.0+1
 
-- feat: initial release 🎉
+- feat: add simple log action ([#146](https://github.com/wolfenrain/fluttium/issues/146))
