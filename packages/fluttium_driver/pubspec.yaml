@@ -1,6 +1,6 @@
 name: fluttium_driver
 description: The driver behind Fluttium user flow tests
-version: 0.1.0-dev.1
+version: 0.1.0-dev.2
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
