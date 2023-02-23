@@ -238,7 +238,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
     // Setup the driver config for Fluttium.
     fluttium = fluttium.copyWith(
       driver: fluttium.driver.copyWith(
-        mainEntry: target.path,
+        target: results.wasParsed('target') ? target.path : null,
         flavor: _flavor,
         dartDefines: [...fluttium.driver.dartDefines, ..._dartDefines],
       ),

@@ -6,8 +6,9 @@ environment:
 # The driver can be configured with default values. Uncomment the following 
 # lines to automatically run Fluttium using a different flavor and dart-defines.
 # driver:
+#   target: lib/main_development.dart
 #   flavor: development
-#   dartDefines:
+#   dart_defines:
 #     - CUSTOM_DART_DEFINE=1
 
 # Register actions which can be used within your Fluttium flows.
