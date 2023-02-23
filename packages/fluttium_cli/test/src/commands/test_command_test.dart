@@ -139,6 +139,7 @@ void main() {
       when(() => argResults['watch']).thenReturn(false);
       when(() => argResults['target']).thenReturn('lib/main.dart');
       when(() => argResults['dart-define']).thenReturn(<String>[]);
+      when(() => argResults.wasParsed(any())).thenReturn(false);
 
       pubspecFile = _MockFile();
       when(() => pubspecFile.path).thenReturn('pubspec.yaml');

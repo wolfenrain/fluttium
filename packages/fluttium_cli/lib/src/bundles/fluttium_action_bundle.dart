@@ -68,6 +68,7 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
   "description": "Generate a new Fluttium action.",
   "version": "0.1.0",
   "environment": {"mason": ">=0.1.0-dev.42 <0.1.0"},
+  "repository": "https://github.com/wolfenrain/fluttium",
   "readme": {
     "path": "README.md",
     "data":
