@@ -1,4 +1,4 @@
-name: pub_publish
+name: publish
 
 on:
   push:
@@ -15,6 +15,7 @@ jobs:
     outputs:
       package: ${{ steps.package.outputs.package }}
       action: ${{ steps.action.outputs.action }}
+      brick: ${{ steps.brick.outputs.brick }}
 
     steps:
       - name: 📚 Git Checkout
@@ -39,13 +40,23 @@ jobs:
             echo "::set-output name=action::${action}"
           fi
 
+      - name: 🧱 Finding a brick to publish
+        id: brick
+        if: steps.package.outputs.action == ''
+        run: |
+          tag=${GITHUB_REF#refs/*/}
+          brick=$(echo $tag | sed -En "s/^(.*)-v(.*)/\1/p")
+          if [[ -d "bricks/$brick" ]]; then
+            echo "::set-output name=brick::${brick}"
+          fi
+
   failed_to_find:
     needs: to_publish
-    if: needs.to_publish.outputs.package != '' && needs.to_publish.outputs.action != ''
+    if: needs.to_publish.outputs.package == '' && needs.to_publish.outputs.action == '' && needs.to_publish.outputs.brick == ''
     runs-on: ubuntu-latest
 
     steps:
-      - name: 😢 No package or action found
+      - name: 😢 No package, action or brick found
         run: exit 1
 
   publish_package:
@@ -113,3 +124,35 @@ jobs:
 
       - name: 📢 Publish
         run: flutter pub publish -f
+
+  publish_brick:
+    needs: to_publish
+    if: needs.to_publish.outputs.brick != ''
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: bricks/${{ needs.to_publish.outputs.brick }}
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: 🧱 Install mason
+        run: dart pub global activate mason_cli
+
+      - name: 🔐 Setup Mason Credentials
+        run: |
+          mkdir -p $XDG_CONFIG_HOME/mason
+          echo '${{ secrets.MASON_CREDENTIALS }}' > "$XDG_CONFIG_HOME/mason/mason-credentials.json"
+
+      - name: 🌵 Dry Run
+        run: mason publish --dry-run
+
+      - name: 📢 Publish
+        run: mason publish -f
