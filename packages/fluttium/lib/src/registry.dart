@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:fluttium/fluttium.dart';
-import 'package:fluttium/src/actions/clear_text.dart';
 
 /// {@template registry}
 /// The registry of all the actions a [Tester] can perform.
@@ -19,6 +18,7 @@ class Registry {
     'expectVisible': ActionRegistration(ExpectVisible.new, #text),
     'expectNotVisible': ActionRegistration(ExpectNotVisible.new, #text),
     'takeScreenshot': ActionRegistration(TakeScreenshot.new, #path),
+    'wait': ActionRegistration(Wait.new, #milliseconds),
   };
 
   /// Map of all the action that are registered.
