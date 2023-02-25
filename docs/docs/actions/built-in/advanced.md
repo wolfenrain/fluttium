@@ -1,11 +1,12 @@
 ---
 sidebar_position: 5
-description: A set of actions that will allow you to debug your flow and your application.
+description: A set of actions that allow for more advanced flow setups.
 ---
 
 # 🧠 Advanced
 
-Fluttium provides a set of actions that will allow you to debug your flow and your application.
+Fluttium provides a set of actions that will allow for more advanced flow setups, use these at your
+own discretion.
 
 ## Wait
 
