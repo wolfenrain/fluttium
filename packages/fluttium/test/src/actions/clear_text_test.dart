@@ -3,7 +3,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttium/fluttium.dart';
-import 'package:fluttium/src/actions/clear_text.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/helpers.dart';
