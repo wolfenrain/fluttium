@@ -260,49 +260,18 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
     );
 
     final stepStates = <StepState>[];
+    final printer =
+        (stdin.hasTerminal ? PrettyPrinter.new : SimplePrinter.new)(_logger);
+
     driver.steps.listen(
       (steps) {
         stepStates
           ..clear()
           ..addAll(steps);
 
-        // Reset the cursor to the top of the screen and clear the screen.
-        _logger.info('''
-\u001b[0;0H\u001b[0J
-  ${styleBold.wrap(driver.userFlow.description)}
-''');
-
-        // Render the steps.
-        for (final step in steps) {
-          switch (step.status) {
-            case StepStatus.initial:
-              _logger.info('  🔲  ${step.description}');
-              break;
-            case StepStatus.running:
-              _logger.info('  ⏳  ${step.description}');
-              break;
-            case StepStatus.done:
-              _logger.info('  ✅  ${step.description}');
-              for (final file in step.files.entries) {
-                _logger.detail('Writing ${file.value.length} bytes to $file');
-                File(file.key)
-                  ..createSync(recursive: true)
-                  ..writeAsBytesSync(file.value);
-              }
-              break;
-            case StepStatus.failed:
-              _logger.info('  ❌  ${step.description}');
-              break;
-          }
-        }
-
-        _logger.info('');
-        if (watch) {
-          _logger.info('''
-  ${styleDim.wrap('Press')} r ${styleDim.wrap('to restart the test.')}
-  ${styleDim.wrap('Press')} q ${styleDim.wrap('to quit.')}''');
-        }
+        printer.print(steps, driver.userFlow, watch);
       },
+      onDone: printer.done,
       onError: (Object err) {
         if (err is FatalDriverException) {
           _logger.err(' Fatal driver exception occurred: ${err.reason}');
@@ -313,6 +282,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
     );
 
     if (watch) {
+      if (!stdin.hasTerminal) {
+        throw UnsupportedError('Watch provided but no terminal was attached');
+      }
       stdin
         ..echoMode = false
         ..lineMode = false
@@ -328,7 +300,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
     await driver.run(watch: watch);
 
-    if (watch) {
+    if (watch && stdin.hasTerminal) {
       stdin
         ..lineMode = true
         ..echoMode = true;
@@ -341,4 +313,89 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
     return ExitCode.success.code;
   }
+}
+
+abstract class Printer {
+  Printer(this.logger);
+
+  final Logger logger;
+
+  void print(List<StepState> steps, UserFlowYaml userFlow, bool watch);
+
+  void done();
+}
+
+class SimplePrinter extends Printer {
+  SimplePrinter(super.logger);
+
+  Progress? _progress;
+
+  @override
+  void print(List<StepState> steps, UserFlowYaml userFlow, bool watch) {
+    final currentStep = steps.firstWhere(
+      (step) =>
+          step.status == StepStatus.running || step.status == StepStatus.failed,
+      orElse: () => steps.first,
+    );
+    _progress ??= logger.progress('');
+
+    final index = steps.indexOf(currentStep) + 1;
+    _progress?.update('$index/${steps.length} ${currentStep.description}');
+
+    if (currentStep.status == StepStatus.failed) {
+      _progress?.fail();
+    }
+  }
+
+  @override
+  void done() {
+    _progress?.complete();
+  }
+}
+
+class PrettyPrinter extends Printer {
+  PrettyPrinter(super.logger);
+
+  @override
+  void print(List<StepState> steps, UserFlowYaml userFlow, bool watch) {
+    // Reset the cursor to the top of the screen and clear the screen.
+    logger.info('''
+\u001b[0;0H\u001b[0J
+  ${styleBold.wrap(userFlow.description)}
+''');
+
+    // Render the steps.
+    for (final step in steps) {
+      switch (step.status) {
+        case StepStatus.initial:
+          logger.info('  🔲  ${step.description}');
+          break;
+        case StepStatus.running:
+          logger.info('  ⏳  ${step.description}');
+          break;
+        case StepStatus.done:
+          logger.info('  ✅  ${step.description}');
+          for (final file in step.files.entries) {
+            logger.detail('Writing ${file.value.length} bytes to $file');
+            File(file.key)
+              ..createSync(recursive: true)
+              ..writeAsBytesSync(file.value);
+          }
+          break;
+        case StepStatus.failed:
+          logger.info('  ❌  ${step.description}');
+          break;
+      }
+    }
+
+    logger.info('');
+    if (watch) {
+      logger.info('''
+  ${styleDim.wrap('Press')} r ${styleDim.wrap('to restart the test.')}
+  ${styleDim.wrap('Press')} q ${styleDim.wrap('to quit.')}''');
+    }
+  }
+
+  @override
+  void done() {}
 }

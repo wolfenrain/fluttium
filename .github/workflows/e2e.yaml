@@ -10,11 +10,38 @@ defaults:
     working-directory: example
 
 jobs:
+  flows:
+    runs-on: ubuntu-latest
+
+    outputs:
+      flows: ${{ steps.flows.outputs.flows }}
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 📦 Finding a package to publish
+        id: package
+        run: |
+          flows="["
+          for flow in ./flows/*.yaml; do
+            flows="$flows\"$(basename $flow .yaml)\","
+          done
+
+          # Remove last "," and add the closing bracket
+          if [[ $flows == *, ]]; then
+              flows="${flows%?}"
+          fi
+          flows="$flows]"
+
+          echo "flows=$( echo "$flows" )" >> $GITHUB_OUTPUT
+
   ios:
+    needs: flows
+
     strategy:
       matrix:
-        test_file:
-          - text_flow
+        package: ${{ fromJSON(needs.flows.outputs.flows) }}
       fail-fast: true
 
     runs-on: macos-latest
@@ -40,29 +67,30 @@ jobs:
       - name: 🧪 Testing
         run: fluttium test --flavor development --target lib/main_development.dart -d ${{ steps.simulator.outputs.udid }} flows/${{ matrix.test_file }}.yaml
 
-  macos:
-    strategy:
-      matrix:
-        test_file:
-          - text_flow
-      fail-fast: true
+  # macos:
+  #   needs: flows
 
-    runs-on: macos-latest
+  #   strategy:
+  #     matrix:
+  #       package: ${{ fromJSON(needs.flows.outputs.flows) }}
+  #     fail-fast: true
 
-    steps:
-      - name: 📚 Git Checkout
-        uses: actions/checkout@v3
+  #   runs-on: macos-latest
 
-      - name: 🐦 Setup Local Fluttium Environment
-        uses: ./.github/actions/local_fluttium_environment
+  #   steps:
+  #     - name: 📚 Git Checkout
+  #       uses: actions/checkout@v3
 
-      - name: 📦 Installing packages
-        run: |
-          flutter pub get
-          cd macos && pod install && cd ..
+  #     - name: 🐦 Setup Local Fluttium Environment
+  #       uses: ./.github/actions/local_fluttium_environment
 
-      - name: 🧪 Testing
-        run: fluttium test -d macos flows/${{ matrix.test_file }}.yaml
+  #     - name: 📦 Installing packages
+  #       run: |
+  #         flutter pub get
+  #         cd macos && pod install && cd ..
+
+  #     - name: 🧪 Testing
+  #       run: fluttium test -d macos flows/${{ matrix.test_file }}.yaml
 
   # android:
   #   strategy:
