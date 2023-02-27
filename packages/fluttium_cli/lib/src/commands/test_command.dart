@@ -241,6 +241,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         target: results.wasParsed('target') ? target.path : null,
         flavor: _flavor,
         dartDefines: [...fluttium.driver.dartDefines, ..._dartDefines],
+        deviceId: results['device-id'] as String?,
       ),
     );
 

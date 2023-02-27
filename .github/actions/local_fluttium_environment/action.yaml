@@ -9,8 +9,13 @@ runs:
         cache: true
 
     - shell: bash
-      run: dart pub global activate --source path packages/fluttium_cli
-
-    - shell: bash
       run: tools/setup_local_development.sh
 
+    - shell: bash
+      run: dart pub global activate mason_cli
+
+    - shell: bash
+      run: tools/bundle_all_bricks.sh
+
+    - shell: bash
+      run: dart pub global activate --source path packages/fluttium_cli
