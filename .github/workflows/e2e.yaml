@@ -10,7 +10,7 @@ defaults:
     working-directory: example
 
 jobs:
-  test_ios:
+  ios:
     strategy:
       matrix:
         test_file:
@@ -40,7 +40,7 @@ jobs:
       - name: 🧪 Testing
         run: fluttium test --flavor development --target lib/main_development.dart -d ${{ steps.simulator.outputs.udid }} flows/${{ matrix.test_file }}.yaml
 
-  test_macos:
+  macos:
     strategy:
       matrix:
         test_file:
@@ -64,7 +64,7 @@ jobs:
       - name: 🧪 Testing
         run: fluttium test -d macos flows/${{ matrix.test_file }}.yaml
 
-  # test_android:
+  # android:
   #   strategy:
   #     matrix:
   #       test_file:
