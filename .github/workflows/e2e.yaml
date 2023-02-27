@@ -13,10 +13,8 @@ jobs:
   test_ios:
     strategy:
       matrix:
-        device:
-          - 'i'
         test_file:
-          - ''
+          - flows/text_flow.yaml
       fail-fast: true
 
     runs-on: macos-latest
@@ -47,8 +45,8 @@ jobs:
   test_android:
     strategy:
       matrix:
-        api_level:
-          - 29
+        test_file:
+          - flows/text_flow.yaml
       fail-fast: true
 
     runs-on: macos-latest
@@ -71,7 +69,7 @@ jobs:
       - name: 🧪 Testing
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api_level }}
+          api-level: 29
           arch: x86_64
           profile: Nexus 6
           script: fluttium test ${{ matrix.test_file }}
