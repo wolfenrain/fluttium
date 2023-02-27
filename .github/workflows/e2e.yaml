@@ -1,0 +1,71 @@
+name: e2e
+
+on:
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    working-directory: example
+
+jobs:
+  test_ios:
+    name: 📱 Testing on iOS
+
+    strategy:
+      matrix:
+        device:
+          - 'i'
+        test_file:
+          - ''
+      fail-fast: true
+
+    runs-on: macos-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 🔧 Setting Up Simulator
+        uses: futureware-tech/simulator-action@v2
+        with:
+          model: 'iPhone 11'
+
+      - name: 🧪 Testing
+        run: fluttium test ${{ matrix.test_file }}
+
+  test_android:
+    name: 🤖 Testing on Android
+
+    strategy:
+      matrix:
+        api_level:
+          - 29
+      fail-fast: true
+
+    runs-on: macos-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 🧪 Testing
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api_level }}
+          arch: x86_64
+          profile: Nexus 6
+          script: fluttium test ${{ matrix.test_file }}
