@@ -35,14 +35,18 @@ jobs:
           dart pub global activate --source path ../packages/fluttium_cli
 
       - name: 🔧 Setting Up Simulator
+        id: simulator
         uses: futureware-tech/simulator-action@v2
         with:
           model: 'iPhone 11'
 
-      - name: 🧪 Testing
-        run: fluttium test ${{ matrix.test_file }}
+      - name: devices
+        run: flutter --no-version-check devices --machine
 
-  test_android:
+      - name: 🧪 Testing
+        run: fluttium test -d ${{ steps.simulator.outputs.udid }}  ${{ matrix.test_file }}
+
+  test_macos:
     strategy:
       matrix:
         test_file:
@@ -67,9 +71,36 @@ jobs:
           dart pub global activate --source path ../packages/fluttium_cli
 
       - name: 🧪 Testing
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          arch: x86_64
-          profile: Nexus 6
-          script: fluttium test ${{ matrix.test_file }}
+        run: fluttium test -d macos ${{ matrix.test_file }}
+
+  # test_android:
+  #   strategy:
+  #     matrix:
+  #       test_file:
+  #         - flows/text_flow.yaml
+  #     fail-fast: true
+
+  #   runs-on: macos-latest
+
+  #   steps:
+  #     - name: 📚 Git Checkout
+  #       uses: actions/checkout@v3
+
+  #     - name: 🐦 Setup Flutter
+  #       uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: stable
+  #         cache: true
+
+  #     - name: 📦 Installing packages
+  #       run: |
+  #         flutter pub get
+  #         dart pub global activate --source path ../packages/fluttium_cli
+
+  #     - name: 🧪 Testing
+  #       uses: reactivecircus/android-emulator-runner@v2
+  #       with:
+  #         api-level: 29
+  #         arch: x86_64
+  #         profile: Nexus 6
+  #         script: fluttium test ${{ matrix.test_file }}
