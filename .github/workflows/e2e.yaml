@@ -27,7 +27,9 @@ jobs:
         uses: ./.github/actions/local_fluttium_environment
 
       - name: 📦 Installing packages
-        run: flutter pub get
+        run: |
+          flutter pub get
+          cd macos && pod install && cd ..
 
       - name: 🔧 Setting Up Simulator
         id: simulator
@@ -55,7 +57,9 @@ jobs:
         uses: ./.github/actions/local_fluttium_environment
 
       - name: 📦 Installing packages
-        run: flutter pub get
+        run: |
+          flutter pub get
+          cd macos && pod install && cd ..
 
       - name: 🧪 Testing
         run: fluttium test -d macos flows/${{ matrix.test_file }}.yaml
