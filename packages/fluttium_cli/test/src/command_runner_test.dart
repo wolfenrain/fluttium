@@ -159,6 +159,7 @@ void main() {
         final commandRunner = FluttiumCommandRunner();
         expect(commandRunner, isA<CompletionCommandRunner<int>>());
       });
+
       test('fast track completion command', () async {
         final result = await commandRunner.run(['completion']);
         expect(result, equals(ExitCode.success.code));
