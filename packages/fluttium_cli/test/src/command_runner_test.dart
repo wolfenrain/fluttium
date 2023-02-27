@@ -157,7 +157,7 @@ void main() {
     group('completion', () {
       test('is completion command runner', () {
         final commandRunner = FluttiumCommandRunner();
-        expect(commandRunner, isA<CompletionCommandRunner>());
+        expect(commandRunner, isA<CompletionCommandRunner<int>>());
       });
       test('fast track completion command', () async {
         final result = await commandRunner.run(['completion']);
