@@ -41,7 +41,7 @@ please read these instructions carefully.
 
 For a contribution to be accepted:
 
-- Format the code using `flutter format .`;
+- Format the code using `dart format .`;
 - Lint the code with `flutter analyze .`;
 - Check that all tests pass: `flutter test`;
 - Documentation should always be updated or added (if applicable);

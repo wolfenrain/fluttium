@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:cli_completion/cli_completion.dart';
 import 'package:fluttium_cli/src/command_runner.dart';
 import 'package:fluttium_cli/src/version.dart';
 import 'package:mason/mason.dart' hide packageVersion;
@@ -150,6 +151,19 @@ void main() {
         verify(() => logger.detail('  Command: test')).called(1);
         verify(() => logger.detail('    Command options:')).called(1);
         verify(() => logger.detail('    - help: true')).called(1);
+      });
+    });
+
+    group('completion', () {
+      test('is completion command runner', () {
+        final commandRunner = FluttiumCommandRunner();
+        expect(commandRunner, isA<CompletionCommandRunner>());
+      });
+      test('fast track completion command', () async {
+        final result = await commandRunner.run(['completion']);
+        expect(result, equals(ExitCode.success.code));
+
+        verifyNever(() => logger.detail(any()));
       });
     });
   });
