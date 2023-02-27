@@ -332,11 +332,11 @@ class SimplePrinter extends Printer {
 
   @override
   void print(List<StepState> steps, UserFlowYaml userFlow, bool watch) {
-    final currentStep = steps.firstWhere(
-      (step) =>
-          step.status == StepStatus.running || step.status == StepStatus.failed,
+    final currentStep = steps.lastWhere(
+      (step) => step.status != StepStatus.initial,
       orElse: () => steps.first,
     );
+    if (steps.every((e) => e.status == StepStatus.done)) return;
     _progress ??= logger.progress('');
 
     final index = steps.indexOf(currentStep) + 1;
