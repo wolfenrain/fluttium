@@ -138,15 +138,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       device = devices.first;
       retrievingDevices.complete();
     } else {
-      final optionalDeviceId = results['device-id'] as String?;
-      if (optionalDeviceId != null && optionalDeviceId.isNotEmpty) {
-        retrievingDevices.complete();
-        device = devices.firstWhereOrNull(
-          (device) => device.id == optionalDeviceId.trim(),
-        );
-      } else {
-        retrievingDevices.cancel();
-      }
+      retrievingDevices.cancel();
     }
 
     return device ??
