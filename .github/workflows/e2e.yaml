@@ -41,7 +41,7 @@ jobs:
 
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.flows.outputs.flows) }}
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
       fail-fast: true
 
     runs-on: macos-latest
@@ -65,7 +65,7 @@ jobs:
           model: 'iPhone 11'
 
       - name: 🧪 Testing
-        run: fluttium test --flavor development --target lib/main_development.dart -d ${{ steps.simulator.outputs.udid }} flows/${{ matrix.test_file }}.yaml
+        run: fluttium test --flavor development --target lib/main_development.dart -d ${{ steps.simulator.outputs.udid }} flows/${{ matrix.flow }}.yaml
 
   # macos:
   #   needs: flows
