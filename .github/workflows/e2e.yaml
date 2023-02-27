@@ -11,8 +11,6 @@ defaults:
 
 jobs:
   test_ios:
-    name: 📱 Testing on iOS
-
     strategy:
       matrix:
         device:
@@ -33,6 +31,11 @@ jobs:
           channel: stable
           cache: true
 
+      - name: 📦 Installing packages
+        run: |
+          flutter pub get
+          dart pub global activate --source path ../packages/fluttium_cli
+
       - name: 🔧 Setting Up Simulator
         uses: futureware-tech/simulator-action@v2
         with:
@@ -42,8 +45,6 @@ jobs:
         run: fluttium test ${{ matrix.test_file }}
 
   test_android:
-    name: 🤖 Testing on Android
-
     strategy:
       matrix:
         api_level:
@@ -61,6 +62,11 @@ jobs:
         with:
           channel: stable
           cache: true
+
+      - name: 📦 Installing packages
+        run: |
+          flutter pub get
+          dart pub global activate --source path ../packages/fluttium_cli
 
       - name: 🧪 Testing
         uses: reactivecircus/android-emulator-runner@v2
