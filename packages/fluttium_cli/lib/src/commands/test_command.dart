@@ -330,6 +330,8 @@ class SimplePrinter extends Printer {
 
   Progress? _progress;
 
+  bool failed = false;
+
   @override
   void print(List<StepState> steps, UserFlowYaml userFlow, bool watch) {
     final currentStep = steps.lastWhere(
@@ -343,12 +345,14 @@ class SimplePrinter extends Printer {
     _progress?.update('$index/${steps.length} ${currentStep.description}');
 
     if (currentStep.status == StepStatus.failed) {
+      failed = true;
       _progress?.fail();
     }
   }
 
   @override
   void done() {
+    if (failed) return;
     _progress?.complete();
   }
 }

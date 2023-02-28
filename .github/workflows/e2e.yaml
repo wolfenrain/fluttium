@@ -69,33 +69,57 @@ jobs:
       - name: 🧪 Testing
         run: fluttium test --flavor development --target lib/main_development.dart -d ${{ steps.simulator.outputs.udid }} flows/${{ matrix.flow }}.yaml
 
-  # android:
-  #   needs: flows
+  android:
+    needs: flows
 
-  #   strategy:
-  #     matrix:
-  #       flow: ${{ fromJSON(needs.flows.outputs.flows) }}
-  #     fail-fast: true
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
 
-  #   runs-on: macos-latest
+    runs-on: macos-latest
 
-  #   steps:
-  #     - name: 📚 Git Checkout
-  #       uses: actions/checkout@v3
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
 
-  #     - name: 🐦 Setup Local Fluttium Environment
-  #       uses: ./.github/actions/local_fluttium_environment
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "11"
 
-  #     - name: 📦 Installing packages
-  #       run: flutter pub get
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
 
-  #     - name: 🧪 Testing
-  #       uses: reactivecircus/android-emulator-runner@v2
-  #       with:
-  #         api-level: 29
-  #         arch: x86_64
-  #         profile: Nexus 6
-  #         script: fluttium test -d ??? flows/${{ matrix.flow }}.yaml
+      - name: 📦 Installing packages
+        run: flutter pub get
+
+      - name: AVD Cache
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-29
+
+      - name: Cache AVD Snapshot
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          avd-name: android
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: 🧪 Testing
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          avd-name: android
+          script: fluttium test -d android flows/${{ matrix.flow }}.yaml
 
   web:
     needs: flows

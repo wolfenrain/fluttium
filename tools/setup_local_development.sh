@@ -12,4 +12,3 @@ localSetup="dependency_overrides:
     
 echo "$localSetup" > example/pubspec_overrides.yaml 
 echo "$localSetup" > bricks/fluttium_test_runner/__brick__/pubspec_overrides.yaml
-echo "$localSetup" > actions/log_action/pubspec_overrides.yaml
