@@ -74,7 +74,7 @@ jobs:
 
   #   strategy:
   #     matrix:
-  #       package: ${{ fromJSON(needs.flows.outputs.flows) }}
+  #       flow: ${{ fromJSON(needs.flows.outputs.flows) }}
   #     fail-fast: true
 
   #   runs-on: macos-latest
@@ -97,10 +97,11 @@ jobs:
   #       run: fluttium test -d macos flows/${{ matrix.test_file }}.yaml
 
   # android:
+  #   needs: flows
+
   #   strategy:
   #     matrix:
-  #       test_file:
-  #         - flows/text_flow.yaml
+  #       flow: ${{ fromJSON(needs.flows.outputs.flows) }}
   #     fail-fast: true
 
   #   runs-on: macos-latest
@@ -121,14 +122,14 @@ jobs:
   #         api-level: 29
   #         arch: x86_64
   #         profile: Nexus 6
-  #         script: fluttium test ${{ matrix.test_file }}
+  #         script: fluttium test ${{ matrix.flow }}
 
   linux:
     needs: flows
 
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.flows.outputs.flows) }}
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
       fail-fast: true
 
     runs-on: ubuntu-latest
