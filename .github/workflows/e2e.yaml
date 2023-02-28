@@ -105,7 +105,7 @@ jobs:
         flow: ${{ fromJSON(needs.flows.outputs.flows) }}
       fail-fast: true
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     timeout-minutes: 30
     
@@ -149,30 +149,55 @@ jobs:
   #     - name: 🧪 Testing
   #       run: fluttium test -d macos flows/${{ matrix.flow }}.yaml
 
-  # linux:
-  #   needs: flows
+  linux:
+    needs: flows
 
-  #   strategy:
-  #     matrix:
-  #       flow: ${{ fromJSON(needs.flows.outputs.flows) }}
-  #     fail-fast: true
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
 
-  #   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  #   timeout-minutes: 30
+    timeout-minutes: 30
     
-  #   steps:
-  #     - name: 📚 Git Checkout
-  #       uses: actions/checkout@v3
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
 
-  #     - name: 🐦 Setup Local Fluttium Environment
-  #       uses: ./.github/actions/local_fluttium_environment
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
 
-  #     - name: 📦 Installing packages
-  #       run: |
-  #         flutter pub get
-  #         sudo apt-get update -y
-  #         sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - name: 📦 Installing packages
+        run: |
+          flutter pub get
+          sudo apt-get update -y
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 
-  #     - name: 🧪 Testing
-  #       run: fluttium test -d linux flows/${{ matrix.flow }}.yaml
+      - name: 🧪 Testing
+        run: xvfb-run fluttium test -d linux flows/${{ matrix.flow }}.yaml
+
+  windows:
+    needs: flows
+
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
+
+    runs-on: windows-latest
+
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
+
+      - name: 📦 Installing packages
+        run: flutter pub get
+
+      - name: 🧪 Testing
+        run: fluttium test -d windows flows/${{ matrix.flow }}.yaml
