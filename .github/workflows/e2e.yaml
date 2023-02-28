@@ -95,7 +95,7 @@ jobs:
   #         api-level: 29
   #         arch: x86_64
   #         profile: Nexus 6
-  #         script: fluttium test -d ??? flows/${{ matrix.test_file }}.yaml
+  #         script: fluttium test -d ??? flows/${{ matrix.flow }}.yaml
 
   web:
     needs: flows
@@ -120,7 +120,7 @@ jobs:
         run: flutter pub get
 
       - name: 🧪 Testing
-        run: fluttium test --flavor development --target lib/main_development.dart -d chrome flows/${{ matrix.test_file }}.yaml
+        run: fluttium test --flavor development --target lib/main_development.dart -d chrome flows/${{ matrix.flow }}.yaml
 
   # macos:
   #   needs: flows
@@ -147,7 +147,7 @@ jobs:
   #         cd macos && pod install && cd ..
 
   #     - name: 🧪 Testing
-  #       run: fluttium test -d macos flows/${{ matrix.test_file }}.yaml
+  #       run: fluttium test -d macos flows/${{ matrix.flow }}.yaml
 
   # linux:
   #   needs: flows
