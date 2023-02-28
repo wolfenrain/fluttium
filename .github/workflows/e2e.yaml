@@ -105,7 +105,7 @@ jobs:
         flow: ${{ fromJSON(needs.flows.outputs.flows) }}
       fail-fast: true
 
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     timeout-minutes: 30
     
@@ -120,7 +120,7 @@ jobs:
         run: flutter pub get
 
       - name: 🧪 Testing
-        run: fluttium test --flavor development --target lib/main_development.dart -d chrome flows/${{ matrix.flow }}.yaml
+        run: xvfb-run fluttium test --flavor development --target lib/main_development.dart -d chrome flows/${{ matrix.flow }}.yaml
 
   # macos:
   #   needs: flows

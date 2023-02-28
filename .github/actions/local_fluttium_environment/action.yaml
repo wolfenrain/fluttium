@@ -7,6 +7,9 @@ runs:
       with:
         channel: stable
         cache: true
+    
+    - shell: bash
+      run: export PATH="$PATH":"$HOME/.pub-cache/bin"
 
     - shell: bash
       run: tools/setup_local_development.sh
