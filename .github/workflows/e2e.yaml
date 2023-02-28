@@ -69,6 +69,59 @@ jobs:
       - name: 🧪 Testing
         run: fluttium test --flavor development --target lib/main_development.dart -d ${{ steps.simulator.outputs.udid }} flows/${{ matrix.flow }}.yaml
 
+  # android:
+  #   needs: flows
+
+  #   strategy:
+  #     matrix:
+  #       flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+  #     fail-fast: true
+
+  #   runs-on: macos-latest
+
+  #   steps:
+  #     - name: 📚 Git Checkout
+  #       uses: actions/checkout@v3
+
+  #     - name: 🐦 Setup Local Fluttium Environment
+  #       uses: ./.github/actions/local_fluttium_environment
+
+  #     - name: 📦 Installing packages
+  #       run: flutter pub get
+
+  #     - name: 🧪 Testing
+  #       uses: reactivecircus/android-emulator-runner@v2
+  #       with:
+  #         api-level: 29
+  #         arch: x86_64
+  #         profile: Nexus 6
+  #         script: fluttium test -d ??? flows/${{ matrix.test_file }}.yaml
+
+  web:
+    needs: flows
+
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
+
+    runs-on: macos-latest
+
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
+
+      - name: 📦 Installing packages
+        run: flutter pub get
+
+      - name: 🧪 Testing
+        run: fluttium test --flavor development --target lib/main_development.dart -d chrome flows/${{ matrix.test_file }}.yaml
+
   # macos:
   #   needs: flows
 
@@ -96,7 +149,7 @@ jobs:
   #     - name: 🧪 Testing
   #       run: fluttium test -d macos flows/${{ matrix.test_file }}.yaml
 
-  # android:
+  # linux:
   #   needs: flows
 
   #   strategy:
@@ -104,8 +157,10 @@ jobs:
   #       flow: ${{ fromJSON(needs.flows.outputs.flows) }}
   #     fail-fast: true
 
-  #   runs-on: macos-latest
+  #   runs-on: ubuntu-latest
 
+  #   timeout-minutes: 30
+    
   #   steps:
   #     - name: 📚 Git Checkout
   #       uses: actions/checkout@v3
@@ -114,40 +169,10 @@ jobs:
   #       uses: ./.github/actions/local_fluttium_environment
 
   #     - name: 📦 Installing packages
-  #       run: flutter pub get
+  #       run: |
+  #         flutter pub get
+  #         sudo apt-get update -y
+  #         sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 
   #     - name: 🧪 Testing
-  #       uses: reactivecircus/android-emulator-runner@v2
-  #       with:
-  #         api-level: 29
-  #         arch: x86_64
-  #         profile: Nexus 6
-  #         script: fluttium test ${{ matrix.flow }}
-
-  linux:
-    needs: flows
-
-    strategy:
-      matrix:
-        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
-      fail-fast: true
-
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 30
-    
-    steps:
-      - name: 📚 Git Checkout
-        uses: actions/checkout@v3
-
-      - name: 🐦 Setup Local Fluttium Environment
-        uses: ./.github/actions/local_fluttium_environment
-
-      - name: 📦 Installing packages
-        run: |
-          flutter pub get
-          sudo apt-get update -y
-          sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
-
-      - name: 🧪 Testing
-        run: fluttium test -d linux flows/${{ matrix.flow }}.yaml
+  #       run: fluttium test -d linux flows/${{ matrix.flow }}.yaml
