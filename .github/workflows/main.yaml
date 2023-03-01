@@ -127,6 +127,7 @@ jobs:
   # If the matrix is empty, no jobs will be created.
   pana_packages:
     needs: changes
+    if: ${{ needs.changes.outputs.packages != '[]' }}
 
     # TODO(wolfen): remove after release of packages
     continue-on-error: true
@@ -151,6 +152,7 @@ jobs:
   # If the matrix is empty, no jobs will be created.
   build_packages:
     needs: changes
+    if: ${{ needs.changes.outputs.packages != '[]' }}
 
     strategy:
       matrix:
@@ -184,6 +186,7 @@ jobs:
   # If the matrix is empty, no jobs will be created.
   build_bricks:
     needs: changes
+    if: ${{ needs.changes.outputs.bricks != '[]' }}
 
     strategy:
       matrix:
@@ -207,6 +210,7 @@ jobs:
   # If the matrix is empty, no jobs will be created.
   pana_actions:
     needs: changes
+    if: ${{ needs.changes.outputs.actions != '[]' }}
 
     # TODO(wolfen): remove after release of packages
     continue-on-error: true
@@ -231,6 +235,7 @@ jobs:
   # If the matrix is empty, no jobs will be created.
   build_actions:
     needs: changes
+    if: ${{ needs.changes.outputs.actions != '[]' }}
 
     strategy:
       matrix:
@@ -274,5 +279,5 @@ jobs:
       - name: Exit out if failed
         if: ${{ contains(join(needs.*.result, ','), 'failure') }}
         run: |
-          echo "${{ toJSON(needs) }}"
+          echo ${{ join(needs.*.result, ',') }}
           exit 1
