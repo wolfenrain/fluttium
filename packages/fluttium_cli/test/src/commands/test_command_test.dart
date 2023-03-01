@@ -547,10 +547,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
           expect(await future, equals(ExitCode.success.code));
 
-          verify(
+          verifyNever(
             () => logger.progress(any(that: equals('Retrieving devices'))),
-          ).called(1);
-          verify(retrievingDevices.complete).called(1);
+          );
           verifyNever(retrievingDevices.cancel);
           verifyNever(
             () => logger.chooseOne<FlutterDevice>(

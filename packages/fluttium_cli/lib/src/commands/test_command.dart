@@ -138,15 +138,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       device = devices.first;
       retrievingDevices.complete();
     } else {
-      final optionalDeviceId = results['device-id'] as String?;
-      if (optionalDeviceId != null && optionalDeviceId.isNotEmpty) {
-        retrievingDevices.complete();
-        device = devices.firstWhereOrNull(
-          (device) => device.id == optionalDeviceId.trim(),
-        );
-      } else {
-        retrievingDevices.cancel();
-      }
+      retrievingDevices.cancel();
     }
 
     return device ??
@@ -241,6 +233,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         target: results.wasParsed('target') ? target.path : null,
         flavor: _flavor,
         dartDefines: [...fluttium.driver.dartDefines, ..._dartDefines],
+        deviceId: results['device-id'] as String?,
       ),
     );
 
