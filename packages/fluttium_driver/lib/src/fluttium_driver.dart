@@ -6,7 +6,7 @@ import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:fluttium_driver/src/bundles/bundles.dart';
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:fluttium_protocol/fluttium_protocol.dart';
-import 'package:mason/mason.dart';
+import 'package:mason/mason.dart' hide canonicalize;
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:process/process.dart';
@@ -446,6 +446,6 @@ extension on ActionLocation {
     // Else it is a path location
     return '''
 
-    path: ${relativeDirectory.absolute.uri.resolve(path!).replace(scheme: '')}''';
+    path: ${canonicalize(join(relativeDirectory.absolute.path, path))}''';
   }
 }

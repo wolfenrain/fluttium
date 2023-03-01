@@ -67,7 +67,8 @@ Fluttium requires a bit of setup to develop locally, thankfully we have simple s
 does all the heavy lifting for you:
 
 ```shell
-sh ./tools/setup_local_development.sh
+cd tools && dart pub get && cd ..
+dart tools/setup_local_environment.dart
 ```
 
 After that you can install the local version of the CLI to test your changes:
