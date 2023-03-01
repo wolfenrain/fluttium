@@ -1,6 +1,7 @@
 version: 2
 enable-beta-ecosystems: true
 updates:
+  # Generic
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -10,9 +11,21 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
+    directory: "/tools"
+    schedule:
+      interval: "daily"
+
+  # Example
+  - package-ecosystem: "pub"
     directory: "/example"
     schedule:
       interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/example/actions/expect_environment_text"
+    schedule:
+      interval: "daily"
+  
+  # Packages
   - package-ecosystem: "pub"
     directory: "/packages/fluttium_cli"
     schedule:
@@ -27,5 +40,21 @@ updates:
       interval: "daily"
   - package-ecosystem: "pub"
     directory: "/packages/fluttium_protocol"
+    schedule:
+      interval: "daily"
+
+  # Actions
+  - package-ecosystem: "pub"
+    directory: "/actions/log_action"
+    schedule:
+      interval: "daily"
+
+  # Bricks
+  - package-ecosystem: "pub"
+    directory: "/bricks/fluttium_launcher/hooks"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/bricks/fluttium_test_runner/hooks"
     schedule:
       interval: "daily"
