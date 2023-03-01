@@ -9,7 +9,7 @@ runs:
         cache: true
     
     - shell: bash
-      run: echo $path
+      run: echo $PATH
 
     - shell: bash
       run: dart tools/setup_local_environment.dart
