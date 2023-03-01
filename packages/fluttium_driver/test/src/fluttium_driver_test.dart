@@ -117,7 +117,7 @@ void main() {
       ).thenAnswer(
         (_) async => [
           GeneratedFile.created(
-            path: 'project_directory/.fluttium_test_launcher.dart',
+            path: '/project_directory/.fluttium_test_launcher.dart',
           )
         ],
       );
@@ -165,19 +165,20 @@ description: test
       when(() => userFlowFile.path).thenReturn('flow.yaml');
 
       projectDirectory = _MockDirectory();
-      when(() => projectDirectory.path).thenReturn('project_directory');
+      when(() => projectDirectory.path).thenReturn('/project_directory');
       when(() => projectDirectory.uri)
-          .thenReturn(Uri.parse('project_directory/'));
+          .thenReturn(Uri.parse('/project_directory/'));
       when(() => projectDirectory.absolute).thenReturn(projectDirectory);
       launcherFile = _MockFile();
       when(() => launcherFile.absolute).thenReturn(launcherFile);
       when(() => launcherFile.path)
-          .thenReturn('project_directory/.fluttium_test_launcher.dart');
+          .thenReturn('/project_directory/.fluttium_test_launcher.dart');
       when(() => launcherFile.existsSync()).thenReturn(true);
       when(() => launcherFile.deleteSync()).thenAnswer((_) {});
 
       pubspecFile = _MockFile();
-      when(() => pubspecFile.path).thenReturn('project_directory/pubspec.yaml');
+      when(() => pubspecFile.path)
+          .thenReturn('/project_directory/pubspec.yaml');
       when(() => pubspecFile.readAsStringSync()).thenReturn('''
 name: project_name
 ''');
@@ -206,7 +207,7 @@ name: project_name
             that: containsAllInOrder([
               'flutter',
               'run',
-              'project_directory/.fluttium_test_launcher.dart',
+              '/project_directory/.fluttium_test_launcher.dart',
               '-d',
               'deviceId'
             ]),
@@ -229,7 +230,7 @@ name: project_name
           dartDefines: dartDefines,
         ),
         actions: actions,
-        projectDirectory: Directory('project_directory'),
+        projectDirectory: Directory('/project_directory'),
         userFlowFile: File('flow.yaml'),
         logger: logger,
         processManager: processManager,
@@ -269,9 +270,10 @@ name: project_name
         createFile: (path) {
           if (path == 'flow.yaml') {
             return userFlowFile;
-          } else if (path == 'project_directory/.fluttium_test_launcher.dart') {
+          } else if (path ==
+              '/project_directory/.fluttium_test_launcher.dart') {
             return launcherFile;
-          } else if (path == 'project_directory/pubspec.yaml') {
+          } else if (path == '/project_directory/pubspec.yaml') {
             return pubspecFile;
           }
           throw UnimplementedError(path);
@@ -279,7 +281,7 @@ name: project_name
         createDirectory: (path) {
           if (path == '/temp/test') {
             return testRunnerDirectory;
-          } else if (path == 'project_directory') {
+          } else if (path == '/project_directory') {
             return projectDirectory;
           }
           throw UnimplementedError(path);
@@ -369,7 +371,7 @@ name: project_name
                     'name': 'path_action',
                     'source': '''
 
-    path: project_directory/path_action'''
+    path: /project_directory/path_action'''
                   }
                 ],
                 'steps': [
@@ -403,7 +405,7 @@ name: project_name
           () => launcherGeneratorHooks.preGen(
             workingDirectory: any(
               named: 'workingDirectory',
-              that: equals('project_directory'),
+              that: equals('/project_directory'),
             ),
             vars: any(
               named: 'vars',
@@ -438,7 +440,7 @@ name: project_name
           () => logger.detail(
             any(
               that: equals(
-                'Running command: flutter run project_directory/.fluttium_test_launcher.dart -d deviceId',
+                'Running command: flutter run /project_directory/.fluttium_test_launcher.dart -d deviceId',
               ),
             ),
           ),
@@ -452,7 +454,7 @@ name: project_name
               that: equals([
                 'flutter',
                 'run',
-                'project_directory/.fluttium_test_launcher.dart',
+                '/project_directory/.fluttium_test_launcher.dart',
                 '-d',
                 'deviceId'
               ]),
@@ -460,7 +462,7 @@ name: project_name
             runInShell: any(named: 'runInShell', that: isTrue),
             workingDirectory: any(
               named: 'workingDirectory',
-              that: equals('project_directory'),
+              that: equals('/project_directory'),
             ),
           ),
         ).called(1);
@@ -488,7 +490,7 @@ name: project_name
           () => launcherGeneratorHooks.postGen(
             workingDirectory: any(
               named: 'workingDirectory',
-              that: equals('project_directory'),
+              that: equals('/project_directory'),
             ),
           ),
         ).called(1);
