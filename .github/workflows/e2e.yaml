@@ -147,32 +147,32 @@ jobs:
   #     - name: 🧪 Testing
   #       run: xvfb-run fluttium test --flavor development --target lib/main_development.dart -d chrome flows/${{ matrix.flow }}.yaml
 
-  # macos:
-  #   needs: flows
+  macos:
+    needs: flows
 
-  #   strategy:
-  #     matrix:
-  #       flow: ${{ fromJSON(needs.flows.outputs.flows) }}
-  #     fail-fast: true
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
 
-  #   runs-on: macos-latest
+    runs-on: macos-latest
 
-  #   timeout-minutes: 30
+    timeout-minutes: 30
     
-  #   steps:
-  #     - name: 📚 Git Checkout
-  #       uses: actions/checkout@v3
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
 
-  #     - name: 🐦 Setup Local Fluttium Environment
-  #       uses: ./.github/actions/local_fluttium_environment
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
 
-  #     - name: 📦 Installing packages
-  #       run: |
-  #         flutter pub get
-  #         cd macos && pod install && cd ..
+      - name: 📦 Installing packages
+        run: |
+          flutter pub get
+          cd macos && pod install && cd ..
 
-  #     - name: 🧪 Testing
-  #       run: fluttium test -d macos flows/${{ matrix.flow }}.yaml
+      - name: 🧪 Testing
+        run: fluttium test -d macos flows/${{ matrix.flow }}.yaml
 
   # linux:
   #   needs: flows
@@ -202,27 +202,27 @@ jobs:
   #     - name: 🧪 Testing
   #       run: xvfb-run fluttium test -d linux flows/${{ matrix.flow }}.yaml
 
-  windows:
-    needs: flows
+  # windows:
+  #   needs: flows
 
-    strategy:
-      matrix:
-        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
-      fail-fast: true
+  #   strategy:
+  #     matrix:
+  #       flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+  #     fail-fast: true
 
-    runs-on: windows-latest
+  #   runs-on: windows-latest
 
-    timeout-minutes: 30
+  #   timeout-minutes: 30
     
-    steps:
-      - name: 📚 Git Checkout
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: 📚 Git Checkout
+  #       uses: actions/checkout@v3
 
-      - name: 🐦 Setup Local Fluttium Environment
-        uses: ./.github/actions/local_fluttium_environment
+  #     - name: 🐦 Setup Local Fluttium Environment
+  #       uses: ./.github/actions/local_fluttium_environment
 
-      - name: 📦 Installing packages
-        run: flutter pub get
+  #     - name: 📦 Installing packages
+  #       run: flutter pub get
 
-      - name: 🧪 Testing
-        run: fluttium test -d windows flows/${{ matrix.flow }}.yaml
+  #     - name: 🧪 Testing
+  #       run: fluttium test -d windows flows/${{ matrix.flow }}.yaml
