@@ -172,7 +172,7 @@ jobs:
           cd macos && pod install && cd ..
 
       - name: 🧪 Testing
-        run: fluttium test -d macos flows/${{ matrix.flow }}.yaml
+        run: fluttium test -d macos flows/${{ matrix.flow }}.yaml --verbose
 
   # linux:
   #   needs: flows
