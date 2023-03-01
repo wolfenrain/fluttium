@@ -255,8 +255,8 @@ jobs:
   ci:
     needs:
       [
-        spell_check,
         semantic_pull_request,
+        spell_check,
         docs,
         example,
         pana_packages,
@@ -269,5 +269,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: noop
-        run: echo 'noop'
+      - name: Exit out if failed
+        if: ${{ contains(join(needs.*.result, ','), 'failure') }}
+        run: exit 1
