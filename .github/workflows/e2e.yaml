@@ -221,7 +221,7 @@ jobs:
       - name: 🐦 Setup Local Fluttium Environment
         uses: ./.github/actions/local_fluttium_environment
 
-      - run: /c/Users/runneradmin/AppData/Local/Pub/Cache/bin/mason.bat --help
+      - run: mason.bat --help
 
       - name: 📦 Installing packages
         run: flutter pub get
