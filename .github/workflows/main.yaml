@@ -270,6 +270,7 @@ jobs:
         build_bricks,
         build_actions,
       ]
+    if: ${{ always() }}
 
     runs-on: ubuntu-latest
 
