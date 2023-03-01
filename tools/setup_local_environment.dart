@@ -5,11 +5,11 @@ void main() {
   final localSetup = '''
 dependency_overrides:
   fluttium:
-    path: ${path.canonicalize(Directory.current.uri.resolve('packages/fluttium').path)}
+    path: ${path.canonicalize(path.join(Directory.current.path, 'packages/fluttium'))}
   fluttium_protocol:
-    path: ${path.canonicalize(Directory.current.uri.resolve('packages/fluttium_protocol').path)}
+    path: ${path.canonicalize(path.join(Directory.current.path, 'packages/fluttium_protocol'))}
   fluttium_interfaces:
-    path: ${path.canonicalize(Directory.current.uri.resolve('packages/fluttium_interfaces').path)}
+    path: ${path.canonicalize(path.join(Directory.current.path, 'packages/fluttium_interfaces'))}
 ''';
 
   File('example/pubspec_overrides.yaml').writeAsStringSync(localSetup);
