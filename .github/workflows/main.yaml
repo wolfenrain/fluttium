@@ -274,5 +274,5 @@ jobs:
       - name: Exit out if failed
         if: ${{ contains(join(needs.*.result, ','), 'failure') }}
         run: |
-          echo ${{ toJSON(needs) }}
+          echo "${{ toJSON(needs) }}"
           exit 1
