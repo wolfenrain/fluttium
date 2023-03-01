@@ -25,6 +25,7 @@
     "words": [
         "Appium",
         "Automator",
+        "canonicalize",
         "darwin",
         "Diagnosticable",
         "embedder",
