@@ -253,6 +253,7 @@ jobs:
   # The build and pana job might not spawn but as long as the other jobs
   # succeed this job will be considered successful through skipping.
   ci:
+    if: ${{ always() }}
     needs:
       [
         semantic_pull_request,
