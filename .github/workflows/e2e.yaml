@@ -120,7 +120,7 @@ jobs:
           api-level: 29
           avd-name: android
           working-directory: example
-          script: fluttium test -d android flows/${{ matrix.flow }}.yaml
+          script: fluttium test --flavor development --target lib/main_development.dart -d android flows/${{ matrix.flow }}.yaml
 
   web:
     needs: flows
