@@ -9,7 +9,7 @@ runs:
         cache: true
     
     - shell: bash
-      run: export PATH="$PATH":"$HOME/.pub-cache/bin"
+      run: echo $path
 
     - shell: bash
       run: dart tools/setup_local_environment.dart
