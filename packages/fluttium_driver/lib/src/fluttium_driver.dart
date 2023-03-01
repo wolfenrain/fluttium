@@ -449,5 +449,3 @@ extension on ActionLocation {
     path: ${canonicalize(join(relativeDirectory.absolute.path, path))}''';
   }
 }
-
-void testx() {}
