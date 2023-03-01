@@ -278,6 +278,4 @@ jobs:
     steps:
       - name: Exit out if failed
         if: ${{ contains(join(needs.*.result, ','), 'failure') }}
-        run: |
-          echo ${{ join(needs.*.result, ',') }}
-          exit 1
+        run: exit 1
