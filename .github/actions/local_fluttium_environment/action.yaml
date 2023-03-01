@@ -12,7 +12,7 @@ runs:
       run: export PATH="$PATH":"$HOME/.pub-cache/bin"
 
     - shell: bash
-      run: tools/setup_local_development.sh
+      run: dart tools/setup_local_environment.dart
 
     - shell: bash
       run: dart pub global activate mason_cli
