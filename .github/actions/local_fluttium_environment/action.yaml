@@ -7,6 +7,10 @@ runs:
       with:
         channel: stable
         cache: true
+    
+    - shell: bash
+      working-directory: tools
+      run: dart pub get
 
     - shell: bash
       run: dart tools/setup_local_environment.dart
