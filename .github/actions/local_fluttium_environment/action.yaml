@@ -7,9 +7,6 @@ runs:
       with:
         channel: stable
         cache: true
-    
-    - shell: bash
-      run: echo $PATH
 
     - shell: bash
       run: dart tools/setup_local_environment.dart
