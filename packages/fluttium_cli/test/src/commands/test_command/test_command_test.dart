@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:fluttium_cli/src/commands/commands.dart';
-import 'package:fluttium_cli/src/commands/test_command/printers/printers.dart';
+import 'package:fluttium_cli/src/commands/test_command/reporters/reporters.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
@@ -22,7 +22,6 @@ const expectedUsage = [
       'Usage: fluttium test <flow.yaml> [arguments]\n'
       '-h, --help                       Print this usage information.\n'
       '-w, --watch                      Watch for file changes.\n'
-      '    --ci                         Run in CI mode.\n'
       // ignore: lines_longer_than_80_chars
       '-d, --device-id                  Target device id or name (prefixes allowed).\n'
       // ignore: lines_longer_than_80_chars
@@ -36,6 +35,11 @@ const expectedUsage = [
       '    --dart-define=<key=value>    Pass additional key-value pairs to the flutter run.\n'
       // ignore: lines_longer_than_80_chars
       '                                 Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
+      '-r, --reporter                   \n'
+      // ignore: lines_longer_than_80_chars
+      '          [compact]              A single line that updates dynamically\n'
+      // ignore: lines_longer_than_80_chars
+      '          [pretty] (default)     A nicely formatted output that works nicely with --watch\n'
       '\n'
       'Run "fluttium help" to see global options.'
 ];
@@ -141,7 +145,7 @@ void main() {
       when(() => argResults['watch']).thenReturn(false);
       when(() => argResults['target']).thenReturn('lib/main.dart');
       when(() => argResults['dart-define']).thenReturn(<String>[]);
-      when(() => argResults['ci']).thenReturn(false);
+      when(() => argResults['reporter']).thenReturn('pretty');
       when(() => argResults.wasParsed(any())).thenReturn(false);
 
       pubspecFile = _MockFile();
@@ -236,6 +240,7 @@ environment:
         stepStateController.add([step]);
         await Future<void>.delayed(Duration.zero);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.success.code));
       });
@@ -259,6 +264,7 @@ environment:
         stepStateController.add([step]);
         await Future<void>.delayed(Duration.zero);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.success.code));
       });
@@ -283,6 +289,7 @@ environment:
         stepStateController.addError(FatalDriverException('fatal reason'));
         await Future<void>.delayed(Duration.zero);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.tempFail.code));
 
@@ -316,6 +323,7 @@ environment:
         stepStateController.addError('unknown reason');
         await Future<void>.delayed(Duration.zero);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.tempFail.code));
 
@@ -491,8 +499,8 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
             stepStateController.add([step]);
             await Future<void>.delayed(Duration.zero);
 
+            await stepStateController.close();
             runCompleter.complete();
-
             expect(await future, equals(ExitCode.success.code));
 
             verify(
@@ -547,8 +555,8 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([step]);
           await Future<void>.delayed(Duration.zero);
 
+          await stepStateController.close();
           runCompleter.complete();
-
           expect(await future, equals(ExitCode.success.code));
 
           verifyNever(
@@ -621,8 +629,8 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([step]);
           await Future<void>.delayed(Duration.zero);
 
+          await stepStateController.close();
           runCompleter.complete();
-
           expect(await future, equals(ExitCode.success.code));
 
           verify(
@@ -659,7 +667,6 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           await Future<void>.delayed(Duration.zero);
 
           runCompleter.complete();
-
           expect(await future, equals(ExitCode.unavailable.code));
 
           verify(
@@ -682,7 +689,27 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       });
     });
 
-    test('renders using the $PrettyPrinter for all steps', () async {
+    test('exits when unknown reporter is used', () async {
+      // Fun fact: this test is only for line coverage, command parser never
+      // allows us to pass an unknown reporter as a user of the CLI.
+      when(() => argResults['reporter']).thenReturn('unknown');
+
+      final command = TestCommand(
+        logger: logger,
+        processManager: processManager,
+        driver: _driver(driver),
+      )..testArgResults = argResults;
+
+      await runWithMocks(() async {
+        final future = command.run();
+        expect(await future, equals(ExitCode.usage.code));
+
+        verify(() => logger.err(any(that: equals('Unknown reporter: unknown'))))
+            .called(1);
+      });
+    });
+
+    test('renders using the $PrettyReporter for all steps', () async {
       final userFlow = _MockUserFlowYaml();
       when(() => userFlow.description).thenReturn('description');
       when(() => driver.userFlow).thenReturn(userFlow);
@@ -742,28 +769,30 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         ).called(4);
 
         await stepStateController.close();
-
         runCompleter.complete();
         expect(await future, equals(ExitCode.tempFail.code));
       });
     });
 
-    group('renders using the $CIPrinter', () {
-      test('until all done', () async {
+    group('renders using the $CompactReporter', () {
+      late Progress progress;
+
+      setUp(() {
         final userFlow = _MockUserFlowYaml();
         when(() => userFlow.description).thenReturn('description');
         when(() => driver.userFlow).thenReturn(userFlow);
+        when(() => argResults['reporter']).thenReturn('compact');
 
-        when(() => argResults['ci']).thenReturn(true);
+        progress = _MockProgress();
+        when(() => logger.progress(any())).thenReturn(progress);
+      });
 
+      test('until all done', () async {
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
           driver: _driver(driver),
         )..testArgResults = argResults;
-
-        final progress = _MockProgress();
-        when(() => logger.progress(any())).thenReturn(progress);
 
         await runWithMocks(() async {
           final future = command.run();
@@ -812,27 +841,17 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           verify(progress.complete).called(1);
 
           await stepStateController.close();
-
           runCompleter.complete();
           expect(await future, equals(ExitCode.success.code));
         });
       });
 
       test('with a failure', () async {
-        final userFlow = _MockUserFlowYaml();
-        when(() => userFlow.description).thenReturn('description');
-        when(() => driver.userFlow).thenReturn(userFlow);
-
-        when(() => argResults['ci']).thenReturn(true);
-
         final command = TestCommand(
           logger: logger,
           processManager: processManager,
           driver: _driver(driver),
         )..testArgResults = argResults;
-
-        final progress = _MockProgress();
-        when(() => logger.progress(any())).thenReturn(progress);
 
         await runWithMocks(() async {
           final future = command.run();
@@ -881,9 +900,60 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           verify(progress.fail).called(1);
 
           await stepStateController.close();
-
           runCompleter.complete();
           expect(await future, equals(ExitCode.tempFail.code));
+        });
+      });
+
+      test('exits when a fatal exception occurred', () async {
+        when(driver.quit).thenAnswer((_) async {});
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step = StepState('Expect visible "text"');
+          stepStateController.add([step]);
+          await Future<void>.delayed(Duration.zero);
+
+          stepStateController.addError(FatalDriverException('fatal reason'));
+          await Future<void>.delayed(Duration.zero);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.tempFail.code));
+          verify(driver.quit).called(1);
+        });
+      });
+
+      test('throws exception if running with watch', () async {
+        when(() => argResults['reporter']).thenReturn('compact');
+        when(() => argResults['watch']).thenReturn(true);
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          expect(await future, equals(ExitCode.usage.code));
+
+          verify(
+            () => logger.err(
+              any(
+                that:
+                    equals('The compact reporter does not support watch mode.'),
+              ),
+            ),
+          ).called(1);
         });
       });
     });
@@ -911,16 +981,15 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         )..testArgResults = argResults;
 
         await runWithMocks(() async {
-          expect(
-            command.run,
-            throwsA(
-              isA<UnsupportedError>().having(
-                (e) => e.message,
-                'message',
-                equals('Watch provided but no terminal was attached'),
-              ),
+          final future = command.run();
+
+          expect(await future, equals(ExitCode.usage.code));
+
+          verify(
+            () => logger.err(
+              any(that: equals('Watch provided but no terminal was attached.')),
             ),
-          );
+          ).called(1);
         });
       });
 
@@ -982,6 +1051,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
             () => testFile.writeAsBytesSync(any(that: equals([1, 2, 3]))),
           ).called(1);
 
+          await stepStateController.close();
           runCompleter.complete();
           expect(await future, equals(ExitCode.tempFail.code));
 

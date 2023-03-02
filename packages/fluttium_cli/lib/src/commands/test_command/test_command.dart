@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
-import 'package:fluttium_cli/src/commands/test_command/printers/printers.dart';
+import 'package:fluttium_cli/src/commands/test_command/reporters/reporters.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_cli/src/json_decode_safely.dart';
 import 'package:fluttium_driver/fluttium_driver.dart';
@@ -43,7 +42,6 @@ class TestCommand extends Command<int> {
         help: 'Watch for file changes.',
         negatable: false,
       )
-      ..addFlag('ci', help: 'Run in CI mode.', negatable: false)
       ..addOption(
         'device-id',
         abbr: 'd',
@@ -68,6 +66,19 @@ This will be passed to the --flavor option of flutter run.''',
         help: '''
 Pass additional key-value pairs to the flutter run.
 Multiple defines can be passed by repeating "--dart-define" multiple times.''',
+      )
+      ..addOption(
+        'reporter',
+        abbr: 'r',
+        defaultsTo: 'pretty',
+        allowed: [
+          'pretty',
+          'compact',
+        ],
+        allowedHelp: {
+          'pretty': 'A nicely formatted output that works nicely with --watch',
+          'compact': 'A single line that updates dynamically',
+        },
       );
   }
 
@@ -96,12 +107,6 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
   /// Indicates whether the `--watch` flag was passed.
   bool get watch => results['watch'] as bool;
 
-  /// Indicates whether the `--ci` flag was passed.
-  ///
-  /// If `stdin.hasTerminal` is true, this will also return true as there is no
-  /// terminal available.
-  bool get ci => results['ci'] as bool || !stdin.hasTerminal;
-
   String? get _flavor => results['flavor'] as String?;
 
   List<String> get _dartDefines => results['dart-define'] as List<String>;
@@ -112,6 +117,17 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       usageException('No flow file specified.');
     }
     return File(results.rest.first);
+  }
+
+  Reporter _getReporter(FluttiumDriver driver) {
+    switch (results['reporter']) {
+      case 'pretty':
+        return PrettyReporter(driver, logger: _logger, watch: watch);
+      case 'compact':
+        return CompactReporter(driver, logger: _logger, watch: watch);
+      default:
+        throw UnsupportedError('Unknown reporter: ${results['reporter']}');
+    }
   }
 
   /// The project directory to run in.
@@ -272,54 +288,27 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       processManager: _process,
     );
 
-    final printer = (ci ? CIPrinter.new : PrettyPrinter.new)(_logger);
-    final stepStates = <StepState>[];
-    driver.steps.listen(
-      (steps) {
-        stepStates
-          ..clear()
-          ..addAll(steps);
-
-        printer.print(steps, driver.userFlow, watch: watch);
-      },
-      onDone: printer.done,
-      onError: (Object err) {
-        if (err is FatalDriverException) {
-          _logger.err(' Fatal driver exception occurred: ${err.reason}');
-          return driver.quit();
-        }
-        _logger.err('Unknown exception occurred: $err');
-      },
-    );
-
-    if (watch) {
-      if (!stdin.hasTerminal) {
-        throw UnsupportedError('Watch provided but no terminal was attached');
+    final Reporter reporter;
+    try {
+      reporter = _getReporter(driver);
+    } catch (err) {
+      if (err is UnsupportedError) {
+        _logger.err(err.message);
+        return ExitCode.usage.code;
       }
-
-      stdin
-        ..echoMode = false
-        ..lineMode = false
-        ..listen((event) async {
-          switch (utf8.decode(event).trim()) {
-            case 'q':
-              return driver.quit();
-            case 'r':
-              return driver.restart();
-          }
-        });
+      rethrow;
     }
+
+    final steps = <StepState>[];
+    driver.steps.map((s) => (steps..clear())..addAll(s)).listen(
+          reporter.report,
+          onDone: reporter.done,
+          onError: reporter.error,
+        );
 
     await driver.run(watch: watch);
 
-    if (watch && stdin.hasTerminal) {
-      stdin
-        ..lineMode = true
-        ..echoMode = true;
-    }
-
-    if (!stepStates.every((s) => s.status == StepStatus.done) ||
-        stepStates.isEmpty) {
+    if (!steps.every((s) => s.status == StepStatus.done) || steps.isEmpty) {
       return ExitCode.tempFail.code;
     }
 
