@@ -23,6 +23,28 @@ typedef FluttiumDriverCreator = FluttiumDriver Function({
   ProcessManager? processManager,
 });
 
+/// Whether or not the current terminal supports ANSI escape codes.
+///
+/// Otherwise only printable ASCII characters should be used.
+bool get canUseSpecialChars => stdout.supportsAnsiEscapes;
+
+/// Detect whether we're running in a GitHub Actions context.
+///
+/// See
+/// https://docs.github.com/en/actions/learn-github-actions/environment-variables.
+bool get inGitHubContext => Platform.environment['GITHUB_ACTIONS'] == 'true';
+
+bool get hasTerminal => stdin.hasTerminal;
+
+final defaultReporter = hasTerminal
+    ? 'pretty'
+    : inGitHubContext
+        // TODO(wolfen): implement a github or CI reporter
+        ? 'github'
+        : canUseSpecialChars
+            ? 'compact'
+            : 'expanded';
+
 /// {@template test_command}
 /// `fluttium test` command which runs a [UserFlowYaml] test.
 /// {@endtemplate}
@@ -70,14 +92,16 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       ..addOption(
         'reporter',
         abbr: 'r',
-        defaultsTo: 'pretty',
+        defaultsTo: defaultReporter,
         allowed: [
+          'expanded',
           'pretty',
           'compact',
         ],
         allowedHelp: {
-          'pretty': 'A nicely formatted output that works nicely with --watch',
-          'compact': 'A single line that updates dynamically',
+          'expanded': 'A separate line for each update.',
+          'compact': 'A single line that updates dynamically.',
+          'pretty': 'A nicely formatted output that works nicely with --watch.',
         },
       );
   }
@@ -125,6 +149,8 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
         return PrettyReporter(driver, logger: _logger, watch: watch);
       case 'compact':
         return CompactReporter(driver, logger: _logger, watch: watch);
+      case 'expanded':
+        return ExpandedReporter(driver, logger: _logger, watch: watch);
       default:
         throw UnsupportedError('Unknown reporter: ${results['reporter']}');
     }

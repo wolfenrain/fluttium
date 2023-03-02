@@ -20,26 +20,28 @@ const expectedUsage = [
   'Run a user flow test.\n'
       '\n'
       'Usage: fluttium test <flow.yaml> [arguments]\n'
-      '-h, --help                       Print this usage information.\n'
-      '-w, --watch                      Watch for file changes.\n'
+      '-h, --help                        Print this usage information.\n'
+      '-w, --watch                       Watch for file changes.\n'
       // ignore: lines_longer_than_80_chars
-      '-d, --device-id                  Target device id or name (prefixes allowed).\n'
+      '-d, --device-id                   Target device id or name (prefixes allowed).\n'
       // ignore: lines_longer_than_80_chars
-      '    --flavor                     Build a custom app flavor as defined by platform-specific build setup.\n'
+      '    --flavor                      Build a custom app flavor as defined by platform-specific build setup.\n'
       // ignore: lines_longer_than_80_chars
-      '                                 This will be passed to the --flavor option of flutter run.\n'
+      '                                  This will be passed to the --flavor option of flutter run.\n'
       // ignore: lines_longer_than_80_chars
-      '-t, --target                     The main entry-point file of the application, as run on the device.\n'
-      '                                 (defaults to "lib/main.dart")\n'
+      '-t, --target                      The main entry-point file of the application, as run on the device.\n'
       // ignore: lines_longer_than_80_chars
-      '    --dart-define=<key=value>    Pass additional key-value pairs to the flutter run.\n'
+      '                                  (defaults to "lib/main.dart")\n'
       // ignore: lines_longer_than_80_chars
-      '                                 Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
-      '-r, --reporter                   \n'
+      '    --dart-define=<key=value>     Pass additional key-value pairs to the flutter run.\n'
       // ignore: lines_longer_than_80_chars
-      '          [compact]              A single line that updates dynamically\n'
+      '                                  Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
+      '-r, --reporter                    \n'
+      '          [compact]               A single line that updates dynamically.\n'
       // ignore: lines_longer_than_80_chars
-      '          [pretty] (default)     A nicely formatted output that works nicely with --watch\n'
+      '          [expanded] (default)    A separate line for each update.\n'
+      // ignore: lines_longer_than_80_chars
+      '          [pretty]                A nicely formatted output that works nicely with --watch.\n'
       '\n'
       'Run "fluttium help" to see global options.'
 ];
@@ -954,6 +956,119 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
               ),
             ),
           ).called(1);
+        });
+      });
+    });
+
+    group('renders using the $ExpandedReporter', () {
+      setUp(() {
+        final userFlow = _MockUserFlowYaml();
+        when(() => userFlow.description).thenReturn('description');
+        when(() => driver.userFlow).thenReturn(userFlow);
+        when(() => argResults['reporter']).thenReturn('expanded');
+      });
+
+      test('until all done', () async {
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
+
+          stepStateController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(any(that: contains('Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController
+              .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(any(that: contains('Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.running),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(any(that: contains('Expect not visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.done),
+            step3.copyWith(status: StepStatus.done),
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.success.code));
+        });
+      });
+
+      test('with a failure', () async {
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
+
+          stepStateController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          stepStateController
+              .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.running),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(any(that: contains('Expect not visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.failed),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(
+              any(that: contains(red.wrap('Expect not visible "text"'))),
+            ),
+          ).called(1);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.tempFail.code));
         });
       });
     });

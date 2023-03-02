@@ -15,7 +15,7 @@ abstract class Reporter {
 
   void report(List<StepState> steps);
 
-  void done();
+  void done() {}
 
   FutureOr<void> error(Object err) {
     if (err is FatalDriverException) {
