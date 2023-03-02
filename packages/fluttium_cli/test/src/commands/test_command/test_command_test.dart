@@ -129,12 +129,7 @@ void main() {
         () => processManager.run(
           any(
             that: equals(
-              [
-                'flutter',
-                '--no-version-check',
-                'devices',
-                '--machine',
-              ],
+              ['flutter', '--no-version-check', 'devices', '--machine'],
             ),
           ),
           runInShell: any(named: 'runInShell'),

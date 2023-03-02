@@ -28,22 +28,13 @@ typedef FluttiumDriverCreator = FluttiumDriver Function({
 /// Otherwise only printable ASCII characters should be used.
 bool get canUseSpecialChars => stdout.supportsAnsiEscapes;
 
-/// Detect whether we're running in a GitHub Actions context.
-///
-/// See
-/// https://docs.github.com/en/actions/learn-github-actions/environment-variables.
-bool get inGitHubContext => Platform.environment['GITHUB_ACTIONS'] == 'true';
-
 bool get hasTerminal => stdin.hasTerminal;
 
 final defaultReporter = hasTerminal
     ? 'pretty'
-    : inGitHubContext
-        // TODO(wolfen): implement a github or CI reporter
-        ? 'github'
-        : canUseSpecialChars
-            ? 'compact'
-            : 'expanded';
+    : canUseSpecialChars
+        ? 'compact'
+        : 'expanded';
 
 /// {@template test_command}
 /// `fluttium test` command which runs a [UserFlowYaml] test.
