@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:fluttium_cli/src/commands/commands.dart';
+import 'package:fluttium_cli/src/commands/test_command/printers/printers.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
@@ -12,7 +13,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:process/process.dart';
 import 'package:test/test.dart';
 
-import '../../helpers/helpers.dart';
+import '../../../helpers/helpers.dart';
 
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
@@ -20,7 +21,8 @@ const expectedUsage = [
       '\n'
       'Usage: fluttium test <flow.yaml> [arguments]\n'
       '-h, --help                       Print this usage information.\n'
-      '-w, --[no-]watch                 Watch for file changes.\n'
+      '-w, --watch                      Watch for file changes.\n'
+      '    --ci                         Run in CI mode.\n'
       // ignore: lines_longer_than_80_chars
       '-d, --device-id                  Target device id or name (prefixes allowed).\n'
       // ignore: lines_longer_than_80_chars
@@ -139,6 +141,7 @@ void main() {
       when(() => argResults['watch']).thenReturn(false);
       when(() => argResults['target']).thenReturn('lib/main.dart');
       when(() => argResults['dart-define']).thenReturn(<String>[]);
+      when(() => argResults['ci']).thenReturn(false);
       when(() => argResults.wasParsed(any())).thenReturn(false);
 
       pubspecFile = _MockFile();
@@ -175,6 +178,7 @@ environment:
       when(() => testFile.writeAsBytesSync(any())).thenAnswer((_) {});
 
       stdin = _MockStdin();
+      when(() => stdin.hasTerminal).thenReturn(true);
     });
 
     test(
@@ -678,7 +682,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       });
     });
 
-    test('renders as expected for all steps', () async {
+    test('renders using the $PrettyPrinter for all steps', () async {
       final userFlow = _MockUserFlowYaml();
       when(() => userFlow.description).thenReturn('description');
       when(() => driver.userFlow).thenReturn(userFlow);
@@ -737,8 +741,150 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           () => logger.info(any(that: contains('description'))),
         ).called(4);
 
+        await stepStateController.close();
+
         runCompleter.complete();
         expect(await future, equals(ExitCode.tempFail.code));
+      });
+    });
+
+    group('renders using the $CIPrinter', () {
+      test('until all done', () async {
+        final userFlow = _MockUserFlowYaml();
+        when(() => userFlow.description).thenReturn('description');
+        when(() => driver.userFlow).thenReturn(userFlow);
+
+        when(() => argResults['ci']).thenReturn(true);
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        final progress = _MockProgress();
+        when(() => logger.progress(any())).thenReturn(progress);
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
+
+          stepStateController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+          verify(() => logger.progress(any(that: equals('')))).called(1);
+
+          verify(
+            () =>
+                progress.update(any(that: equals('1/3 Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController
+              .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () =>
+                progress.update(any(that: equals('1/3 Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.running),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => progress
+                .update(any(that: equals('2/3 Expect not visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.done),
+            step3.copyWith(status: StepStatus.done)
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(progress.complete).called(1);
+
+          await stepStateController.close();
+
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.success.code));
+        });
+      });
+
+      test('with a failure', () async {
+        final userFlow = _MockUserFlowYaml();
+        when(() => userFlow.description).thenReturn('description');
+        when(() => driver.userFlow).thenReturn(userFlow);
+
+        when(() => argResults['ci']).thenReturn(true);
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        final progress = _MockProgress();
+        when(() => logger.progress(any())).thenReturn(progress);
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
+
+          stepStateController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+          verify(() => logger.progress(any(that: equals('')))).called(1);
+
+          verify(
+            () =>
+                progress.update(any(that: equals('1/3 Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController
+              .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () =>
+                progress.update(any(that: equals('1/3 Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.running),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => progress
+                .update(any(that: equals('2/3 Expect not visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.failed),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(progress.fail).called(1);
+
+          await stepStateController.close();
+
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.tempFail.code));
+        });
       });
     });
 
@@ -752,6 +898,29 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
         when(() => stdin.listen(any())).thenAnswer((_) {
           return _MockStreamSubscription();
+        });
+      });
+
+      test('throws exception if there is no terminal', () async {
+        when(() => stdin.hasTerminal).thenReturn(false);
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          expect(
+            command.run,
+            throwsA(
+              isA<UnsupportedError>().having(
+                (e) => e.message,
+                'message',
+                equals('Watch provided but no terminal was attached'),
+              ),
+            ),
+          );
         });
       });
 

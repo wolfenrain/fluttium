@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
+import 'package:fluttium_cli/src/commands/test_command/printers/printers.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_cli/src/json_decode_safely.dart';
 import 'package:fluttium_driver/fluttium_driver.dart';
@@ -36,7 +37,13 @@ class TestCommand extends Command<int> {
         _process = processManager ?? const LocalProcessManager(),
         _driver = driver ?? FluttiumDriver.new {
     argParser
-      ..addFlag('watch', abbr: 'w', help: 'Watch for file changes.')
+      ..addFlag(
+        'watch',
+        abbr: 'w',
+        help: 'Watch for file changes.',
+        negatable: false,
+      )
+      ..addFlag('ci', help: 'Run in CI mode.', negatable: false)
       ..addOption(
         'device-id',
         abbr: 'd',
@@ -88,6 +95,12 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
 
   /// Indicates whether the `--watch` flag was passed.
   bool get watch => results['watch'] as bool;
+
+  /// Indicates whether the `--ci` flag was passed.
+  ///
+  /// If `stdin.hasTerminal` is true, this will also return true as there is no
+  /// terminal available.
+  bool get ci => results['ci'] as bool || !stdin.hasTerminal;
 
   String? get _flavor => results['flavor'] as String?;
 
@@ -259,6 +272,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       processManager: _process,
     );
 
+    final printer = (ci ? CIPrinter.new : PrettyPrinter.new)(_logger);
     final stepStates = <StepState>[];
     driver.steps.listen(
       (steps) {
@@ -266,43 +280,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           ..clear()
           ..addAll(steps);
 
-        // Reset the cursor to the top of the screen and clear the screen.
-        _logger.info('''
-\u001b[0;0H\u001b[0J
-  ${styleBold.wrap(driver.userFlow.description)}
-''');
-
-        // Render the steps.
-        for (final step in steps) {
-          switch (step.status) {
-            case StepStatus.initial:
-              _logger.info('  🔲  ${step.description}');
-              break;
-            case StepStatus.running:
-              _logger.info('  ⏳  ${step.description}');
-              break;
-            case StepStatus.done:
-              _logger.info('  ✅  ${step.description}');
-              for (final file in step.files.entries) {
-                _logger.detail('Writing ${file.value.length} bytes to $file');
-                File(file.key)
-                  ..createSync(recursive: true)
-                  ..writeAsBytesSync(file.value);
-              }
-              break;
-            case StepStatus.failed:
-              _logger.info('  ❌  ${step.description}');
-              break;
-          }
-        }
-
-        _logger.info('');
-        if (watch) {
-          _logger.info('''
-  ${styleDim.wrap('Press')} r ${styleDim.wrap('to restart the test.')}
-  ${styleDim.wrap('Press')} q ${styleDim.wrap('to quit.')}''');
-        }
+        printer.print(steps, driver.userFlow, watch: watch);
       },
+      onDone: printer.done,
       onError: (Object err) {
         if (err is FatalDriverException) {
           _logger.err(' Fatal driver exception occurred: ${err.reason}');
@@ -313,6 +293,10 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
     );
 
     if (watch) {
+      if (!stdin.hasTerminal) {
+        throw UnsupportedError('Watch provided but no terminal was attached');
+      }
+
       stdin
         ..echoMode = false
         ..lineMode = false
@@ -328,7 +312,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
     await driver.run(watch: watch);
 
-    if (watch) {
+    if (watch && stdin.hasTerminal) {
       stdin
         ..lineMode = true
         ..echoMode = true;
