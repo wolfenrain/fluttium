@@ -37,6 +37,7 @@ const expectedUsage = [
       // ignore: lines_longer_than_80_chars
       '                                  Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
       '-r, --reporter                    \n'
+      // ignore: lines_longer_than_80_chars
       '          [compact]               A single line that updates dynamically.\n'
       // ignore: lines_longer_than_80_chars
       '          [expanded] (default)    A separate line for each update.\n'
