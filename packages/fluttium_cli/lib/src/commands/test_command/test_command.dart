@@ -28,9 +28,11 @@ typedef FluttiumDriverCreator = FluttiumDriver Function({
 /// Otherwise only printable ASCII characters should be used.
 bool get canUseSpecialChars => stdout.supportsAnsiEscapes;
 
-bool get hasTerminal => stdin.hasTerminal;
+/// Whether or not the stdin has a terminal and if that terminal supports ANSI
+/// escape codes.
+bool get hasAnsiTerminal => stdin.hasTerminal && canUseSpecialChars;
 
-final defaultReporter = hasTerminal
+final defaultReporter = hasAnsiTerminal
     ? 'pretty'
     : canUseSpecialChars
         ? 'compact'
