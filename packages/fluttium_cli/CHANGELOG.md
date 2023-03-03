@@ -1,3 +1,10 @@
+# 0.1.0-dev.18
+
+- fix: always use given device instead of prompting ([#195](https://github.com/wolfenrain/fluttium/issues/195))
+- feat: add shell completion ([#190](https://github.com/wolfenrain/fluttium/issues/190))
+- feat: add support for different reporters ([#196](https://github.com/wolfenrain/fluttium/issues/196))
+- chore: update `fluttium_driver` to v0.1.0-dev.3 ([#199](https://github.com/wolfenrain/fluttium/issues/199))
+
 # 0.1.0-dev.17
 
 - fix: driver configuration is not being read correctly from `fluttium.yaml` ([#182](https://github.com/wolfenrain/fluttium/issues/182))

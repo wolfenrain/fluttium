@@ -1,5 +1,6 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:cli_completion/cli_completion.dart';
 import 'package:fluttium_cli/src/commands/commands.dart';
 import 'package:fluttium_cli/src/version.dart';
 import 'package:mason/mason.dart' hide packageVersion;
@@ -17,7 +18,7 @@ const description = 'Fluttium, a user flow testing tool for Flutter.';
 /// $ fluttium --version
 /// ```
 /// {@endtemplate}
-class FluttiumCommandRunner extends CommandRunner<int> {
+class FluttiumCommandRunner extends CompletionCommandRunner<int> {
   /// {@macro fluttium_command_runner}
   FluttiumCommandRunner({
     Logger? logger,
@@ -84,6 +85,11 @@ class FluttiumCommandRunner extends CommandRunner<int> {
 
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
+    if (topLevelResults.command?.name == 'completion') {
+      await super.runCommand(topLevelResults);
+      return ExitCode.success.code;
+    }
+
     _logger
       ..detail('Argument information:')
       ..detail('  Top level options:');

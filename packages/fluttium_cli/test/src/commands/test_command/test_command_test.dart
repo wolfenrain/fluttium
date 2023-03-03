@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:fluttium_cli/src/commands/commands.dart';
+import 'package:fluttium_cli/src/commands/test_command/reporters/reporters.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
@@ -12,28 +13,36 @@ import 'package:mocktail/mocktail.dart';
 import 'package:process/process.dart';
 import 'package:test/test.dart';
 
-import '../../helpers/helpers.dart';
+import '../../../helpers/helpers.dart';
 
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
   'Run a user flow test.\n'
       '\n'
       'Usage: fluttium test <flow.yaml> [arguments]\n'
-      '-h, --help                       Print this usage information.\n'
-      '-w, --[no-]watch                 Watch for file changes.\n'
+      '-h, --help                        Print this usage information.\n'
+      '-w, --watch                       Watch for file changes.\n'
       // ignore: lines_longer_than_80_chars
-      '-d, --device-id                  Target device id or name (prefixes allowed).\n'
+      '-d, --device-id                   Target device id or name (prefixes allowed).\n'
       // ignore: lines_longer_than_80_chars
-      '    --flavor                     Build a custom app flavor as defined by platform-specific build setup.\n'
+      '    --flavor                      Build a custom app flavor as defined by platform-specific build setup.\n'
       // ignore: lines_longer_than_80_chars
-      '                                 This will be passed to the --flavor option of flutter run.\n'
+      '                                  This will be passed to the --flavor option of flutter run.\n'
       // ignore: lines_longer_than_80_chars
-      '-t, --target                     The main entry-point file of the application, as run on the device.\n'
-      '                                 (defaults to "lib/main.dart")\n'
+      '-t, --target                      The main entry-point file of the application, as run on the device.\n'
       // ignore: lines_longer_than_80_chars
-      '    --dart-define=<key=value>    Pass additional key-value pairs to the flutter run.\n'
+      '                                  (defaults to "lib/main.dart")\n'
       // ignore: lines_longer_than_80_chars
-      '                                 Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
+      '    --dart-define=<key=value>     Pass additional key-value pairs to the flutter run.\n'
+      // ignore: lines_longer_than_80_chars
+      '                                  Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
+      '-r, --reporter                    \n'
+      // ignore: lines_longer_than_80_chars
+      '          [compact]               A single line that updates dynamically.\n'
+      // ignore: lines_longer_than_80_chars
+      '          [expanded] (default)    A separate line for each update.\n'
+      // ignore: lines_longer_than_80_chars
+      '          [pretty]                A nicely formatted output that works nicely with --watch.\n'
       '\n'
       'Run "fluttium help" to see global options.'
 ];
@@ -121,12 +130,7 @@ void main() {
         () => processManager.run(
           any(
             that: equals(
-              [
-                'flutter',
-                '--no-version-check',
-                'devices',
-                '--machine',
-              ],
+              ['flutter', '--no-version-check', 'devices', '--machine'],
             ),
           ),
           runInShell: any(named: 'runInShell'),
@@ -139,6 +143,7 @@ void main() {
       when(() => argResults['watch']).thenReturn(false);
       when(() => argResults['target']).thenReturn('lib/main.dart');
       when(() => argResults['dart-define']).thenReturn(<String>[]);
+      when(() => argResults['reporter']).thenReturn('pretty');
       when(() => argResults.wasParsed(any())).thenReturn(false);
 
       pubspecFile = _MockFile();
@@ -175,6 +180,9 @@ environment:
       when(() => testFile.writeAsBytesSync(any())).thenAnswer((_) {});
 
       stdin = _MockStdin();
+      when(() => stdin.hasTerminal).thenReturn(true);
+      when(() => stdin.echoMode).thenReturn(true);
+      when(() => stdin.lineMode).thenReturn(true);
     });
 
     test(
@@ -232,6 +240,7 @@ environment:
         stepStateController.add([step]);
         await Future<void>.delayed(Duration.zero);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.success.code));
       });
@@ -255,6 +264,7 @@ environment:
         stepStateController.add([step]);
         await Future<void>.delayed(Duration.zero);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.success.code));
       });
@@ -279,6 +289,7 @@ environment:
         stepStateController.addError(FatalDriverException('fatal reason'));
         await Future<void>.delayed(Duration.zero);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.tempFail.code));
 
@@ -312,6 +323,7 @@ environment:
         stepStateController.addError('unknown reason');
         await Future<void>.delayed(Duration.zero);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.tempFail.code));
 
@@ -487,8 +499,8 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
             stepStateController.add([step]);
             await Future<void>.delayed(Duration.zero);
 
+            await stepStateController.close();
             runCompleter.complete();
-
             expect(await future, equals(ExitCode.success.code));
 
             verify(
@@ -543,8 +555,8 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([step]);
           await Future<void>.delayed(Duration.zero);
 
+          await stepStateController.close();
           runCompleter.complete();
-
           expect(await future, equals(ExitCode.success.code));
 
           verifyNever(
@@ -617,8 +629,8 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([step]);
           await Future<void>.delayed(Duration.zero);
 
+          await stepStateController.close();
           runCompleter.complete();
-
           expect(await future, equals(ExitCode.success.code));
 
           verify(
@@ -655,7 +667,6 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           await Future<void>.delayed(Duration.zero);
 
           runCompleter.complete();
-
           expect(await future, equals(ExitCode.unavailable.code));
 
           verify(
@@ -678,7 +689,27 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       });
     });
 
-    test('renders as expected for all steps', () async {
+    test('exits when unknown reporter is used', () async {
+      // Fun fact: this test is only for line coverage, command parser never
+      // allows us to pass an unknown reporter as a user of the CLI.
+      when(() => argResults['reporter']).thenReturn('unknown');
+
+      final command = TestCommand(
+        logger: logger,
+        processManager: processManager,
+        driver: _driver(driver),
+      )..testArgResults = argResults;
+
+      await runWithMocks(() async {
+        final future = command.run();
+        expect(await future, equals(ExitCode.usage.code));
+
+        verify(() => logger.err(any(that: equals('Unknown reporter: unknown'))))
+            .called(1);
+      });
+    });
+
+    test('renders using the $PrettyReporter for all steps', () async {
       final userFlow = _MockUserFlowYaml();
       when(() => userFlow.description).thenReturn('description');
       when(() => driver.userFlow).thenReturn(userFlow);
@@ -737,8 +768,306 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           () => logger.info(any(that: contains('description'))),
         ).called(4);
 
+        await stepStateController.close();
         runCompleter.complete();
         expect(await future, equals(ExitCode.tempFail.code));
+      });
+    });
+
+    group('renders using the $CompactReporter', () {
+      late Progress progress;
+
+      setUp(() {
+        final userFlow = _MockUserFlowYaml();
+        when(() => userFlow.description).thenReturn('description');
+        when(() => driver.userFlow).thenReturn(userFlow);
+        when(() => argResults['reporter']).thenReturn('compact');
+
+        progress = _MockProgress();
+        when(() => logger.progress(any())).thenReturn(progress);
+      });
+
+      test('until all done', () async {
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
+
+          stepStateController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+          verify(() => logger.progress(any(that: equals('')))).called(1);
+
+          verify(
+            () =>
+                progress.update(any(that: equals('1/3 Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController
+              .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () =>
+                progress.update(any(that: equals('1/3 Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.running),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => progress
+                .update(any(that: equals('2/3 Expect not visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.done),
+            step3.copyWith(status: StepStatus.done)
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(progress.complete).called(1);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.success.code));
+        });
+      });
+
+      test('with a failure', () async {
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
+
+          stepStateController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+          verify(() => logger.progress(any(that: equals('')))).called(1);
+
+          verify(
+            () =>
+                progress.update(any(that: equals('1/3 Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController
+              .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () =>
+                progress.update(any(that: equals('1/3 Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.running),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => progress
+                .update(any(that: equals('2/3 Expect not visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.failed),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(progress.fail).called(1);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.tempFail.code));
+        });
+      });
+
+      test('exits when a fatal exception occurred', () async {
+        when(driver.quit).thenAnswer((_) async {});
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step = StepState('Expect visible "text"');
+          stepStateController.add([step]);
+          await Future<void>.delayed(Duration.zero);
+
+          stepStateController.addError(FatalDriverException('fatal reason'));
+          await Future<void>.delayed(Duration.zero);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.tempFail.code));
+          verify(driver.quit).called(1);
+        });
+      });
+
+      test('throws exception if running with watch', () async {
+        when(() => argResults['reporter']).thenReturn('compact');
+        when(() => argResults['watch']).thenReturn(true);
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          expect(await future, equals(ExitCode.usage.code));
+
+          verify(
+            () => logger.err(
+              any(
+                that:
+                    equals('The compact reporter does not support watch mode.'),
+              ),
+            ),
+          ).called(1);
+        });
+      });
+    });
+
+    group('renders using the $ExpandedReporter', () {
+      setUp(() {
+        final userFlow = _MockUserFlowYaml();
+        when(() => userFlow.description).thenReturn('description');
+        when(() => driver.userFlow).thenReturn(userFlow);
+        when(() => argResults['reporter']).thenReturn('expanded');
+      });
+
+      test('until all done', () async {
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
+
+          stepStateController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(any(that: contains('Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController
+              .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(any(that: contains('Expect visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.running),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(any(that: contains('Expect not visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.done),
+            step3.copyWith(status: StepStatus.done),
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.success.code));
+        });
+      });
+
+      test('with a failure', () async {
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          final step1 = StepState('Expect visible "text"');
+          final step2 = StepState('Expect not visible "text"');
+          final step3 = StepState('Tap on "text"');
+
+          stepStateController.add([step1, step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          stepStateController
+              .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+          await Future<void>.delayed(Duration.zero);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.running),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(any(that: contains('Expect not visible "text"'))),
+          ).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            step2.copyWith(status: StepStatus.failed),
+            step3
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => logger.info(
+              any(that: contains(red.wrap('Expect not visible "text"'))),
+            ),
+          ).called(1);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.tempFail.code));
+        });
       });
     });
 
@@ -752,6 +1081,28 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
         when(() => stdin.listen(any())).thenAnswer((_) {
           return _MockStreamSubscription();
+        });
+      });
+
+      test('throws exception if there is no terminal', () async {
+        when(() => stdin.hasTerminal).thenReturn(false);
+
+        final command = TestCommand(
+          logger: logger,
+          processManager: processManager,
+          driver: _driver(driver),
+        )..testArgResults = argResults;
+
+        await runWithMocks(() async {
+          final future = command.run();
+
+          expect(await future, equals(ExitCode.usage.code));
+
+          verify(
+            () => logger.err(
+              any(that: equals('Watch provided but no terminal was attached.')),
+            ),
+          ).called(1);
         });
       });
 
@@ -813,6 +1164,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
             () => testFile.writeAsBytesSync(any(that: equals([1, 2, 3]))),
           ).called(1);
 
+          await stepStateController.close();
           runCompleter.complete();
           expect(await future, equals(ExitCode.tempFail.code));
 
