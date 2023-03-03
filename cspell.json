@@ -23,6 +23,7 @@
         "packages/**/*_bundle.dart"
     ],
     "words": [
+        "Ansi",
         "Appium",
         "Automator",
         "canonicalize",

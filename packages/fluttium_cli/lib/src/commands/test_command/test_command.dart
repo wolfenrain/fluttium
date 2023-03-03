@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
+import 'package:fluttium_cli/src/commands/test_command/reporters/reporters.dart';
 import 'package:fluttium_cli/src/flutter_device.dart';
 import 'package:fluttium_cli/src/json_decode_safely.dart';
 import 'package:fluttium_driver/fluttium_driver.dart';
@@ -23,6 +23,21 @@ typedef FluttiumDriverCreator = FluttiumDriver Function({
   ProcessManager? processManager,
 });
 
+/// Whether or not the current terminal supports ANSI escape codes.
+///
+/// Otherwise only printable ASCII characters should be used.
+bool get canUseSpecialChars => stdout.supportsAnsiEscapes;
+
+/// Whether or not the stdin has a terminal and if that terminal supports ANSI
+/// escape codes.
+bool get hasAnsiTerminal => stdin.hasTerminal && canUseSpecialChars;
+
+final defaultReporter = hasAnsiTerminal
+    ? 'pretty'
+    : canUseSpecialChars
+        ? 'compact'
+        : 'expanded';
+
 /// {@template test_command}
 /// `fluttium test` command which runs a [UserFlowYaml] test.
 /// {@endtemplate}
@@ -36,7 +51,12 @@ class TestCommand extends Command<int> {
         _process = processManager ?? const LocalProcessManager(),
         _driver = driver ?? FluttiumDriver.new {
     argParser
-      ..addFlag('watch', abbr: 'w', help: 'Watch for file changes.')
+      ..addFlag(
+        'watch',
+        abbr: 'w',
+        help: 'Watch for file changes.',
+        negatable: false,
+      )
       ..addOption(
         'device-id',
         abbr: 'd',
@@ -61,6 +81,21 @@ This will be passed to the --flavor option of flutter run.''',
         help: '''
 Pass additional key-value pairs to the flutter run.
 Multiple defines can be passed by repeating "--dart-define" multiple times.''',
+      )
+      ..addOption(
+        'reporter',
+        abbr: 'r',
+        defaultsTo: defaultReporter,
+        allowed: [
+          'expanded',
+          'pretty',
+          'compact',
+        ],
+        allowedHelp: {
+          'expanded': 'A separate line for each update.',
+          'compact': 'A single line that updates dynamically.',
+          'pretty': 'A nicely formatted output that works nicely with --watch.',
+        },
       );
   }
 
@@ -99,6 +134,19 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
       usageException('No flow file specified.');
     }
     return File(results.rest.first);
+  }
+
+  Reporter _getReporter(FluttiumDriver driver) {
+    switch (results['reporter']) {
+      case 'pretty':
+        return PrettyReporter(driver, logger: _logger, watch: watch);
+      case 'compact':
+        return CompactReporter(driver, logger: _logger, watch: watch);
+      case 'expanded':
+        return ExpandedReporter(driver, logger: _logger, watch: watch);
+      default:
+        throw UnsupportedError('Unknown reporter: ${results['reporter']}');
+    }
   }
 
   /// The project directory to run in.
@@ -259,83 +307,27 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       processManager: _process,
     );
 
-    final stepStates = <StepState>[];
-    driver.steps.listen(
-      (steps) {
-        stepStates
-          ..clear()
-          ..addAll(steps);
-
-        // Reset the cursor to the top of the screen and clear the screen.
-        _logger.info('''
-\u001b[0;0H\u001b[0J
-  ${styleBold.wrap(driver.userFlow.description)}
-''');
-
-        // Render the steps.
-        for (final step in steps) {
-          switch (step.status) {
-            case StepStatus.initial:
-              _logger.info('  🔲  ${step.description}');
-              break;
-            case StepStatus.running:
-              _logger.info('  ⏳  ${step.description}');
-              break;
-            case StepStatus.done:
-              _logger.info('  ✅  ${step.description}');
-              for (final file in step.files.entries) {
-                _logger.detail('Writing ${file.value.length} bytes to $file');
-                File(file.key)
-                  ..createSync(recursive: true)
-                  ..writeAsBytesSync(file.value);
-              }
-              break;
-            case StepStatus.failed:
-              _logger.info('  ❌  ${step.description}');
-              break;
-          }
-        }
-
-        _logger.info('');
-        if (watch) {
-          _logger.info('''
-  ${styleDim.wrap('Press')} r ${styleDim.wrap('to restart the test.')}
-  ${styleDim.wrap('Press')} q ${styleDim.wrap('to quit.')}''');
-        }
-      },
-      onError: (Object err) {
-        if (err is FatalDriverException) {
-          _logger.err(' Fatal driver exception occurred: ${err.reason}');
-          return driver.quit();
-        }
-        _logger.err('Unknown exception occurred: $err');
-      },
-    );
-
-    if (watch) {
-      stdin
-        ..echoMode = false
-        ..lineMode = false
-        ..listen((event) async {
-          switch (utf8.decode(event).trim()) {
-            case 'q':
-              return driver.quit();
-            case 'r':
-              return driver.restart();
-          }
-        });
+    final Reporter reporter;
+    try {
+      reporter = _getReporter(driver);
+    } catch (err) {
+      if (err is UnsupportedError) {
+        _logger.err(err.message);
+        return ExitCode.usage.code;
+      }
+      rethrow;
     }
+
+    final steps = <StepState>[];
+    driver.steps.map((s) => (steps..clear())..addAll(s)).listen(
+          reporter.report,
+          onDone: reporter.done,
+          onError: reporter.error,
+        );
 
     await driver.run(watch: watch);
 
-    if (watch) {
-      stdin
-        ..lineMode = true
-        ..echoMode = true;
-    }
-
-    if (!stepStates.every((s) => s.status == StepStatus.done) ||
-        stepStates.isEmpty) {
+    if (!steps.every((s) => s.status == StepStatus.done) || steps.isEmpty) {
       return ExitCode.tempFail.code;
     }
 
