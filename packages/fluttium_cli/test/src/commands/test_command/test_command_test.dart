@@ -181,6 +181,8 @@ environment:
 
       stdin = _MockStdin();
       when(() => stdin.hasTerminal).thenReturn(true);
+      when(() => stdin.echoMode).thenReturn(true);
+      when(() => stdin.lineMode).thenReturn(true);
     });
 
     test(
