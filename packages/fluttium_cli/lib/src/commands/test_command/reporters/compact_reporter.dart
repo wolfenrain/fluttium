@@ -4,8 +4,11 @@ import 'package:mason/mason.dart';
 
 class CompactReporter extends Reporter {
   CompactReporter(super.driver, {required super.watch, required this.logger}) {
-    if (!watch) return;
-    throw UnsupportedError('The compact reporter does not support watch mode.');
+    if (watch) {
+      throw UnsupportedError(
+        'The compact reporter does not support watch mode.',
+      );
+    }
   }
 
   final Logger logger;

@@ -14,6 +14,9 @@ class PrettyReporter extends Reporter {
       throw UnsupportedError('Watch provided but no terminal was attached.');
     }
 
+    _echoMode = stdin.echoMode;
+    _lineMode = stdin.lineMode;
+
     stdin
       ..echoMode = false
       ..lineMode = false
@@ -28,6 +31,9 @@ class PrettyReporter extends Reporter {
   }
 
   final Logger logger;
+
+  late final bool _echoMode;
+  late final bool _lineMode;
 
   @override
   void report(List<StepState> steps) {
@@ -73,8 +79,8 @@ class PrettyReporter extends Reporter {
   void done() {
     if (watch && stdin.hasTerminal) {
       stdin
-        ..lineMode = true
-        ..echoMode = true;
+        ..lineMode = _lineMode
+        ..echoMode = _echoMode;
     }
   }
 
