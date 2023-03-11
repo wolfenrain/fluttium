@@ -4,7 +4,7 @@ import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('DriverConfiguration', () {
+  group('$DriverConfiguration', () {
     test('can be instantiated', () {
       final driver = DriverConfiguration(
         target: 'lib/main_development.dart',
