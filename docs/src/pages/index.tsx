@@ -96,7 +96,7 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: 'Cross-platform',
+    title: 'Multi-platform',
     description: (
       <>
         Fluttium is built on top of <a href="https://flutter.dev/">Flutter</a>,
