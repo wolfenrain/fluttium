@@ -100,8 +100,8 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         Fluttium is built on top of <a href="https://flutter.dev/">Flutter</a>,
-        so it can run on any platform that Flutter supports and is able to
-        automatically wait until an action is completed.
+        so it can run on any platform that contains a Flutter embedder. Write
+        once, run anywhere.
       </>
     ),
   },
