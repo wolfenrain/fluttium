@@ -170,7 +170,7 @@ void main() {
       expect(Alias(['test'], #testing), equals(Alias(['test'], #testing)));
     });
 
-    test('equal hascode', () {
+    test('equal hash code', () {
       final alias = Alias(['test'], #testing);
       expect(
         alias.hashCode,
