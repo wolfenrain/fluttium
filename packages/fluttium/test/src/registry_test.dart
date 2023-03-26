@@ -1,3 +1,6 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttium/fluttium.dart';
 
@@ -57,6 +60,24 @@ void main() {
         expect(registry.actions['action']!.shortHand, equals(#key));
       });
 
+      test('registers a new action with aliases', () {
+        registry.registerAction(
+          'action',
+          _TestActionWithArguments.new,
+          aliases: [
+            Alias(['withKey'], #key)
+          ],
+        );
+
+        expect(registry.actions.containsKey('action'), isTrue);
+        expect(
+          registry.actions['action']!.aliases,
+          equals([
+            Alias(['withKey'], #key)
+          ]),
+        );
+      });
+
       test('throws if the action is already registered', () {
         registry.registerAction('action', _TestAction.new);
 
@@ -104,6 +125,25 @@ void main() {
         );
       });
 
+      test('resolve action with aliases', () {
+        registry.registerAction(
+          'action',
+          _TestActionWithArguments.new,
+          aliases: [
+            Alias(['withKey'], #key)
+          ],
+        );
+
+        expect(
+          registry.getAction('action', {'withKey': 'value'}),
+          isA<_TestActionWithArguments>().having(
+            (action) => action.key,
+            'key',
+            'value',
+          ),
+        );
+      });
+
       test('throws if the action is not registered', () {
         expect(
           () => registry.getAction('action', null),
@@ -121,6 +161,20 @@ void main() {
             throwsException,
           );
         },
+      );
+    });
+  });
+
+  group('Alias', () {
+    test('are equal', () {
+      expect(Alias(['test'], #testing), equals(Alias(['test'], #testing)));
+    });
+
+    test('equal hash code', () {
+      final alias = Alias(['test'], #testing);
+      expect(
+        alias.hashCode,
+        equals(Object.hashAll([alias.key, alias.aliases])),
       );
     });
   });
