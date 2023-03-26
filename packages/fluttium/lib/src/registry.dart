@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:fluttium/fluttium.dart';
 
 /// {@template registry}
@@ -21,6 +22,40 @@ class Registry {
         ActionRegistration(ExpectNotVisible.new, shortHand: #text),
     'takeScreenshot': ActionRegistration(TakeScreenshot.new, shortHand: #path),
     'wait': ActionRegistration(Wait.new, shortHand: #milliseconds),
+    'scroll': ActionRegistration(
+      ({
+        required String within,
+        required String until,
+        String direction = 'down',
+        int? timeout,
+      }) =>
+          Scroll(
+        within: within,
+        until: until,
+        direction: AxisDirection.values.firstWhere((e) => e.name == direction),
+        timeout: timeout,
+      ),
+      aliases: const [
+        Alias(['in'], #within)
+      ],
+    ),
+    'swipe': ActionRegistration(
+      ({
+        required String within,
+        required String until,
+        String direction = 'left',
+        int? timeout,
+      }) =>
+          Swipe(
+        within: within,
+        until: until,
+        direction: AxisDirection.values.firstWhere((e) => e.name == direction),
+        timeout: timeout,
+      ),
+      aliases: const [
+        Alias(['in'], #within)
+      ],
+    ),
   };
 
   /// Map of all the action that are registered.

@@ -162,6 +162,26 @@ void main() {
           );
         },
       );
+
+      group('resolve hand-made methods', () {
+        test('$Scroll', () {
+          final action = registry.getAction('scroll', {
+            'within': 'within',
+            'until': 'until',
+          });
+
+          expect(action, isA<Scroll>());
+        });
+
+        test('$Swipe', () {
+          final action = registry.getAction('swipe', {
+            'within': 'within',
+            'until': 'until',
+          });
+
+          expect(action, isA<Swipe>());
+        });
+      });
     });
   });
 
