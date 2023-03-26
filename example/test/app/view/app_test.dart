@@ -72,7 +72,7 @@ void main() {
     });
 
     testWidgets(
-        'navigates to $ScrollableListPage when Scrollable List button is tapped',
+        '''navigates to $ScrollableListPage when Scrollable List button is tapped''',
         (tester) async {
       await tester.pumpWidget(const App(environment: 'Testing'));
       await tester.tap(find.text('Scrollable List'));
