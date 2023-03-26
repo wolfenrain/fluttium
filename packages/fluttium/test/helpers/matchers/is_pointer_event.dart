@@ -12,7 +12,7 @@ TypeMatcher<T> isPointerEvent<T extends PointerEvent>({
   return matcher;
 }
 
-Matcher isPointerScollEvent({
+Matcher isPointerScrollEvent({
   required Offset scrollDelta,
   Offset? position,
 }) {

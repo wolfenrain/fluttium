@@ -114,7 +114,7 @@ void main() {
       verify(
         () => tester.emitPointerEvent(
           any(
-            that: isPointerScollEvent(
+            that: isPointerScrollEvent(
               position: Offset.zero,
               scrollDelta: const Offset(0, 40),
             ),
@@ -171,7 +171,7 @@ void main() {
         verify(
           () => tester.emitPointerEvent(
             any(
-              that: isPointerScollEvent(
+              that: isPointerScrollEvent(
                 position: Offset.zero,
                 scrollDelta: const Offset(0, 40),
               ),
@@ -188,7 +188,7 @@ void main() {
         verify(
           () => tester.emitPointerEvent(
             any(
-              that: isPointerScollEvent(
+              that: isPointerScrollEvent(
                 position: Offset.zero,
                 scrollDelta: const Offset(0, -40),
               ),
@@ -208,7 +208,7 @@ void main() {
         verify(
           () => tester.emitPointerEvent(
             any(
-              that: isPointerScollEvent(
+              that: isPointerScrollEvent(
                 position: Offset.zero,
                 scrollDelta: const Offset(-40, 0),
               ),
@@ -228,7 +228,7 @@ void main() {
         verify(
           () => tester.emitPointerEvent(
             any(
-              that: isPointerScollEvent(
+              that: isPointerScrollEvent(
                 position: Offset.zero,
                 scrollDelta: const Offset(40, 0),
               ),
