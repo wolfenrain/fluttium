@@ -1,4 +1,4 @@
-description: Testing the progress page
+description: Testing the simple menu page
 ---
 # Validate that the app page is displayed
 - expectEnvironmentText:
