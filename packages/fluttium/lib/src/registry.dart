@@ -27,12 +27,14 @@ class Registry {
         required String within,
         required String until,
         String direction = 'down',
+        double speed = 40,
         int? timeout,
       }) =>
           Scroll(
         within: within,
         until: until,
         direction: AxisDirection.values.firstWhere((e) => e.name == direction),
+        speed: speed,
         timeout: timeout,
       ),
       aliases: const [
@@ -44,12 +46,14 @@ class Registry {
         required String within,
         required String until,
         String direction = 'left',
+        double speed = 40,
         int? timeout,
       }) =>
           Swipe(
         within: within,
         until: until,
         direction: AxisDirection.values.firstWhere((e) => e.name == direction),
+        speed: speed,
         timeout: timeout,
       ),
       aliases: const [

@@ -11,6 +11,7 @@ import 'package:fluttium/src/actions/scroll.dart';
 ///     until: "Your List Item"
 ///     direction: right # Defaults to left
 ///     timeout: 5000 # Defaults to 10 seconds
+///     speed: 10 # Defaults to 40
 /// ```
 /// {@endtemplate}
 class Swipe extends Scroll {
@@ -20,6 +21,7 @@ class Swipe extends Scroll {
     required super.until,
     super.direction = AxisDirection.left,
     super.timeout,
+    super.speed,
   }) {
     if ([AxisDirection.down, AxisDirection.up].contains(direction)) {
       throw UnsupportedError(

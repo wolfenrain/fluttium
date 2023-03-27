@@ -13,6 +13,7 @@ import 'package:fluttium/fluttium.dart';
 ///     until: "Your List Item"
 ///     direction: up # Defaults to down
 ///     timeout: 5000 # Defaults to 10 seconds
+///     speed: 10 # Defaults to 40
 /// ```
 /// {@endtemplate}
 class Scroll extends Action {
@@ -20,6 +21,7 @@ class Scroll extends Action {
   Scroll({
     required this.within,
     required this.until,
+    this.speed = 40,
     int? timeout,
     this.direction = AxisDirection.down,
   }) : timeout = Duration(milliseconds: timeout ?? 100000);
@@ -32,6 +34,9 @@ class Scroll extends Action {
 
   /// The direction of the scrolling.
   final AxisDirection direction;
+
+  /// The scrolling speed.
+  final double speed;
 
   /// The time it will try to keep scrolling until it found the node.
   final Duration timeout;
@@ -46,16 +51,16 @@ class Scroll extends Action {
     final Offset scrollDelta;
     switch (direction) {
       case AxisDirection.up:
-        scrollDelta = const Offset(0, -40);
+        scrollDelta = Offset(0, -speed);
         break;
       case AxisDirection.right:
-        scrollDelta = const Offset(40, 0);
+        scrollDelta = Offset(speed, 0);
         break;
       case AxisDirection.down:
-        scrollDelta = const Offset(0, 40);
+        scrollDelta = Offset(0, speed);
         break;
       case AxisDirection.left:
-        scrollDelta = const Offset(-40, 0);
+        scrollDelta = Offset(-speed, 0);
         break;
     }
 
