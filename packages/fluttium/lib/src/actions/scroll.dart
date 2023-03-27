@@ -12,7 +12,7 @@ import 'package:fluttium/fluttium.dart';
 ///     within: "Your List View"
 ///     until: "Your List Item"
 ///     direction: up # Defaults to down
-///     timeout: 5000 # Defaults to 10 seconds
+///     timeout: 5000 # In milliseconds, default is 10 seconds
 ///     speed: 10 # Defaults to 40
 /// ```
 /// {@endtemplate}

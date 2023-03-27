@@ -10,7 +10,7 @@ import 'package:fluttium/src/actions/scroll.dart';
 ///     within: "Your List View"
 ///     until: "Your List Item"
 ///     direction: right # Defaults to left
-///     timeout: 5000 # Defaults to 10 seconds
+///     timeout: 5000 # In milliseconds, default is 10 seconds
 ///     speed: 10 # Defaults to 40
 /// ```
 /// {@endtemplate}
