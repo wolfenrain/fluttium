@@ -1,0 +1,17 @@
+description: Testing the scrollable list page
+---
+# Validate that the app page is displayed
+- expectEnvironmentText:
+# Go to the scrollable list page
+- pressOn: "Scrollable List"
+# Validate that the scrollable list page is displayed and the items are visible
+- expectVisible: "Scrollable List"
+- expectVisible: "List item \\d+"
+# Scroll down to list item 100
+- scroll: 
+    in: "list_view"
+    until: "List item 99"
+- expectVisible: "List item 9\\d"
+# Return to the app page
+- pressOn: "Back"
+- expectEnvironmentText:

@@ -42,8 +42,29 @@ The short-hand syntax for this action will assume you are using the text search:
 - longPressOn: 'Your Text'
 ```
 
-## Drag gestures
+## Scrolling and Swiping
 
-:::info
-This is not yet implemented.
-:::
+To scroll in any direction or swipe horizontally you can use the `scroll` and `swipe` actions
+respectively.
+
+The `scroll` action YAML syntax is as followed:
+
+```yaml
+- scroll:
+    within: 'Your List View' # The widget to scroll in, can be a regex pattern
+    until: 'Your List Item' # The widget to scroll to, can be a regex pattern
+    direction: up # Defaults to down, can be left, right or top as well
+    timeout: 5000 # In milliseconds, default is 10 seconds
+    speed: 10 # Defaults to 40
+```
+
+The `swipe` action YAML syntax is as followed:
+
+```yaml
+- swipe:
+    within: 'Your List View' # The widget to scroll in, can be a regex pattern
+    until: 'Your List Item' # The widget to scroll to, can be a regex pattern
+    direction: right # Defaults to left, can only be left or right
+    timeout: 5000 # In milliseconds, default is 10 seconds
+    speed: 10 # Defaults to 40
+```
