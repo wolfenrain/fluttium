@@ -1,3 +1,7 @@
+# 0.1.0-dev.3
+
+- feat: implement scroll and swipe actions ([#219](https://github.com/wolfenrain/fluttium/issues/219))
+
 # 0.1.0-dev.2
 
 - feat: implement a `Wait` action ([#186](https://github.com/wolfenrain/fluttium/issues/186))
