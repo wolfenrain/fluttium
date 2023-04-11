@@ -14,5 +14,13 @@ Taking screenshots can be done through the `takeScreenshot` action. This action 
 The full YAML syntax of this action is as followed:
 
 ```yaml
+- takeScreenshot:
+    path: 'path/to/screenshot.png'
+    pixelRatio: 1.5 # Defaults to device pixel ration.
+```
+
+The short-hand syntax for this action is:
+
+```yaml
 - takeScreenshot: 'path/to/screenshot.png'
 ```
