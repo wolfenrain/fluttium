@@ -108,3 +108,22 @@ html[data-theme='dark'] .navbar-github-icon:before {
     var(--ifm-color-primary) 100%
   );
 }
+
+
+.navbar-discord-icon:hover {
+  opacity: 0.6;
+}
+
+.navbar-discord-icon:before {
+  content: '';
+  width: 24px;
+  height: 24px;
+  display: flex;
+  background: url('../../static/img/discord_black.svg') no-repeat;
+  background-size: 24px;
+}
+
+html[data-theme='dark'] .navbar-discord-icon:before {
+  background: url('../../static/img/discord_fill.svg') no-repeat;
+  background-size: 24px;
+}
