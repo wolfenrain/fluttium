@@ -16,7 +16,7 @@ The full YAML syntax of this action is as followed:
 ```yaml
 - takeScreenshot:
     path: 'path/to/screenshot.png'
-    pixelRatio: 1.5 # Defaults to device pixel ration.
+    pixelRatio: 1.5 # Defaults to device pixel ratio.
 ```
 
 The short-hand syntax for this action is:
