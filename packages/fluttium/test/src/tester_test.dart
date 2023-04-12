@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:ui';
+
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter/material.dart' hide Action;
-import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart' hide ViewConfiguration;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttium/fluttium.dart';
@@ -36,14 +38,18 @@ class _MockSemanticsData extends Mock
     with DiagnosticableToStringMixin
     implements SemanticsData {}
 
+class _MockSingletonFlutterWindow extends Mock
+    implements SingletonFlutterWindow {}
+
 void main() {
-  group('Tester', () {
+  group('$Tester', () {
     late Tester tester;
     late Action action;
     late WidgetsBinding binding;
     late Emitter emitter;
     late Registry registry;
     late BinaryMessenger binaryMessenger;
+    late SingletonFlutterWindow window;
 
     setUp(() {
       action = _MockAction();
@@ -63,6 +69,21 @@ void main() {
       ).thenAnswer((_) async {});
       when(() => emitter.done(any())).thenAnswer((_) async {});
       when(() => emitter.fatal(any())).thenAnswer((_) async {});
+
+      window = _MockSingletonFlutterWindow();
+      when(() => window.physicalSize).thenReturn(Size(800, 600));
+      when(() => window.devicePixelRatio).thenReturn(1);
+      when(() => window.platformDispatcher)
+          .thenReturn(PlatformDispatcher.instance);
+      when(() => window.padding).thenReturn(WindowPadding.zero);
+      when(() => window.viewPadding).thenReturn(WindowPadding.zero);
+      when(() => window.viewInsets).thenReturn(WindowPadding.zero);
+      when(() => window.systemGestureInsets).thenReturn(WindowPadding.zero);
+      when(() => window.padding).thenReturn(WindowPadding.zero);
+      when(() => window.viewConfiguration).thenReturn(ViewConfiguration());
+      when(() => window.displayFeatures).thenReturn([]);
+
+      when(() => binding.window).thenReturn(window);
     });
 
     setUpAll(() {
@@ -75,7 +96,17 @@ void main() {
       expect(Tester(binding, registry), isNotNull);
     });
 
-    group('compute', () {
+    test('retrieves correct media query information', () {
+      final mediaQuery = tester.mediaQuery;
+
+      expect(mediaQuery.devicePixelRatio, equals(1));
+      expect(mediaQuery.size, equals(Size(800, 600)));
+      expect(mediaQuery.padding, equals(EdgeInsets.zero));
+      expect(mediaQuery.viewPadding, equals(EdgeInsets.zero));
+      expect(mediaQuery.viewInsets, equals(EdgeInsets.zero));
+    });
+
+    group('convert', () {
       late List<UserFlowStep> steps;
 
       setUp(() {

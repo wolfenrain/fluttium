@@ -3,6 +3,7 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttium/fluttium.dart';
@@ -13,7 +14,7 @@ import '../../helpers/helpers.dart';
 class _MockImage extends Mock implements Image {}
 
 void main() {
-  group('TakeScreenshot', () {
+  group('$TakeScreenshot', () {
     late Tester tester;
     late RenderObject renderObject;
     late RenderRepaintBoundary renderRepaintBoundary;
@@ -22,6 +23,7 @@ void main() {
     setUp(() {
       tester = MockTester();
       when(() => tester.storeFile(any(), any())).thenAnswer((_) async {});
+      when(() => tester.mediaQuery).thenReturn(MediaQueryData());
 
       renderObject = MockRenderObject();
 
@@ -68,6 +70,7 @@ void main() {
           Uint8List.fromList([1, 2, 3, 4]),
         ),
       ).called(1);
+      verify(() => tester.mediaQuery).called(1);
     });
 
     test('stops early if no repaint boundary was found', () async {
@@ -93,6 +96,7 @@ void main() {
           Uint8List.fromList([1, 2, 3, 4]),
         ),
       );
+      verifyNever(() => tester.mediaQuery);
     });
 
     test('Readable representation', () {

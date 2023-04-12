@@ -22,6 +22,9 @@ class Tester {
 
   SemanticsOwner get _semanticsOwner => _binding.pipelineOwner.semanticsOwner!;
 
+  /// The current screen's media query information.
+  MediaQueryData get mediaQuery => MediaQueryData.fromWindow(_binding.window);
+
   /// Converts the [steps] into a list of executable actions.
   Future<List<Future<void> Function()>> convert(
     List<UserFlowStep> steps,
