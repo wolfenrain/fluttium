@@ -200,7 +200,10 @@ environment:
       }),
     );
 
-    Future<void> runWithMocks(Future<void> Function() callback) async {
+    Future<void> runWithMocks(
+      Future<void> Function() callback, {
+      Map<String, File> customFiles = const {},
+    }) async {
       await IOOverrides.runZoned(
         callback,
         createFile: (path) {
@@ -212,6 +215,9 @@ environment:
             return targetFile;
           } else if (path.endsWith('test_file')) {
             return testFile;
+          }
+          if (customFiles.containsKey(path)) {
+            return customFiles[path]!;
           }
           throw UnimplementedError(path);
         },
@@ -707,6 +713,66 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         verify(() => logger.err(any(that: equals('Unknown reporter: unknown'))))
             .called(1);
       });
+    });
+
+    test('stores received files', () async {
+      final userFlow = _MockUserFlowYaml();
+      when(() => userFlow.description).thenReturn('description');
+      when(() => driver.userFlow).thenReturn(userFlow);
+
+      final receivedFile = _MockFile();
+      when(() => receivedFile.createSync(recursive: any(named: 'recursive')))
+          .thenAnswer((invocation) {});
+      when(() => receivedFile.writeAsBytesSync(any()))
+          .thenAnswer((invocation) {});
+
+      final command = TestCommand(
+        logger: logger,
+        processManager: processManager,
+        driver: _driver(driver),
+      )..testArgResults = argResults;
+
+      await runWithMocks(
+        () async {
+          final future = command.run();
+
+          final step = StepState('Storing file: "file.txt"');
+
+          stepStateController.add([step]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(() => logger.info('  🔲  Storing file: "file.txt"')).called(1);
+
+          stepStateController.add([
+            step.copyWith(
+              status: StepStatus.done,
+              files: {
+                'file.txt': [1, 2, 3]
+              },
+            )
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(() => logger.detail('Writing 3 bytes to "file.txt"'))
+              .called(1);
+          verify(() => logger.info('  ✅  Storing file: "file.txt"')).called(1);
+          verify(
+            () => receivedFile.createSync(
+              recursive: any(named: 'recursive', that: isTrue),
+            ),
+          ).called(1);
+          verify(
+            () => receivedFile.writeAsBytesSync(any(that: equals([1, 2, 3]))),
+          ).called(1);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.success.code));
+        },
+        customFiles: {
+          'file.txt': receivedFile,
+        },
+      );
     });
 
     test('renders using the $PrettyReporter for all steps', () async {
