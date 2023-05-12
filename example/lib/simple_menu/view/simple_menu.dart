@@ -32,9 +32,9 @@ class _SimpleMenuPageState extends State<SimpleMenuPage> {
           onLongPress: () {
             showMenu(
               items: [
-                PopupMenuItem<void>(
+                const PopupMenuItem<void>(
                   child: Row(
-                    children: const [Text('Menu Item 1')],
+                    children: [Text('Menu Item 1')],
                   ),
                 )
               ],

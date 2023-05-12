@@ -7,12 +7,12 @@ issue_tracker: https://github.com/wolfenrain/fluttium/issues
 documentation: https://fluttium.dev/docs/why-fluttium
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   equatable: ^2.0.5
-  fluttium_interfaces: ^0.1.0-dev.2
-  fluttium_protocol: ^0.1.0-dev.1
+  fluttium_interfaces: ^0.1.0
+  fluttium_protocol: ^0.1.0
   mason: ^0.1.0-dev.46
   meta: ^1.8.0
   path: ^1.8.3

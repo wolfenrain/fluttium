@@ -57,8 +57,6 @@ class _MockProgress extends Mock implements Progress {}
 
 class _MockProcessManager extends Mock implements ProcessManager {}
 
-class _MockProcessResult extends Mock implements ProcessResult {}
-
 class _MockArgResults extends Mock implements ArgResults {}
 
 class _MockFile extends Mock implements File {}
@@ -115,8 +113,9 @@ void main() {
 
       processManager = _MockProcessManager();
 
-      flutterDevicesResult = _MockProcessResult();
-      when(() => flutterDevicesResult.stdout).thenReturn(
+      flutterDevicesResult = ProcessResult(
+        0,
+        0,
         json.encode([
           {
             'name': 'macOS',
@@ -125,6 +124,7 @@ void main() {
             'targetPlatform': 'darwin',
           }
         ]),
+        '',
       );
       when(
         () => processManager.run(
@@ -472,7 +472,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         const MapEntry('windows', 'windows'),
         const MapEntry('linux', 'linux'),
       ]) {
-        when(() => flutterDevicesResult.stdout).thenReturn(
+        flutterDevicesResult = ProcessResult(
+          0,
+          0,
           json.encode([
             {
               'name': platform.value,
@@ -481,6 +483,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
               'targetPlatform': platform.value,
             }
           ]),
+          '',
         );
 
         // Recreate the controller
@@ -530,7 +533,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       test('run on specified device', () async {
         when(() => argResults['device-id']).thenReturn('macos');
 
-        when(() => flutterDevicesResult.stdout).thenReturn(
+        flutterDevicesResult = ProcessResult(
+          0,
+          0,
           json.encode([
             {
               'name': 'macOS',
@@ -545,6 +550,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
               'targetPlatform': 'ios',
             }
           ]),
+          '',
         );
 
         final command = TestCommand(
@@ -580,7 +586,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       });
 
       test('prompts user which device to run on', () async {
-        when(() => flutterDevicesResult.stdout).thenReturn(
+        flutterDevicesResult = ProcessResult(
+          0,
+          0,
           json.encode([
             {
               'name': 'macOS',
@@ -595,6 +603,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
               'targetPlatform': 'ios',
             }
           ]),
+          '',
         );
 
         final command = TestCommand(
@@ -656,7 +665,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       });
 
       test('exits early if no devices are found', () async {
-        when(() => flutterDevicesResult.stdout).thenReturn(json.encode([]));
+        flutterDevicesResult = ProcessResult(0, 0, json.encode([]), '');
 
         final command = TestCommand(
           logger: logger,
