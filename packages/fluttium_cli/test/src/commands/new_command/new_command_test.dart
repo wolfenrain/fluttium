@@ -79,7 +79,6 @@ void main() {
       final testDir = Directory(
         path.join(Directory.current.path, 'action'),
       )..createSync(recursive: true);
-      final originalPath = Directory.current.path;
       Directory.current = testDir.path;
 
       final result = await commandRunner.run(
@@ -112,15 +111,12 @@ void main() {
           ),
         ),
       );
-
-      Directory.current = originalPath;
     });
 
     test('creates a new action', () async {
       final testDir = Directory(
         path.join(Directory.current.path, 'action'),
       )..createSync(recursive: true);
-      final originalPath = Directory.current.path;
       Directory.current = testDir.path;
 
       final result = await commandRunner.run(['new', 'action', 'my_action']);
@@ -141,14 +137,12 @@ void main() {
         () => generateProgress
             .complete(any(that: equals('Generated a new action in "."'))),
       );
-      Directory.current = originalPath;
     });
 
     test('creates a new flow', () async {
       final testDir = Directory(
         path.join(Directory.current.path, 'flow'),
       )..createSync(recursive: true);
-      final originalPath = Directory.current.path;
       Directory.current = testDir.path;
 
       final result = await commandRunner.run(['new', 'flow', 'my_flow']);
@@ -169,7 +163,6 @@ void main() {
         () => generateProgress
             .complete(any(that: equals('Generated a new flow in "."'))),
       );
-      Directory.current = originalPath;
     });
   });
 }
