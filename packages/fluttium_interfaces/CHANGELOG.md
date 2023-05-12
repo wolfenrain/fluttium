@@ -1,3 +1,7 @@
+# 0.1.0
+
+- chore: bump dart version to 3.0.0 ([#250](https://github.com/wolfenrain/fluttium/issues/250))
+
 # 0.1.0-dev.2
 
 - feat: use snake case syntax for driver configuration ([#178](https://github.com/wolfenrain/fluttium/issues/178))
