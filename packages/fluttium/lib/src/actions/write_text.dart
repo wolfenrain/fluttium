@@ -36,7 +36,7 @@ class WriteText extends Action {
       selection: TextSelection.collapsed(offset: fullText.length),
     );
 
-    await tester.emitPlatformMessage(
+    tester.emitPlatformMessage(
       SystemChannels.textInput.name,
       SystemChannels.textInput.codec.encodeMethodCall(
         MethodCall(
@@ -50,7 +50,7 @@ class WriteText extends Action {
   @override
   Future<bool> execute(Tester tester) async {
     TextInput.setInputControl(_textInputController);
-    await tester.emitPlatformMessage(
+    tester.emitPlatformMessage(
       SystemChannels.textInput.name,
       SystemChannels.textInput.codec.encodeMethodCall(
         const MethodCall('TextInputClient.requestExistingInputState'),
