@@ -113,8 +113,9 @@ void main() {
 
       processManager = _MockProcessManager();
 
-      flutterDevicesResult = ProcessResult(0, 0, '', '');
-      when(() => flutterDevicesResult.stdout).thenReturn(
+      flutterDevicesResult = ProcessResult(
+        0,
+        0,
         json.encode([
           {
             'name': 'macOS',
@@ -123,6 +124,7 @@ void main() {
             'targetPlatform': 'darwin',
           }
         ]),
+        '',
       );
       when(
         () => processManager.run(
