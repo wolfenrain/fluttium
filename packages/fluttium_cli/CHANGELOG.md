@@ -1,5 +1,6 @@
 # 0.1.0-dev.19
 
+- chore: bump `pub_updater` from 0.2.4 to 0.3.0 in /packages/fluttium_cli ([#231](https://github.com/wolfenrain/fluttium/issues/231))
 - fix: `expanded` reporter not storing screenshots ([#243](https://github.com/wolfenrain/fluttium/issues/243))
 
 # 0.1.0-dev.18
