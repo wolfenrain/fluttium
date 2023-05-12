@@ -1,3 +1,7 @@
+# 0.1.0-dev.19
+
+- fix: `expanded` reporter not storing screenshots ([#243](https://github.com/wolfenrain/fluttium/issues/243))
+
 # 0.1.0-dev.18
 
 - fix: always use given device instead of prompting ([#195](https://github.com/wolfenrain/fluttium/issues/195))
