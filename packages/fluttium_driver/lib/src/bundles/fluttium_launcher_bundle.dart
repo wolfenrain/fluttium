@@ -8,7 +8,7 @@ final fluttiumLauncherBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": ".{{runner_id}}_launcher.dart",
       "data":
-          "aW1wb3J0ICdwYWNrYWdlOnt7e3Byb2plY3RfbmFtZX19fS97e3t0YXJnZXR9fX0nIGFzIGFwcDsKaW1wb3J0ICdwYWNrYWdlOmZsdXR0ZXIvbWF0ZXJpYWwuZGFydCc7CgppbXBvcnQgJ3BhY2thZ2U6Zmx1dHRpdW1fdGVzdF9ydW5uZXIvZmx1dHRpdW1fdGVzdF9ydW5uZXIuZGFydCcgYXMgdGVzdF9ydW5uZXI7Cgp2b2lkIG1haW4oKSBhc3luYyB7CiAgZmluYWwgYmluZGluZyA9IFdpZGdldHNGbHV0dGVyQmluZGluZy5lbnN1cmVJbml0aWFsaXplZCgpCiAgICAuLnNldFNlbWFudGljc0VuYWJsZWQodHJ1ZSk7CgogIGF3YWl0IEZ1dHVyZShhcHAubWFpbik7CiAgYXdhaXQgYmluZGluZy5lbmRPZkZyYW1lOwogIGF3YWl0IHRlc3RfcnVubmVyLnJ1bihiaW5kaW5nKTsKfQo=",
+          "aW1wb3J0ICdkYXJ0OmFzeW5jJzsKCmltcG9ydCAncGFja2FnZTp7e3twcm9qZWN0X25hbWV9fX0ve3t7dGFyZ2V0fX19JyBhcyBhcHA7CmltcG9ydCAncGFja2FnZTpmbHV0dGVyL21hdGVyaWFsLmRhcnQnOwoKaW1wb3J0ICdwYWNrYWdlOmZsdXR0aXVtX3Rlc3RfcnVubmVyL2ZsdXR0aXVtX3Rlc3RfcnVubmVyLmRhcnQnIGFzIHRlc3RfcnVubmVyOwoKdm9pZCBtYWluKCkgYXN5bmMgewogIGF3YWl0IEZ1dHVyZShhcHAubWFpbik7CgogIHNjaGVkdWxlTWljcm90YXNrKCgpID0+IHRlc3RfcnVubmVyLnJ1bihXaWRnZXRzQmluZGluZy5pbnN0YW5jZSkpOwp9Cg==",
       "type": "text"
     }
   ],
