@@ -1,6 +1,6 @@
 name: fluttium_action
 description: Generate a new Fluttium action.
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/wolfenrain/fluttium
 
 environment:
