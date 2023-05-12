@@ -726,6 +726,13 @@ name: project_name
         isA<VersionConstraint>(),
       );
     });
+
+    test('creates a Flutter version constraints correctly', () {
+      expect(
+        FluttiumDriver.flutterVersionConstraint,
+        isA<VersionConstraint>(),
+      );
+    });
   });
 }
 
