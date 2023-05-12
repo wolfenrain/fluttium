@@ -35,8 +35,7 @@ void Function() withRunner(
     Logger logger,
     List<String> printLogs,
     ProcessManager processManager,
-  )
-      runnerFn,
+  ) runnerFn,
 ) {
   return _overridePrint((printLogs) async {
     final logger = _MockLogger();
