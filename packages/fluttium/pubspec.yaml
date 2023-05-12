@@ -14,8 +14,8 @@ dependencies:
   clock: ^1.1.1
   flutter:
     sdk: flutter
-  fluttium_interfaces: ^0.1.0-dev.1
-  fluttium_protocol: ^0.1.0-dev.1
+  fluttium_interfaces: ^0.1.0
+  fluttium_protocol: ^0.1.0
 
 dev_dependencies:
   fake_async: ^1.3.1
