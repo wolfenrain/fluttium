@@ -33,7 +33,7 @@ void main() {
     late Logger logger;
     late FluttiumCommandRunner commandRunner;
     late ProcessManager processManager;
-    var flutterVersion = '3.10.0';
+    var flutterVersion = FluttiumDriver.flutterVersionConstraint.min.toString();
 
     setUp(() {
       pubUpdater = MockPubUpdater();
