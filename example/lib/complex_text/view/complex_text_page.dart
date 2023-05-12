@@ -22,11 +22,11 @@ class ComplexTextView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Complex Text')),
-      body: Center(
+      body: const Center(
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8),
           child: Column(
-            children: const [
+            children: [
               Text('Simple text'),
               Text('Text with regexp syntax: (15) [a-z]'),
               Text('Text with special characters like: m², m³, m/s²'),
