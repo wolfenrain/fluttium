@@ -41,7 +41,7 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3tuYW1lLnNuYWtlQ2FzZSgpfX0gCmRlc2NyaXB0aW9uOiB7e3tkZXNjcmlwdGlvbn19fQp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIGZsdXR0aXVtOiBee3tmbHV0dGl1bVZlcnNpb259fQoKZGV2X2RlcGVuZGVuY2llczoKICBmbHV0dGVyX2xpbnRzOiBeMi4wLjEKICBmbHV0dGVyX3Rlc3Q6CiAgICBzZGs6IGZsdXR0ZXIKICBtb2NrdGFpbDogXjAuMy4w",
+          "bmFtZToge3tuYW1lLnNuYWtlQ2FzZSgpfX0gCmRlc2NyaXB0aW9uOiB7e3tkZXNjcmlwdGlvbn19fQp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTMuMC4wIDw0LjAuMCIKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCiAgZmx1dHRpdW06IF57e2ZsdXR0aXVtVmVyc2lvbn19CgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfbGludHM6IF4yLjAuMQogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjA=",
       "type": "text"
     },
     {
