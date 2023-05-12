@@ -1,6 +1,6 @@
 name: fluttium_protocol
 description: The protocol for the communication between the runner and the driver of Fluttium
-version: 0.1.0-dev.1
+version: 0.1.0
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
