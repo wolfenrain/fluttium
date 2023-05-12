@@ -17,7 +17,8 @@ extension SemanticsNodeX on SemanticsNode {
       current = current.parent;
     }
 
-    final devicePixelRatio = WidgetsBinding.instance.window.devicePixelRatio;
+    final devicePixelRatio =
+        WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
     return MatrixUtils.transformRect(
       Matrix4.diagonal3Values(
         1.0 / devicePixelRatio,
