@@ -180,6 +180,7 @@ jobs:
         uses: ./.github/actions/flutter_package
         with:
           working_directory: packages/${{ matrix.package }}
+          test_optimization: false
 
   # Build and test the bricks that have changed.
   #
