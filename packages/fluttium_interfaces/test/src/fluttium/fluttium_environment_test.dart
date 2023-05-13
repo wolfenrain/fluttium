@@ -10,11 +10,11 @@ void main() {
 
       expect(environment.fluttium, isA<VersionConstraint>());
       expect(
-        environment.fluttium.allows(Version(0, 1, 0, pre: 'dev.1')),
+        environment.fluttium.allows(Version(0, 1, 0)),
         isTrue,
       );
       expect(
-        environment.fluttium.allows(Version(0, 2, 0)),
+        environment.fluttium.allows(Version(0, 3, 0)),
         isFalse,
       );
     });
@@ -26,11 +26,11 @@ void main() {
 
       expect(environment.fluttium, isA<VersionConstraint>());
       expect(
-        environment.fluttium.allows(Version(0, 1, 0, pre: 'dev.1')),
+        environment.fluttium.allows(Version(0, 1, 0)),
         isTrue,
       );
       expect(
-        environment.fluttium.allows(Version(0, 2, 0)),
+        environment.fluttium.allows(Version(0, 3, 0)),
         isFalse,
       );
     });
