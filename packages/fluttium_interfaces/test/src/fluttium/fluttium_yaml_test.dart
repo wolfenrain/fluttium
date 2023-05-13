@@ -17,7 +17,7 @@ void main() {
     test('can be instantiated', () {
       final config = FluttiumYaml(
         environment: FluttiumEnvironment(
-          fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+          fluttium: VersionConstraint.parse('>=0.1.0 <0.2.0'),
         ),
       );
 
@@ -27,7 +27,7 @@ void main() {
     test('can construct from a file', () {
       final config = FluttiumYaml.fromData('''
 environment:
-  fluttium: ">=0.1.0-dev.1 <0.1.0"
+  fluttium: ">=0.1.0 <0.2.0"
 
 driver:
   mainEntry: lib/main_development.dart
@@ -51,7 +51,7 @@ actions:
         config.environment,
         equals(
           FluttiumEnvironment(
-            fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+            fluttium: VersionConstraint.parse('>=0.1.0 <0.2.0'),
           ),
         ),
       );
@@ -94,7 +94,7 @@ actions:
     test('copyWith', () {
       final config = FluttiumYaml(
         environment: FluttiumEnvironment(
-          fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+          fluttium: VersionConstraint.parse('>=0.1.0 <0.2.0'),
         ),
       );
 
@@ -144,13 +144,13 @@ actions:
     test('equality', () {
       final config = FluttiumYaml(
         environment: FluttiumEnvironment(
-          fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+          fluttium: VersionConstraint.parse('>=0.1.0 <0.2.0'),
         ),
       );
 
       final otherConfig = FluttiumYaml(
         environment: FluttiumEnvironment(
-          fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+          fluttium: VersionConstraint.parse('>=0.1.0 <0.2.0'),
         ),
       );
 
