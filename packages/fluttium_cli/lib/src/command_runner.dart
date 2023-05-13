@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
@@ -116,25 +118,11 @@ class FluttiumCommandRunner extends CompletionCommandRunner<int> {
       _logger.info(packageVersion);
       exitCode = ExitCode.success.code;
     } else {
-      final result =
-          (await _process.run(['flutter', '--version'])).stdout as String;
-
-      final flutterVersion =
-          RegExp('Flutter (.*?) ').firstMatch(result)!.group(1)!;
-      if (!Version.parse(flutterVersion)
-          .allowsAny(FluttiumDriver.flutterVersionConstraint)) {
-        _logger.err(
-          '''
-Version solving failed:
-  The Fluttium CLI uses "${FluttiumDriver.flutterVersionConstraint}" as the version constraint for Flutter.
-  The current Flutter version is "$flutterVersion" which is not supported by Fluttium.
-
-Either update Flutter to a compatible version supported by the CLI or update the CLI to a compatible version of Flutter.''',
-        );
-        return ExitCode.unavailable.code;
+      if (!await _checkFlutterVersion()) {
+        exitCode = ExitCode.unavailable.code;
+      } else {
+        exitCode = await super.runCommand(topLevelResults);
       }
-
-      exitCode = await super.runCommand(topLevelResults);
     }
     if (topLevelResults.command?.name != UpdateCommand.commandName) {
       await _checkForUpdates();
@@ -159,5 +147,32 @@ Run ${lightCyan.wrap('$executableName update')} to update''',
           );
       }
     } catch (_) {}
+  }
+
+  Future<bool> _checkFlutterVersion() async {
+    try {
+      final result =
+          (await _process.run(['flutter', '--version'])).stdout as String;
+
+      final flutterVersion =
+          RegExp('Flutter (.*?) ').firstMatch(result)!.group(1)!;
+      if (!Version.parse(flutterVersion)
+          .allowsAny(FluttiumDriver.flutterVersionConstraint)) {
+        _logger.err(
+          '''
+Version solving failed:
+  The Fluttium CLI uses "${FluttiumDriver.flutterVersionConstraint}" as the version constraint for Flutter.
+  The current Flutter version is "$flutterVersion" which is not supported by Fluttium.
+
+Either update Flutter to a compatible version supported by the CLI or update the CLI to a compatible version of Flutter.''',
+        );
+        return false;
+      }
+    } on ProcessException catch (err) {
+      _logger.err('Failed retrieving Flutter version: ${err.message}');
+      return false;
+    }
+
+    return true;
   }
 }

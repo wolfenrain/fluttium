@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:fluttium_cli/src/command_runner.dart';
+import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:process/process.dart';
 import 'package:pub_updater/pub_updater.dart';
+import 'package:test/test.dart';
 
 class _MockLogger extends Mock implements Logger {}
 
@@ -35,17 +38,42 @@ void Function() withRunner(
     Logger logger,
     List<String> printLogs,
     ProcessManager processManager,
-  ) runnerFn,
-) {
+  ) runnerFn, {
+  PubUpdater Function()? pubUpdater,
+}) {
   return _overridePrint((printLogs) async {
     final logger = _MockLogger();
-    final pubUpdater = _MockPubUpdater();
     final progressLogs = <String>[];
     final processManager = _MockProcessManager();
 
+    when(
+      () => processManager.run(any(that: equals(['flutter', '--version']))),
+    ).thenAnswer((_) async {
+      return ProcessResult(
+        0,
+        ExitCode.success.code,
+        '''
+Flutter ${FluttiumDriver.flutterVersionConstraint.min} • channel stable • https://github.com/flutter/flutter.git
+Framework • revision AAAAAAAAAA (0 days ago) • 9999-12-31 00:00:00 -0700
+Engine • revision AAAAAAAAAA
+Tools • Dart 0.0.0 • DevTools 0.0.0
+''',
+        '',
+      );
+    });
+
+    final updater = pubUpdater != null ? pubUpdater.call() : _MockPubUpdater();
+    when(
+      () => updater.isUpToDate(
+        packageName: any(named: 'packageName'),
+        currentVersion: any(named: 'currentVersion'),
+      ),
+    ).thenAnswer((_) => Future.value(true));
+
     final commandRunner = FluttiumCommandRunner(
       logger: logger,
-      pubUpdater: pubUpdater,
+      pubUpdater: updater,
+      processManager: processManager,
     );
 
     final progress = _MockProgress();
@@ -58,12 +86,6 @@ void Function() withRunner(
       }
     });
     when(() => logger.progress(any())).thenReturn(progress);
-    when(
-      () => pubUpdater.isUpToDate(
-        packageName: any(named: 'packageName'),
-        currentVersion: any(named: 'currentVersion'),
-      ),
-    ).thenAnswer((_) => Future.value(true));
 
     await runnerFn(commandRunner, logger, printLogs, processManager);
   });

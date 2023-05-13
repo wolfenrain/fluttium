@@ -208,5 +208,29 @@ Version solving failed:
 Either update Flutter to a compatible version supported by the CLI or update the CLI to a compatible version of Flutter.'''),
       ).called(equals(1));
     });
+
+    test('if flutter was not found', () async {
+      when(
+        () => processManager.run(any(that: equals(['flutter', '--version']))),
+      ).thenAnswer((_) async {
+        throw const ProcessException(
+          'flutter',
+          ['--version'],
+          'Failed to find "flutter" in the search path',
+        );
+      });
+
+      final result = await commandRunner.run([
+        'test',
+        '--help',
+      ]);
+      expect(result, equals(ExitCode.unavailable.code));
+
+      verify(
+        () => logger.err(
+          '''Failed retrieving Flutter version: Failed to find "flutter" in the search path''',
+        ),
+      ).called(equals(1));
+    });
   });
 }

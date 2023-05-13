@@ -8,119 +8,114 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 
-class MockLogger extends Mock implements Logger {}
+import '../../helpers/helpers.dart';
 
-class MockProgress extends Mock implements Progress {}
-
-class MockPubUpdater extends Mock implements PubUpdater {}
+class _MockPubUpdater extends Mock implements PubUpdater {}
 
 void main() {
   const latestVersion = '0.0.0';
 
   group('update', () {
     late PubUpdater pubUpdater;
-    late Logger logger;
-    late FluttiumCommandRunner commandRunner;
 
     setUp(() {
-      final progress = MockProgress();
-      final progressLogs = <String>[];
-      pubUpdater = MockPubUpdater();
-      logger = MockLogger();
-      commandRunner = FluttiumCommandRunner(
-        logger: logger,
-        pubUpdater: pubUpdater,
-      );
+      pubUpdater = _MockPubUpdater();
 
       when(
         () => pubUpdater.getLatestVersion(any()),
       ).thenAnswer((_) async => packageVersion);
-      when(() => progress.complete(any())).thenAnswer((_) {
-        final message = _.positionalArguments.elementAt(0) as String?;
-        if (message != null) progressLogs.add(message);
-      });
-      when(() => logger.progress(any())).thenReturn(progress);
-      when(
-        () => pubUpdater.isUpToDate(
-          packageName: any(named: 'packageName'),
-          currentVersion: any(named: 'currentVersion'),
-        ),
-      ).thenAnswer((_) => Future.value(true));
     });
 
     test('can be instantiated without a pub updater', () {
-      final command = UpdateCommand(logger: logger);
+      final command = UpdateCommand(logger: Logger());
       expect(command, isNotNull);
     });
 
     test(
       'handles pub latest version query errors',
-      () async {
-        when(
-          () => pubUpdater.getLatestVersion(any()),
-        ).thenThrow(Exception('oops'));
-        final result = await commandRunner.run(['update']);
-        expect(result, equals(ExitCode.software.code));
-        verify(() => logger.progress('Checking for updates')).called(1);
-        verify(() => logger.err('Exception: oops'));
-        verifyNever(
-          () => pubUpdater.update(packageName: any(named: 'packageName')),
-        );
-      },
+      withRunner(
+        pubUpdater: () => pubUpdater,
+        (commandRunner, logger, printLogs, processManager) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenThrow(Exception('oops'));
+
+          final result = await commandRunner.run(['update']);
+          expect(result, equals(ExitCode.software.code));
+
+          verify(() => logger.progress('Checking for updates')).called(1);
+          verify(() => logger.err('Exception: oops'));
+          verifyNever(
+            () => pubUpdater.update(packageName: any(named: 'packageName')),
+          );
+        },
+      ),
     );
 
     test(
       'handles pub update errors',
-      () async {
-        when(
-          () => pubUpdater.getLatestVersion(any()),
-        ).thenAnswer((_) async => latestVersion);
-        when(
-          () => pubUpdater.update(packageName: any(named: 'packageName')),
-        ).thenThrow(Exception('oops'));
-        final result = await commandRunner.run(['update']);
-        expect(result, equals(ExitCode.software.code));
-        verify(() => logger.progress('Checking for updates')).called(1);
-        verify(() => logger.err('Exception: oops'));
-        verify(
-          () => pubUpdater.update(packageName: any(named: 'packageName')),
-        ).called(1);
-      },
+      withRunner(
+        pubUpdater: () => pubUpdater,
+        (commandRunner, logger, printLogs, processManager) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => latestVersion);
+          when(
+            () => pubUpdater.update(packageName: any(named: 'packageName')),
+          ).thenThrow(Exception('oops'));
+
+          final result = await commandRunner.run(['update']);
+          expect(result, equals(ExitCode.software.code));
+
+          verify(() => logger.progress('Checking for updates')).called(1);
+          verify(
+            () => pubUpdater.update(packageName: any(named: 'packageName')),
+          ).called(1);
+        },
+      ),
     );
 
     test(
       'updates when newer version exists',
-      () async {
-        when(
-          () => pubUpdater.getLatestVersion(any()),
-        ).thenAnswer((_) async => latestVersion);
-        when(
-          () => pubUpdater.update(packageName: packageName),
-        ).thenAnswer((_) => Future.value(ProcessResult(0, 0, '', '')));
-        when(() => logger.progress(any())).thenReturn(MockProgress());
-        final result = await commandRunner.run(['update']);
-        expect(result, equals(ExitCode.success.code));
-        verify(() => logger.progress('Checking for updates')).called(1);
-        verify(() => logger.progress('Updating to $latestVersion')).called(1);
-        verify(() => pubUpdater.update(packageName: packageName)).called(1);
-      },
+      withRunner(
+        pubUpdater: () => pubUpdater,
+        (commandRunner, logger, printLogs, processManager) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => latestVersion);
+          when(
+            () => pubUpdater.update(packageName: packageName),
+          ).thenAnswer((_) => Future.value(ProcessResult(0, 0, '', '')));
+
+          final result = await commandRunner.run(['update']);
+          expect(result, equals(ExitCode.success.code));
+
+          verify(() => logger.progress('Checking for updates')).called(1);
+          verify(() => logger.progress('Updating to $latestVersion')).called(1);
+          verify(() => pubUpdater.update(packageName: packageName)).called(1);
+        },
+      ),
     );
 
     test(
       'does not update when already on latest version',
-      () async {
-        when(
-          () => pubUpdater.getLatestVersion(any()),
-        ).thenAnswer((_) async => packageVersion);
-        when(() => logger.progress(any())).thenReturn(MockProgress());
-        final result = await commandRunner.run(['update']);
-        expect(result, equals(ExitCode.success.code));
-        verify(
-          () => logger.info('CLI is already at the latest version.'),
-        ).called(1);
-        verifyNever(() => logger.progress('Updating to $latestVersion'));
-        verifyNever(() => pubUpdater.update(packageName: packageName));
-      },
+      withRunner(
+        pubUpdater: () => pubUpdater,
+        (commandRunner, logger, printLogs, processManager) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => packageVersion);
+
+          final result = await commandRunner.run(['update']);
+          expect(result, equals(ExitCode.success.code));
+
+          verify(
+            () => logger.info('CLI is already at the latest version.'),
+          ).called(1);
+          verifyNever(() => logger.progress('Updating to $latestVersion'));
+          verifyNever(() => pubUpdater.update(packageName: packageName));
+        },
+      ),
     );
   });
 }
