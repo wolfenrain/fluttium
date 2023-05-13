@@ -1,6 +1,7 @@
 # 0.1.1
 
 - fix: use last step that is done for storing files ([#267](https://github.com/wolfenrain/fluttium/issues/267))
+- fix: adjust fluttium version constraints ([#269](https://github.com/wolfenrain/fluttium/issues/269))
 
 # 0.1.0
 
