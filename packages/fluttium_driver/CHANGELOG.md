@@ -1,3 +1,7 @@
+# 0.1.1
+
+- fix: use correct fluttium constraints ([#261](https://github.com/wolfenrain/fluttium/issues/261))
+
 # 0.1.0
 
 - feat!: migrate to Flutter v3.10.0 ([#246](https://github.com/wolfenrain/fluttium/issues/246))
