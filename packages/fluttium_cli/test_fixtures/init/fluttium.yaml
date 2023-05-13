@@ -14,7 +14,7 @@ environment:
 # Register actions which can be used within your Fluttium flows.
 actions:
   # The following adds the log action to your project.
-  log_action: 0.1.0+1
+  log_action: 0.2.0
   # Actions can also be imported via git url.
   # Uncomment the following lines to import
   # the log_action from a remote git url.
