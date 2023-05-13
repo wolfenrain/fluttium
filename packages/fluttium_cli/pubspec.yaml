@@ -13,8 +13,8 @@ dependencies:
   args: ^2.4.0
   cli_completion: ^0.3.0
   collection: ^1.17.1
-  fluttium_driver: ^0.1.0-dev.3
-  fluttium_interfaces: ^0.1.0-dev.2
+  fluttium_driver: ^0.1.0
+  fluttium_interfaces: ^0.1.0
   mason: ^0.1.0-dev.46
   meta: ^1.8.0
   path: ^1.8.3
