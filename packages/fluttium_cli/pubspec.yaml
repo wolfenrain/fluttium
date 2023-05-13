@@ -1,6 +1,6 @@
 name: fluttium_cli
 description: The CLI for Fluttium, a user flow testing framework for Flutter
-version: 0.1.0
+version: 0.1.1
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
