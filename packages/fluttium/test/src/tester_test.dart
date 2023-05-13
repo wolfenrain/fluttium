@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:ui';
+
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter/material.dart' hide Action;
-import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart' hide ViewConfiguration;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttium/fluttium.dart';
@@ -16,11 +18,13 @@ class _MockAction extends Mock implements Action {}
 
 class _MockWidgetBinding extends Mock implements WidgetsBinding {}
 
+class _MockSemanticsHandle extends Mock implements SemanticsHandle {}
+
 class _MockEmitter extends Mock implements Emitter {}
 
 class _MockRegistry extends Mock implements Registry {}
 
-class _MockBinaryMessenger extends Mock implements BinaryMessenger {}
+class _MockChannelBuffers extends Mock implements ChannelBuffers {}
 
 class _MockPipelineOwner extends Mock implements PipelineOwner {}
 
@@ -37,24 +41,26 @@ class _MockSemanticsData extends Mock
     implements SemanticsData {}
 
 void main() {
-  group('Tester', () {
+  group('$Tester', () {
     late Tester tester;
     late Action action;
     late WidgetsBinding binding;
+    late SemanticsHandle semanticsHandle;
     late Emitter emitter;
     late Registry registry;
-    late BinaryMessenger binaryMessenger;
+    late ChannelBuffers channelBuffers;
 
     setUp(() {
       action = _MockAction();
       binding = _MockWidgetBinding();
+      semanticsHandle = _MockSemanticsHandle();
       emitter = _MockEmitter();
       registry = _MockRegistry();
-      binaryMessenger = _MockBinaryMessenger();
+      channelBuffers = _MockChannelBuffers();
 
-      tester = Tester(binding, registry, emitter: emitter);
-
-      when(() => binding.defaultBinaryMessenger).thenReturn(binaryMessenger);
+      when(() => binding.channelBuffers).thenReturn(channelBuffers);
+      when(binding.ensureSemantics).thenReturn(semanticsHandle);
+      when(semanticsHandle.dispose).thenAnswer((_) {});
 
       when(() => registry.getAction(any(), any<dynamic>())).thenReturn(action);
       when(() => emitter.start(any())).thenAnswer((_) async {});
@@ -63,6 +69,11 @@ void main() {
       ).thenAnswer((_) async {});
       when(() => emitter.done(any())).thenAnswer((_) async {});
       when(() => emitter.fatal(any())).thenAnswer((_) async {});
+
+      when(() => binding.platformDispatcher)
+          .thenReturn(PlatformDispatcher.instance);
+
+      tester = Tester(binding, registry, emitter: emitter);
     });
 
     setUpAll(() {
@@ -75,7 +86,17 @@ void main() {
       expect(Tester(binding, registry), isNotNull);
     });
 
-    group('compute', () {
+    test('retrieves correct media query information', () {
+      final mediaQuery = tester.mediaQuery;
+
+      expect(mediaQuery.devicePixelRatio, equals(3));
+      expect(mediaQuery.size, equals(Size(800, 600)));
+      expect(mediaQuery.padding, equals(EdgeInsets.zero));
+      expect(mediaQuery.viewPadding, equals(EdgeInsets.zero));
+      expect(mediaQuery.viewInsets, equals(EdgeInsets.zero));
+    });
+
+    group('convert', () {
       late List<UserFlowStep> steps;
 
       setUp(() {
@@ -193,7 +214,7 @@ void main() {
     });
 
     test('emitPlatformMessage', () {
-      when(() => binaryMessenger.handlePlatformMessage(any(), any(), any()))
+      when(() => channelBuffers.push(any(), any(), any()))
           .thenAnswer((invocation) async {
         final callback = invocation.positionalArguments[2]
             as PlatformMessageResponseCallback;
@@ -204,7 +225,7 @@ void main() {
       tester.emitPlatformMessage('channel', ByteData.sublistView(Uint8List(0)));
 
       verify(
-        () => binaryMessenger.handlePlatformMessage(
+        () => channelBuffers.push(
           any(that: equals('channel')),
           any(
             that: isA<ByteData?>().having(
@@ -435,7 +456,7 @@ void main() {
 
         final renderViewElement = _MockElement();
         when(() => renderViewElement.renderObject).thenReturn(renderObject);
-        when(() => binding.renderViewElement).thenReturn(renderViewElement);
+        when(() => binding.rootElement).thenReturn(renderViewElement);
       });
 
       test('recursively finds the renderRepaintBoundary', () {
@@ -457,6 +478,48 @@ void main() {
 
         verify(() => renderObject.visitChildren(any())).called(2);
       });
+    });
+
+    group('ready', () {
+      late SemanticsOwner semanticsOwner;
+      late SemanticsNode rootNode;
+
+      setUp(() {
+        semanticsOwner = _MockSemanticsOwner();
+
+        final pipelineOwner = _MockPipelineOwner();
+        when(() => binding.pipelineOwner).thenReturn(pipelineOwner);
+        when(() => pipelineOwner.semanticsOwner).thenReturn(semanticsOwner);
+
+        rootNode = MockSemanticsNode();
+        when(() => semanticsOwner.rootSemanticsNode).thenReturn(rootNode);
+      });
+
+      test('resolve when ready', () {
+        expect(tester.ready(), completes);
+
+        verify(() => binding.pipelineOwner.semanticsOwner).called(equals(2));
+        verify(() => semanticsOwner.rootSemanticsNode).called(equals(1));
+      });
+
+      test('waits for next frame when not ready', () {
+        when(() => semanticsOwner.rootSemanticsNode).thenReturn(null);
+        when(() => binding.endOfFrame).thenAnswer((_) async {
+          when(() => semanticsOwner.rootSemanticsNode).thenReturn(rootNode);
+        });
+
+        expect(tester.ready(), completes);
+
+        verify(() => binding.pipelineOwner.semanticsOwner).called(equals(2));
+        verify(() => semanticsOwner.rootSemanticsNode).called(equals(1));
+        verify(() => binding.endOfFrame).called(equals(1));
+      });
+    });
+
+    test('dispose', () {
+      tester.dispose();
+
+      verify(semanticsHandle.dispose).called(equals(1));
     });
   });
 }

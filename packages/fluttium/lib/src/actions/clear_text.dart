@@ -40,7 +40,7 @@ class ClearText extends Action {
   Future<bool> execute(Tester tester) async {
     for (var i = 0; i < characters; i++) {
       TextInput.setInputControl(textInputController);
-      await tester.emitPlatformMessage(
+      tester.emitPlatformMessage(
         SystemChannels.textInput.name,
         SystemChannels.textInput.codec.encodeMethodCall(
           const MethodCall('TextInputClient.requestExistingInputState'),
@@ -53,7 +53,7 @@ class ClearText extends Action {
         return true;
       }
 
-      await tester.emitPlatformMessage(
+      tester.emitPlatformMessage(
         SystemChannels.textInput.name,
         SystemChannels.textInput.codec.encodeMethodCall(
           const MethodCall('TextInputClient.performSelectors', [

@@ -54,12 +54,6 @@ class PrettyReporter extends Reporter {
           break;
         case StepStatus.done:
           logger.info('  ✅  ${step.description}');
-          for (final file in step.files.entries) {
-            logger.detail('Writing ${file.value.length} bytes to $file');
-            File(file.key)
-              ..createSync(recursive: true)
-              ..writeAsBytesSync(file.value);
-          }
           break;
         case StepStatus.failed:
           logger.info('  ❌  ${step.description}');

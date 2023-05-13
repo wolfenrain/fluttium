@@ -12,15 +12,22 @@ import 'package:fluttium_protocol/fluttium_protocol.dart';
 class Tester {
   /// {@macro tester}
   Tester(this._binding, this._registry, {Emitter? emitter})
-      : _emitter = emitter ?? Emitter();
+      : _emitter = emitter ?? Emitter(),
+        _semanticsHandle = _binding.ensureSemantics();
 
   final Emitter _emitter;
 
   final WidgetsBinding _binding;
 
+  final SemanticsHandle _semanticsHandle;
+
   final Registry _registry;
 
   SemanticsOwner get _semanticsOwner => _binding.pipelineOwner.semanticsOwner!;
+
+  /// The current screen's media query information.
+  MediaQueryData get mediaQuery =>
+      MediaQueryData.fromView(_binding.platformDispatcher.views.first);
 
   /// Converts the [steps] into a list of executable actions.
   Future<List<Future<void> Function()>> convert(
@@ -63,12 +70,8 @@ class Tester {
   }
 
   /// Dispatch a message to the platform.
-  Future<void> emitPlatformMessage(String channel, ByteData? data) async {
-    await _binding.defaultBinaryMessenger.handlePlatformMessage(
-      channel,
-      data,
-      (ByteData? data) {},
-    );
+  void emitPlatformMessage(String channel, ByteData? data) {
+    _binding.channelBuffers.push(channel, data, (data) {});
   }
 
   /// Pump the widget tree for the given [duration].
@@ -147,7 +150,7 @@ class Tester {
 
   /// Retrieve the root repaint boundary.
   RenderRepaintBoundary? getRenderRepaintBoundary() {
-    final renderObject = _binding.renderViewElement!.renderObject!;
+    final renderObject = _binding.rootElement!.renderObject!;
     RenderRepaintBoundary? boundary;
     void find(RenderObject element) {
       if (boundary != null) return;
@@ -162,5 +165,18 @@ class Tester {
       renderObject.visitChildren(find);
     }
     return boundary;
+  }
+
+  /// Wait for the semantics tree to be fully build.
+  Future<void> ready() async {
+    while (_binding.pipelineOwner.semanticsOwner == null ||
+        _binding.pipelineOwner.semanticsOwner!.rootSemanticsNode == null) {
+      await _binding.endOfFrame;
+    }
+  }
+
+  /// Dispose the [Tester] and it's resources.
+  void dispose() {
+    _semanticsHandle.dispose();
   }
 }

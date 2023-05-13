@@ -57,8 +57,6 @@ class _MockProgress extends Mock implements Progress {}
 
 class _MockProcessManager extends Mock implements ProcessManager {}
 
-class _MockProcessResult extends Mock implements ProcessResult {}
-
 class _MockArgResults extends Mock implements ArgResults {}
 
 class _MockFile extends Mock implements File {}
@@ -115,8 +113,9 @@ void main() {
 
       processManager = _MockProcessManager();
 
-      flutterDevicesResult = _MockProcessResult();
-      when(() => flutterDevicesResult.stdout).thenReturn(
+      flutterDevicesResult = ProcessResult(
+        0,
+        0,
         json.encode([
           {
             'name': 'macOS',
@@ -125,6 +124,7 @@ void main() {
             'targetPlatform': 'darwin',
           }
         ]),
+        '',
       );
       when(
         () => processManager.run(
@@ -187,20 +187,24 @@ environment:
 
     test(
       'help',
-      withRunner((commandRunner, logger, printLogs, processManager) async {
-        final result = await commandRunner.run(['test', '--help']);
-        expect(printLogs, equals(expectedUsage));
-        expect(result, equals(ExitCode.success.code));
+      withRunner(
+        (commandRunner, logger, processManager) async {
+          final result = await commandRunner.run(['test', '--help']);
+          expect(result, equals(ExitCode.success.code));
 
-        printLogs.clear();
-
-        final resultAbbr = await commandRunner.run(['test', '-h']);
-        expect(printLogs, equals(expectedUsage));
-        expect(resultAbbr, equals(ExitCode.success.code));
-      }),
+          final resultAbbr = await commandRunner.run(['test', '-h']);
+          expect(resultAbbr, equals(ExitCode.success.code));
+        },
+        verifyPrints: (printLogs) {
+          expect(printLogs, equals([...expectedUsage, ...expectedUsage]));
+        },
+      ),
     );
 
-    Future<void> runWithMocks(Future<void> Function() callback) async {
+    Future<void> runWithMocks(
+      Future<void> Function() callback, {
+      Map<String, File> customFiles = const {},
+    }) async {
       await IOOverrides.runZoned(
         callback,
         createFile: (path) {
@@ -212,6 +216,9 @@ environment:
             return targetFile;
           } else if (path.endsWith('test_file')) {
             return testFile;
+          }
+          if (customFiles.containsKey(path)) {
+            return customFiles[path]!;
           }
           throw UnimplementedError(path);
         },
@@ -338,7 +345,7 @@ environment:
     group('exits early', () {
       test(
         'exits early if no flow file was specified',
-        withRunner((commandRunner, logger, printLogs, processManager) async {
+        withRunner((commandRunner, logger, processManager) async {
           final result = await commandRunner.run(['test']);
 
           expect(result, equals(ExitCode.usage.code));
@@ -466,7 +473,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         const MapEntry('windows', 'windows'),
         const MapEntry('linux', 'linux'),
       ]) {
-        when(() => flutterDevicesResult.stdout).thenReturn(
+        flutterDevicesResult = ProcessResult(
+          0,
+          0,
           json.encode([
             {
               'name': platform.value,
@@ -475,6 +484,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
               'targetPlatform': platform.value,
             }
           ]),
+          '',
         );
 
         // Recreate the controller
@@ -524,7 +534,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       test('run on specified device', () async {
         when(() => argResults['device-id']).thenReturn('macos');
 
-        when(() => flutterDevicesResult.stdout).thenReturn(
+        flutterDevicesResult = ProcessResult(
+          0,
+          0,
           json.encode([
             {
               'name': 'macOS',
@@ -539,6 +551,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
               'targetPlatform': 'ios',
             }
           ]),
+          '',
         );
 
         final command = TestCommand(
@@ -574,7 +587,9 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       });
 
       test('prompts user which device to run on', () async {
-        when(() => flutterDevicesResult.stdout).thenReturn(
+        flutterDevicesResult = ProcessResult(
+          0,
+          0,
           json.encode([
             {
               'name': 'macOS',
@@ -589,6 +604,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
               'targetPlatform': 'ios',
             }
           ]),
+          '',
         );
 
         final command = TestCommand(
@@ -650,7 +666,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       });
 
       test('exits early if no devices are found', () async {
-        when(() => flutterDevicesResult.stdout).thenReturn(json.encode([]));
+        flutterDevicesResult = ProcessResult(0, 0, json.encode([]), '');
 
         final command = TestCommand(
           logger: logger,
@@ -707,6 +723,66 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         verify(() => logger.err(any(that: equals('Unknown reporter: unknown'))))
             .called(1);
       });
+    });
+
+    test('stores received files', () async {
+      final userFlow = _MockUserFlowYaml();
+      when(() => userFlow.description).thenReturn('description');
+      when(() => driver.userFlow).thenReturn(userFlow);
+
+      final receivedFile = _MockFile();
+      when(() => receivedFile.createSync(recursive: any(named: 'recursive')))
+          .thenAnswer((invocation) {});
+      when(() => receivedFile.writeAsBytesSync(any()))
+          .thenAnswer((invocation) {});
+
+      final command = TestCommand(
+        logger: logger,
+        processManager: processManager,
+        driver: _driver(driver),
+      )..testArgResults = argResults;
+
+      await runWithMocks(
+        () async {
+          final future = command.run();
+
+          final step = StepState('Storing file: "file.txt"');
+
+          stepStateController.add([step]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(() => logger.info('  🔲  Storing file: "file.txt"')).called(1);
+
+          stepStateController.add([
+            step.copyWith(
+              status: StepStatus.done,
+              files: {
+                'file.txt': [1, 2, 3]
+              },
+            )
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(() => logger.detail('Writing 3 bytes to "file.txt"'))
+              .called(1);
+          verify(() => logger.info('  ✅  Storing file: "file.txt"')).called(1);
+          verify(
+            () => receivedFile.createSync(
+              recursive: any(named: 'recursive', that: isTrue),
+            ),
+          ).called(1);
+          verify(
+            () => receivedFile.writeAsBytesSync(any(that: equals([1, 2, 3]))),
+          ).called(1);
+
+          await stepStateController.close();
+          runCompleter.complete();
+          expect(await future, equals(ExitCode.success.code));
+        },
+        customFiles: {
+          'file.txt': receivedFile,
+        },
+      );
     });
 
     test('renders using the $PrettyReporter for all steps', () async {
