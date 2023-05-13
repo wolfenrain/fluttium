@@ -229,7 +229,7 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
   }
 
   List<StepState> _storeFiles(List<StepState> steps) {
-    final step = steps.firstWhereOrNull((e) => e.status == StepStatus.done);
+    final step = steps.lastWhereOrNull((e) => e.status == StepStatus.done);
     if (step == null) return steps;
     for (final file in step.files.entries) {
       _logger.detail('Writing ${file.value.length} bytes to "${file.key}"');
