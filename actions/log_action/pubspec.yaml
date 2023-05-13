@@ -1,6 +1,6 @@
 name: log_action
 description: A simple log action for the Fluttium user flow testing framework.
-version: 0.1.0+1
+version: 0.2.0
 repository: https://github.com/wolfenrain/fluttium
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
 
