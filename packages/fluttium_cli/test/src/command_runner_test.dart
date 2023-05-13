@@ -19,8 +19,6 @@ class MockProgress extends Mock implements Progress {}
 
 class MockProcessManger extends Mock implements ProcessManager {}
 
-class FakeProcessResult extends Fake implements ProcessResult {}
-
 const latestVersion = '0.0.0';
 
 final updatePrompt = '''
@@ -85,7 +83,7 @@ Tools • Dart 0.0.0 • DevTools 0.0.0
       ).thenAnswer((_) async => latestVersion);
       when(
         () => pubUpdater.update(packageName: packageName),
-      ).thenAnswer((_) => Future.value(FakeProcessResult()));
+      ).thenAnswer((_) => Future.value(ProcessResult(0, 0, '', '')));
       when(
         () => pubUpdater.isUpToDate(
           packageName: any(named: 'packageName'),

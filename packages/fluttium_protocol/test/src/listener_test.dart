@@ -117,8 +117,7 @@ Future<void> runWithEmitter(
   Future<void> Function(
     Emitter emitter,
     Stream<List<int>> controller,
-  )
-      callback,
+  ) callback,
 ) async {
   final emitter = Emitter();
   final controller = StreamController<List<int>>();

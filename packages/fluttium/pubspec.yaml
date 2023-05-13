@@ -1,21 +1,21 @@
 name: fluttium
 description: The core package for the Fluttium user flow testing framework
-version: 0.1.0-dev.4
+version: 0.1.0
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
 documentation: https://fluttium.dev/docs/why-fluttium
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
-  flutter: ">=3.10.0 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
 
 dependencies:
   clock: ^1.1.1
   flutter:
     sdk: flutter
-  fluttium_interfaces: ^0.1.0-dev.1
-  fluttium_protocol: ^0.1.0-dev.1
+  fluttium_interfaces: ^0.1.0
+  fluttium_protocol: ^0.1.0
 
 dev_dependencies:
   fake_async: ^1.3.1

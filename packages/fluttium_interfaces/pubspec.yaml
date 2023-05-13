@@ -1,13 +1,13 @@
 name: fluttium_interfaces
 description: The interfaces and definitions used by the Fluttium user flow testing framework
-version: 0.1.0-dev.2
+version: 0.1.0
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
 documentation: https://fluttium.dev/docs/why-fluttium
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   equatable: ^2.0.5
