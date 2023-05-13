@@ -1,6 +1,7 @@
 # 0.1.0
 
 - feat!: migrate to Flutter v3.10.0 ([#244](https://github.com/wolfenrain/fluttium/issues/244))
+- chore: bump dart version to 3.0.0 ([#250](https://github.com/wolfenrain/fluttium/issues/250))
 
 # 0.1.0-dev.4
 
