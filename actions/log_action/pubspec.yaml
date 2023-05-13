@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  fluttium: ^0.1.0-dev.1
+  fluttium: ^0.1.0
 
 dev_dependencies:
   flutter_test:
