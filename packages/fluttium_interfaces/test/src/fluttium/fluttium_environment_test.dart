@@ -5,7 +5,7 @@ void main() {
   group('FluttiumEnvironment', () {
     test('can be instantiated', () {
       final environment = FluttiumEnvironment(
-        fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+        fluttium: VersionConstraint.parse('>=0.1.0 <0.2.0'),
       );
 
       expect(environment.fluttium, isA<VersionConstraint>());
@@ -21,7 +21,7 @@ void main() {
 
     test('fromJson', () {
       final environment = FluttiumEnvironment.fromJson(const {
-        'fluttium': '>=0.1.0-dev.1 <0.1.0',
+        'fluttium': '>=0.1.0 <0.2.0',
       });
 
       expect(environment.fluttium, isA<VersionConstraint>());
@@ -37,11 +37,11 @@ void main() {
 
     test('equality', () {
       final environment = FluttiumEnvironment(
-        fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+        fluttium: VersionConstraint.parse('>=0.1.0 <0.2.0'),
       );
 
       final otherEnvironment = FluttiumEnvironment(
-        fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+        fluttium: VersionConstraint.parse('>=0.1.0 <0.2.0'),
       );
 
       expect(environment, equals(otherEnvironment));
