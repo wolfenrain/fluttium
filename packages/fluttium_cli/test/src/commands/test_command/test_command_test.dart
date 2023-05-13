@@ -167,7 +167,7 @@ void main() {
       when(() => fluttiumFile.existsSync()).thenReturn(true);
       when(() => fluttiumFile.readAsStringSync()).thenReturn('''
 environment:
-  fluttium: ">=0.1.0 <0.2.0"
+  fluttium: ">=0.1.0 <1.0.0"
 ''');
 
       targetFile = _MockFile();
