@@ -1,11 +1,7 @@
 name: e2e
 
 on:
-  workflow_run:
-    workflows:
-      - ci
-    types:
-      - completed
+  workflow_call:
 
 defaults:
   run:
