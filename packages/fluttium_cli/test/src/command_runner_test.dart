@@ -4,8 +4,10 @@ import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
 import 'package:fluttium_cli/src/command_runner.dart';
 import 'package:fluttium_cli/src/version.dart';
+import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:mocktail/mocktail.dart';
+import 'package:process/process.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 
@@ -14,6 +16,8 @@ class MockLogger extends Mock implements Logger {}
 class MockPubUpdater extends Mock implements PubUpdater {}
 
 class MockProgress extends Mock implements Progress {}
+
+class MockProcessManger extends Mock implements ProcessManager {}
 
 const latestVersion = '0.0.0';
 
@@ -26,6 +30,8 @@ void main() {
     late PubUpdater pubUpdater;
     late Logger logger;
     late FluttiumCommandRunner commandRunner;
+    late ProcessManager processManager;
+    var flutterVersion = FluttiumDriver.flutterVersionConstraint.min.toString();
 
     setUp(() {
       pubUpdater = MockPubUpdater();
@@ -36,9 +42,27 @@ void main() {
 
       logger = MockLogger();
 
+      processManager = MockProcessManger();
+      when(
+        () => processManager.run(any(that: equals(['flutter', '--version']))),
+      ).thenAnswer((_) async {
+        return ProcessResult(
+          0,
+          ExitCode.success.code,
+          '''
+Flutter $flutterVersion • channel stable • https://github.com/flutter/flutter.git
+Framework • revision AAAAAAAAAA (0 days ago) • 9999-12-31 00:00:00 -0700
+Engine • revision AAAAAAAAAA
+Tools • Dart 0.0.0 • DevTools 0.0.0
+''',
+          '',
+        );
+      });
+
       commandRunner = FluttiumCommandRunner(
         logger: logger,
         pubUpdater: pubUpdater,
+        processManager: processManager,
       );
     });
 
@@ -164,6 +188,49 @@ void main() {
 
         verifyNever(() => logger.detail(any()));
       });
+    });
+
+    test('if flutter version does not fit constraints', () async {
+      flutterVersion = '0.0.0';
+
+      final result = await commandRunner.run([
+        'test',
+        '--help',
+      ]);
+      expect(result, equals(ExitCode.unavailable.code));
+
+      verify(
+        () => logger.err('''
+Version solving failed:
+  The Fluttium CLI uses "${FluttiumDriver.flutterVersionConstraint}" as the version constraint for Flutter.
+  The current Flutter version is "$flutterVersion" which is not supported by Fluttium.
+
+Either update Flutter to a compatible version supported by the CLI or update the CLI to a compatible version of Flutter.'''),
+      ).called(equals(1));
+    });
+
+    test('if flutter was not found', () async {
+      when(
+        () => processManager.run(any(that: equals(['flutter', '--version']))),
+      ).thenAnswer((_) async {
+        throw const ProcessException(
+          'flutter',
+          ['--version'],
+          'Failed to find "flutter" in the search path',
+        );
+      });
+
+      final result = await commandRunner.run([
+        'test',
+        '--help',
+      ]);
+      expect(result, equals(ExitCode.unavailable.code));
+
+      verify(
+        () => logger.err(
+          '''Failed retrieving Flutter version: Failed to find "flutter" in the search path''',
+        ),
+      ).called(equals(1));
     });
   });
 }

@@ -187,17 +187,18 @@ environment:
 
     test(
       'help',
-      withRunner((commandRunner, logger, printLogs, processManager) async {
-        final result = await commandRunner.run(['test', '--help']);
-        expect(printLogs, equals(expectedUsage));
-        expect(result, equals(ExitCode.success.code));
+      withRunner(
+        (commandRunner, logger, processManager) async {
+          final result = await commandRunner.run(['test', '--help']);
+          expect(result, equals(ExitCode.success.code));
 
-        printLogs.clear();
-
-        final resultAbbr = await commandRunner.run(['test', '-h']);
-        expect(printLogs, equals(expectedUsage));
-        expect(resultAbbr, equals(ExitCode.success.code));
-      }),
+          final resultAbbr = await commandRunner.run(['test', '-h']);
+          expect(resultAbbr, equals(ExitCode.success.code));
+        },
+        verifyPrints: (printLogs) {
+          expect(printLogs, equals([...expectedUsage, ...expectedUsage]));
+        },
+      ),
     );
 
     Future<void> runWithMocks(
@@ -344,7 +345,7 @@ environment:
     group('exits early', () {
       test(
         'exits early if no flow file was specified',
-        withRunner((commandRunner, logger, printLogs, processManager) async {
+        withRunner((commandRunner, logger, processManager) async {
           final result = await commandRunner.run(['test']);
 
           expect(result, equals(ExitCode.usage.code));
