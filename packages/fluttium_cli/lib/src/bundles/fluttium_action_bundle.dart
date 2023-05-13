@@ -66,7 +66,7 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
   "hooks": [],
   "name": "fluttium_action",
   "description": "Generate a new Fluttium action.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "environment": {"mason": ">=0.1.0-dev.42 <0.1.0"},
   "repository": "https://github.com/wolfenrain/fluttium",
   "readme": {
@@ -77,7 +77,8 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
   },
   "changelog": {
     "path": "CHANGELOG.md",
-    "data": "IyAwLjEuMAoKLSBmZWF0OiBpbml0aWFsIHJlbGVhc2Ug8J+OiQo=",
+    "data":
+        "IyAwLjIuMAoKLSBjaG9yZTogYnVtcCBkYXJ0IHZlcnNpb24gdG8gMy4wLjAgKFsjMjUwXShodHRwczovL2dpdGh1Yi5jb20vd29sZmVucmFpbi9mbHV0dGl1bS9pc3N1ZXMvMjUwKSkKCiMgMC4xLjAKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
     "type": "text"
   },
   "license": {
