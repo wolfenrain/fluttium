@@ -8,5 +8,5 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  fluttium: ">=0.1.0-dev.1 <0.1.0"{{#actions}}
+  fluttium: ">=0.1.0 <0.2.0"{{#actions}}
   {{name.snakeCase()}}: {{{source}}}{{/actions}}
