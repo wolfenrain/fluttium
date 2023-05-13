@@ -35,7 +35,7 @@ void main() {
       'handles pub latest version query errors',
       withRunner(
         pubUpdater: () => pubUpdater,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           when(
             () => pubUpdater.getLatestVersion(any()),
           ).thenThrow(Exception('oops'));
@@ -56,7 +56,7 @@ void main() {
       'handles pub update errors',
       withRunner(
         pubUpdater: () => pubUpdater,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           when(
             () => pubUpdater.getLatestVersion(any()),
           ).thenAnswer((_) async => latestVersion);
@@ -79,7 +79,7 @@ void main() {
       'updates when newer version exists',
       withRunner(
         pubUpdater: () => pubUpdater,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           when(
             () => pubUpdater.getLatestVersion(any()),
           ).thenAnswer((_) async => latestVersion);
@@ -101,7 +101,7 @@ void main() {
       'does not update when already on latest version',
       withRunner(
         pubUpdater: () => pubUpdater,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           when(
             () => pubUpdater.getLatestVersion(any()),
           ).thenAnswer((_) async => packageVersion);

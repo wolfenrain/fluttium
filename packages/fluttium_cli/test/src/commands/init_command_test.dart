@@ -40,24 +40,25 @@ void main() {
 
     test(
       'help',
-      withRunner((commandRunner, logger, printLogs, processManager) async {
-        final result = await commandRunner.run(['init', '--help']);
-        expect(printLogs, equals(expectedUsage));
-        expect(result, equals(ExitCode.success.code));
+      withRunner(
+        (commandRunner, logger, processManager) async {
+          final result = await commandRunner.run(['init', '--help']);
+          expect(result, equals(ExitCode.success.code));
 
-        printLogs.clear();
-
-        final resultAbbr = await commandRunner.run(['init', '-h']);
-        expect(printLogs, equals(expectedUsage));
-        expect(resultAbbr, equals(ExitCode.success.code));
-      }),
+          final resultAbbr = await commandRunner.run(['init', '-h']);
+          expect(resultAbbr, equals(ExitCode.success.code));
+        },
+        verifyPrints: (printLogs) {
+          expect(printLogs, equals([...expectedUsage, ...expectedUsage]));
+        },
+      ),
     );
 
     test(
       'exits with code 64 when fluttium.yaml already exists',
       withRunner(
         logger: () => logger,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           final fluttiumYaml = File(
             path.join(Directory.current.path, 'fluttium.yaml'),
           );
@@ -77,7 +78,7 @@ void main() {
       'initializes Fluttium when a fluttium.yaml does not exist',
       withRunner(
         logger: () => logger,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           final result = await commandRunner.run(['init']);
           expect(result, equals(ExitCode.success.code));
           final actual = Directory(

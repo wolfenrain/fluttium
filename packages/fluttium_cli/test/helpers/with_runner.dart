@@ -36,15 +36,14 @@ void Function() withRunner(
   FutureOr<void> Function(
     FluttiumCommandRunner commandRunner,
     Logger logger,
-    List<String> printLogs,
     ProcessManager processManager,
   ) runnerFn, {
   PubUpdater Function()? pubUpdater,
   Logger Function()? logger,
+  void Function(List<String> printLogs)? verifyPrints,
 }) {
   return _overridePrint((printLogs) async {
     final log = logger != null ? logger.call() : _MockLogger();
-    final progressLogs = <String>[];
     final processManager = _MockProcessManager();
 
     when(
@@ -78,18 +77,10 @@ Tools • Dart 0.0.0 • DevTools 0.0.0
     );
 
     if (logger == null) {
-      final progress = _MockProgress();
-      when(() => progress.complete(any())).thenAnswer((_) {
-        if (_.positionalArguments.isEmpty) {
-          return;
-        }
-        if (_.positionalArguments[0] != null) {
-          progressLogs.add(_.positionalArguments[0] as String);
-        }
-      });
-      when(() => log.progress(any())).thenReturn(progress);
+      when(() => log.progress(any())).thenReturn(_MockProgress());
     }
 
-    await runnerFn(commandRunner, log, printLogs, processManager);
+    await runnerFn(commandRunner, log, processManager);
+    verifyPrints?.call(printLogs);
   });
 }

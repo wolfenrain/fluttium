@@ -47,24 +47,25 @@ void main() {
 
     test(
       'help',
-      withRunner((commandRunner, logger, printLogs, processManager) async {
-        final result = await commandRunner.run(['new', '--help']);
-        expect(printLogs, equals(expectedUsage));
-        expect(result, equals(ExitCode.success.code));
+      withRunner(
+        (commandRunner, logger, processManager) async {
+          final result = await commandRunner.run(['new', '--help']);
+          expect(result, equals(ExitCode.success.code));
 
-        printLogs.clear();
-
-        final resultAbbr = await commandRunner.run(['new', '-h']);
-        expect(printLogs, equals(expectedUsage));
-        expect(resultAbbr, equals(ExitCode.success.code));
-      }),
+          final resultAbbr = await commandRunner.run(['new', '-h']);
+          expect(resultAbbr, equals(ExitCode.success.code));
+        },
+        verifyPrints: (printLogs) {
+          expect(printLogs, equals([...expectedUsage, ...expectedUsage]));
+        },
+      ),
     );
 
     test(
       'uses a custom directory output',
       withRunner(
         logger: () => logger,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           final testDir = Directory(
             path.join(Directory.current.path, 'action'),
           )..createSync(recursive: true);
@@ -108,7 +109,7 @@ void main() {
       'creates a new action',
       withRunner(
         logger: () => logger,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           final testDir = Directory(
             path.join(Directory.current.path, 'action'),
           )..createSync(recursive: true);
@@ -141,7 +142,7 @@ void main() {
       'creates a new flow',
       withRunner(
         logger: () => logger,
-        (commandRunner, logger, printLogs, processManager) async {
+        (commandRunner, logger, processManager) async {
           final testDir = Directory(
             path.join(Directory.current.path, 'flow'),
           )..createSync(recursive: true);
