@@ -419,7 +419,21 @@ class FluttiumDriver {
       ),
     );
 
-    final version = RegExp('fluttium: "(.*?)"{').firstMatch(content)!;
+    final version = RegExp('  fluttium: "(.*?)"{').firstMatch(content)!;
+    return VersionConstraint.parse(version.group(1)!) as VersionRange;
+  }
+
+  /// The current Fluttium version constraint that the driver needs to work.
+  static VersionRange get flutterVersionConstraint {
+    final content = utf8.decode(
+      base64.decode(
+        fluttiumTestRunnerBundle.files
+            .firstWhere((e) => e.path == 'pubspec.yaml')
+            .data,
+      ),
+    );
+
+    final version = RegExp('  flutter: "(.*?)"\n').firstMatch(content)!;
     return VersionConstraint.parse(version.group(1)!) as VersionRange;
   }
 }

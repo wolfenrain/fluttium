@@ -25,7 +25,7 @@ class DriverConfiguration extends Equatable {
               json['dartDefines'] as List<dynamic>? ??
               [])
           .cast<String>(),
-      deviceId: (json['deviceId'])?.toString(),
+      deviceId: json['deviceId']?.toString(),
     );
   }
 

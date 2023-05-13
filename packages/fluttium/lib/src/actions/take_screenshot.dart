@@ -16,16 +16,22 @@ import 'package:fluttium/fluttium.dart';
 /// ```yaml
 /// - takeScreenshot:
 ///     path: "my_screenshot.png"
+///     pixelRatio: 1.5
 /// ```
 /// {@endtemplate}
 class TakeScreenshot extends Action {
   /// {@macro take_screenshot}
   const TakeScreenshot({
     required this.path,
+    this.pixelRatio,
   });
 
   /// The file path to save the screenshot to.
   final String path;
+
+  /// Optional pixel ratio to take screenshot with, defaults to device pixel
+  /// ratio.
+  final double? pixelRatio;
 
   @override
   Future<bool> execute(Tester tester) async {
@@ -34,7 +40,9 @@ class TakeScreenshot extends Action {
       return false;
     }
 
-    final image = await boundary.toImage();
+    final image = await boundary.toImage(
+      pixelRatio: pixelRatio ?? tester.mediaQuery.devicePixelRatio,
+    );
     final byteData = await image.toByteData(format: ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
     await tester.storeFile(path, pngBytes);

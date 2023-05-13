@@ -54,6 +54,12 @@ const config = {
         },
         items: [
           {
+            href: 'https://discord.gg/brtpqgZVxb',
+            position: 'right',
+            className: 'navbar-discord-icon',
+            'aria-label': 'Join the Discord',
+          },
+          {
             href: 'https://github.com/wolfenrain/fluttium',
             position: 'right',
             className: 'navbar-github-icon',

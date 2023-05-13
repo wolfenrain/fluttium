@@ -41,7 +41,7 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3tuYW1lLnNuYWtlQ2FzZSgpfX0gCmRlc2NyaXB0aW9uOiB7e3tkZXNjcmlwdGlvbn19fQp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIGZsdXR0aXVtOiBee3tmbHV0dGl1bVZlcnNpb259fQoKZGV2X2RlcGVuZGVuY2llczoKICBmbHV0dGVyX2xpbnRzOiBeMi4wLjEKICBmbHV0dGVyX3Rlc3Q6CiAgICBzZGs6IGZsdXR0ZXIKICBtb2NrdGFpbDogXjAuMy4w",
+          "bmFtZToge3tuYW1lLnNuYWtlQ2FzZSgpfX0gCmRlc2NyaXB0aW9uOiB7e3tkZXNjcmlwdGlvbn19fQp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTMuMC4wIDw0LjAuMCIKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCiAgZmx1dHRpdW06IF57e2ZsdXR0aXVtVmVyc2lvbn19CgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfbGludHM6IF4yLjAuMQogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjA=",
       "type": "text"
     },
     {
@@ -66,7 +66,7 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
   "hooks": [],
   "name": "fluttium_action",
   "description": "Generate a new Fluttium action.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "environment": {"mason": ">=0.1.0-dev.42 <0.1.0"},
   "repository": "https://github.com/wolfenrain/fluttium",
   "readme": {
@@ -77,7 +77,8 @@ final fluttiumActionBundle = MasonBundle.fromJson(<String, dynamic>{
   },
   "changelog": {
     "path": "CHANGELOG.md",
-    "data": "IyAwLjEuMAoKLSBmZWF0OiBpbml0aWFsIHJlbGVhc2Ug8J+OiQo=",
+    "data":
+        "IyAwLjIuMAoKLSBjaG9yZTogYnVtcCBkYXJ0IHZlcnNpb24gdG8gMy4wLjAgKFsjMjUwXShodHRwczovL2dpdGh1Yi5jb20vd29sZmVucmFpbi9mbHV0dGl1bS9pc3N1ZXMvMjUwKSkKCiMgMC4xLjAKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
     "type": "text"
   },
   "license": {
