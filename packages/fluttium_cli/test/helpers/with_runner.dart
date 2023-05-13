@@ -40,9 +40,10 @@ void Function() withRunner(
     ProcessManager processManager,
   ) runnerFn, {
   PubUpdater Function()? pubUpdater,
+  Logger Function()? logger,
 }) {
   return _overridePrint((printLogs) async {
-    final logger = _MockLogger();
+    final log = logger != null ? logger.call() : _MockLogger();
     final progressLogs = <String>[];
     final processManager = _MockProcessManager();
 
@@ -71,22 +72,24 @@ Tools • Dart 0.0.0 • DevTools 0.0.0
     ).thenAnswer((_) => Future.value(true));
 
     final commandRunner = FluttiumCommandRunner(
-      logger: logger,
+      logger: log,
       pubUpdater: updater,
       processManager: processManager,
     );
 
-    final progress = _MockProgress();
-    when(() => progress.complete(any())).thenAnswer((_) {
-      if (_.positionalArguments.isEmpty) {
-        return;
-      }
-      if (_.positionalArguments[0] != null) {
-        progressLogs.add(_.positionalArguments[0] as String);
-      }
-    });
-    when(() => logger.progress(any())).thenReturn(progress);
+    if (logger == null) {
+      final progress = _MockProgress();
+      when(() => progress.complete(any())).thenAnswer((_) {
+        if (_.positionalArguments.isEmpty) {
+          return;
+        }
+        if (_.positionalArguments[0] != null) {
+          progressLogs.add(_.positionalArguments[0] as String);
+        }
+      });
+      when(() => log.progress(any())).thenReturn(progress);
+    }
 
-    await runnerFn(commandRunner, logger, printLogs, processManager);
+    await runnerFn(commandRunner, log, printLogs, processManager);
   });
 }
