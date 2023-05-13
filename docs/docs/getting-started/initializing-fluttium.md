@@ -18,7 +18,7 @@ Once we run `fluttium init`, we should have a `fluttium.yaml` that looks like:
 # The following defines the environment for your Fluttium project. It includes
 # the version of Fluttium that the project requires.
 environment:
-  fluttium: '>=0.1.0-dev.1 <0.1.0'
+  fluttium: '>=0.1.0 <0.2.0'
 
 # The driver can be configured with default values. Uncomment the following
 # lines to automatically run Fluttium using a different flavor and dart-defines.
@@ -31,7 +31,7 @@ environment:
 # Register actions which can be used within your Fluttium flows.
 actions:
   # The following adds the log action to your project.
-  log_action: 0.1.0+1
+  log_action: 0.2.0
   # Actions can also be imported via git url.
   # Uncomment the following lines to import
   # the log_action from a remote git url.
