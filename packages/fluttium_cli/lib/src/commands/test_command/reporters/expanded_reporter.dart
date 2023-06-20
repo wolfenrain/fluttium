@@ -11,10 +11,10 @@ class ExpandedReporter extends Reporter {
 
   bool failed = false;
 
-  StepState? previousStep;
+  UserFlowStepState? previousStep;
 
   @override
-  void report(List<StepState> steps) {
+  void report(List<UserFlowStepState> steps) {
     if (!_stopwatch.isRunning) {
       _stopwatch.start();
     }

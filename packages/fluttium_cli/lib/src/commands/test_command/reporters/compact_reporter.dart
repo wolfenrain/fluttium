@@ -18,7 +18,7 @@ class CompactReporter extends Reporter {
   bool failed = false;
 
   @override
-  void report(List<StepState> steps) {
+  void report(List<UserFlowStepState> steps) {
     final currentStep = steps.lastWhere(
       (step) => step.status != StepStatus.initial,
       orElse: () => steps.first,

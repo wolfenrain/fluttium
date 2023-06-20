@@ -6,6 +6,9 @@ description: Testing the simple menu page
 - pressOn: "Simple Menu"
 # Validate that the simple menu page is displayed and the menu button is visible
 - expectVisible: "Simple Menu"
+- generateSemanticsTree:
+    path: "semantics_tree.json"
+    prettify: true
 - expectVisible: "Show Menu"
 # Press the button using a long press
 - longPressOn: "Show Menu"

@@ -13,7 +13,7 @@ abstract class Reporter {
 
   final bool watch;
 
-  void report(List<StepState> steps);
+  void report(List<UserFlowStepState> steps);
 
   void done() {}
 

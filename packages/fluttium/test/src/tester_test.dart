@@ -8,8 +8,6 @@ import 'package:flutter/rendering.dart' hide ViewConfiguration;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttium/fluttium.dart';
-import 'package:fluttium_interfaces/fluttium_interfaces.dart';
-import 'package:fluttium_protocol/fluttium_protocol.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../helpers/helpers.dart';
@@ -19,8 +17,6 @@ class _MockAction extends Mock implements Action {}
 class _MockWidgetBinding extends Mock implements WidgetsBinding {}
 
 class _MockSemanticsHandle extends Mock implements SemanticsHandle {}
-
-class _MockEmitter extends Mock implements Emitter {}
 
 class _MockRegistry extends Mock implements Registry {}
 
@@ -46,7 +42,6 @@ void main() {
     late Action action;
     late WidgetsBinding binding;
     late SemanticsHandle semanticsHandle;
-    late Emitter emitter;
     late Registry registry;
     late ChannelBuffers channelBuffers;
 
@@ -54,7 +49,6 @@ void main() {
       action = _MockAction();
       binding = _MockWidgetBinding();
       semanticsHandle = _MockSemanticsHandle();
-      emitter = _MockEmitter();
       registry = _MockRegistry();
       channelBuffers = _MockChannelBuffers();
 
@@ -63,17 +57,11 @@ void main() {
       when(semanticsHandle.dispose).thenAnswer((_) {});
 
       when(() => registry.getAction(any(), any<dynamic>())).thenReturn(action);
-      when(() => emitter.start(any())).thenAnswer((_) async {});
-      when(
-        () => emitter.fail(any(), reason: any(named: 'reason')),
-      ).thenAnswer((_) async {});
-      when(() => emitter.done(any())).thenAnswer((_) async {});
-      when(() => emitter.fatal(any())).thenAnswer((_) async {});
 
       when(() => binding.platformDispatcher)
           .thenReturn(PlatformDispatcher.instance);
 
-      tester = Tester(binding, registry, emitter: emitter);
+      tester = Tester(binding, registry);
     });
 
     setUpAll(() {
@@ -96,111 +84,10 @@ void main() {
       expect(mediaQuery.viewInsets, equals(EdgeInsets.zero));
     });
 
-    group('convert', () {
-      late List<UserFlowStep> steps;
-
-      setUp(() {
-        when(() => emitter.announce(any())).thenAnswer((_) async {});
-
-        steps = [
-          UserFlowStep('actionName', arguments: 'actionData'),
-        ];
-      });
-
-      test('retrieves and execute action correctly', () async {
-        when(() => action.execute(any())).thenAnswer((_) async => true);
-        when(action.description).thenReturn('action');
-
-        final actions = await tester.convert(steps);
-        for (final action in actions) {
-          await action();
-        }
-
-        verify(() => emitter.announce('action')).called(1);
-
-        verify(() => emitter.start(any(that: equals('action')))).called(1);
-        verify(
-          () => registry.getAction(
-            any(that: equals('actionName')),
-            any<dynamic>(that: equals('actionData')),
-          ),
-        ).called(1);
-        verify(() => action.execute(any(that: equals(tester)))).called(1);
-        verify(() => emitter.done(any(that: equals('action')))).called(1);
-      });
-
-      test('fails if action is not found', () async {
-        when(() => registry.getAction(any(), any<dynamic>())).thenAnswer((_) {
-          throw Exception('Action not found');
-        });
-
-        await expectLater(
-          () => tester.convert(steps),
-          throwsException,
-        );
-
-        verify(
-          () => emitter.fatal(any(that: equals('Exception: Action not found'))),
-        ).called(1);
-        verifyNever(() => emitter.announce('action'));
-      });
-
-      test('fails if action execution throws', () async {
-        when(() => action.execute(any()))
-            .thenAnswer((_) async => throw Exception('Action failed'));
-        when(action.description).thenReturn('action');
-
-        final actions = await tester.convert(steps);
-        for (final action in actions) {
-          await action();
-        }
-
-        verify(() => emitter.announce('action')).called(1);
-
-        verify(() => emitter.start(any(that: equals('action')))).called(1);
-        verify(
-          () => emitter.fail(
-            any(that: equals('action')),
-            reason: any(
-              named: 'reason',
-              that: equals('Exception: Action failed'),
-            ),
-          ),
-        ).called(1);
-      });
-
-      test('fails if action execution returns false', () async {
-        when(() => action.execute(any())).thenAnswer((_) async => false);
-        when(action.description).thenReturn('action');
-
-        final actions = await tester.convert(steps);
-        for (final action in actions) {
-          await action();
-        }
-
-        verify(() => emitter.announce('action')).called(1);
-
-        verify(() => emitter.start(any(that: equals('action')))).called(1);
-        verify(
-          () => emitter.fail(
-            any(that: equals('action')),
-            reason: any(named: 'reason'),
-          ),
-        ).called(1);
-      });
-    });
-
     test('storeFile', () async {
-      when(() => emitter.store(any(), any())).thenAnswer((_) async {});
+      await tester.storeFile('fileName', [1, 2, 3]);
 
-      await tester.storeFile('fileName', Uint8List(0));
-
-      verify(
-        () => emitter.store(
-          any(that: equals('fileName')),
-          any(that: equals(Uint8List(0))),
-        ),
-      ).called(1);
+      expect(tester.storedFiles, equals({'fileName': 'AQID'}));
     });
 
     test('emitPointerEvent', () async {

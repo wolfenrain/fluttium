@@ -18,7 +18,7 @@ Once we run `fluttium init`, we should have a `fluttium.yaml` that looks like:
 # The following defines the environment for your Fluttium project. It includes
 # the version of Fluttium that the project requires.
 environment:
-  fluttium: '>=0.1.0 <0.2.0'
+  fluttium: '>=0.1.0 <1.0.0'
 
 # The driver can be configured with default values. Uncomment the following
 # lines to automatically run Fluttium using a different flavor and dart-defines.

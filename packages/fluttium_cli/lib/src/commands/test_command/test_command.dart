@@ -228,18 +228,6 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
     }).toList();
   }
 
-  List<StepState> _storeFiles(List<StepState> steps) {
-    final step = steps.lastWhereOrNull((e) => e.status == StepStatus.done);
-    if (step == null) return steps;
-    for (final file in step.files.entries) {
-      _logger.detail('Writing ${file.value.length} bytes to "${file.key}"');
-      File(file.key)
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(file.value);
-    }
-    return steps;
-  }
-
   @override
   Future<int> run() async {
     final userFlowFile = _userFlowFile;
@@ -330,15 +318,19 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       rethrow;
     }
 
-    final steps = <StepState>[];
-    driver.steps
-        .map((s) => (steps..clear())..addAll(s))
-        .map(_storeFiles)
-        .listen(
+    final steps = <UserFlowStepState>[];
+    driver.steps.map((s) => (steps..clear())..addAll(s)).listen(
           reporter.report,
           onDone: reporter.done,
           onError: reporter.error,
         );
+
+    driver.files.listen((file) {
+      _logger.detail('Writing ${file.data.length} bytes to "${file.path}"');
+      File(file.path)
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(file.data);
+    });
 
     await driver.run(watch: watch);
 

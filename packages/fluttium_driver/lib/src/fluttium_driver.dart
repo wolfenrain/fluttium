@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:clock/clock.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:fluttium_driver/src/bundles/bundles.dart';
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
-import 'package:fluttium_protocol/fluttium_protocol.dart';
 import 'package:mason/mason.dart' hide canonicalize;
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
@@ -50,9 +51,11 @@ class FluttiumDriver {
         _generatorBuilder = generator ?? MasonGenerator.fromBundle,
         _directoryWatcher = directoryWatcher ?? DirectoryWatcher.new,
         _fileWatcher = fileWatcher ?? FileWatcher.new,
-        _stepStateController = StreamController<List<StepState>>.broadcast(),
+        _stepStateController = StreamController.broadcast(),
+        _filesController = StreamController.broadcast(),
         assert(userFlowFile.existsSync(), 'userFlowFile does not exist') {
     userFlow = UserFlowYaml.fromData(userFlowFile.readAsStringSync());
+    _stepStates = userFlow.steps.map(UserFlowStepState.new).toList();
   }
 
   /// The configuration for the driver.
@@ -72,18 +75,24 @@ class FluttiumDriver {
 
   /// Stream of the steps in the user flow.
   ///
-  /// The steps are emitted as a list of [StepState]s representing the current
-  /// state of those steps, the list is ordered by the order of execution.
-  late final Stream<List<StepState>> steps = _stepStateController.stream;
-  final StreamController<List<StepState>> _stepStateController;
-  final List<StepState> _stepStates = [];
+  /// The steps are emitted as a list of [UserFlowStepState]s representing the
+  /// current state of those steps, the list is ordered by the order of
+  /// execution.
+  late final Stream<List<UserFlowStepState>> steps =
+      _stepStateController.stream;
+  final StreamController<List<UserFlowStepState>> _stepStateController;
+  late final List<UserFlowStepState> _stepStates;
+
+  /// Stream of files that should be stored.
+  late final Stream<StoredFile> files = _filesController.stream;
+  final StreamController<StoredFile> _filesController;
 
   final Logger _logger;
 
   final ProcessManager _processManager;
-  Process? _process;
-  var _didAttach = false;
-  late final Listener _listener;
+
+  FlutterDaemon? _daemon;
+  FlutterApplication? _application;
 
   final GeneratorBuilder _generatorBuilder;
 
@@ -99,8 +108,6 @@ class FluttiumDriver {
 
   var _restarting = false;
 
-  var _fatalError = false;
-
   /// Run the driver.
   ///
   /// This will setup the driver generated code, generate the runner, and start
@@ -113,122 +120,69 @@ class FluttiumDriver {
   /// To listen to the steps in the user flow, use the [steps] stream.
   Future<void> run({bool watch = false}) async {
     await _setupGeneratedCode();
-    await _launchTestRunner();
+    _application = await _launchTestRunner();
+    if (_application == null) return;
 
-    _subscriptions.add(
-      _listener.messages.listen((message) async {
-        // Skip everything if a fatal error had occurred.
-        if (_fatalError) return;
+    if (watch) {
+      // Watch the project directory for changes and hot restart the
+      // runner when changes are detected.
+      _subscriptions
+        ..add(
+          _directoryWatcher(projectDirectory.path).events.listen(
+            (event) {
+              if (!event.path.endsWith('.dart')) return;
+              restart();
+            },
+            onError: (Object err) {
+              if (err is FileSystemException &&
+                  err.message.contains('Failed to watch')) {
+                return _logger.detail(err.toString());
+              }
+              // ignore: only_throw_errors
+              throw err;
+            },
+          ),
+        )
+        // Watch the user flow file for changes and restart the driver
+        // when changes are detected.
+        ..add(
+          _fileWatcher(userFlowFile.path).events.listen((event) => restart()),
+        );
+    }
 
-        if (!_didAttach) {
-          _didAttach = true;
-          _launchingTestRunner?.complete();
+    await _executeSteps();
 
-          if (watch) {
-            // Watch the project directory for changes and hot restart the
-            // runner when changes are detected.
-            _subscriptions
-              ..add(
-                _directoryWatcher(projectDirectory.path).events.listen(
-                  (event) {
-                    if (!event.path.endsWith('.dart')) return;
-                    restart();
-                  },
-                  onError: (Object err) {
-                    if (err is FileSystemException &&
-                        err.message.contains('Failed to watch')) {
-                      return _logger.detail(err.toString());
-                    }
-                    // ignore: only_throw_errors
-                    throw err;
-                  },
-                ),
-              )
-              // Watch the user flow file for changes and restart the driver
-              // when changes are detected.
-              ..add(
-                _fileWatcher(userFlowFile.path)
-                    .events
-                    .listen((event) => restart()),
-              );
-          }
-        }
+    // If all steps were done, or if a step failed, stop the process unless
+    // we're in watch mode.
+    if (!watch &&
+        (_stepStates.every((e) => e.status == StepStatus.done) ||
+            _stepStates.any((e) => e.status == StepStatus.failed))) {
+      return quit();
+    }
 
-        switch (message.type) {
-          case MessageType.fatal:
-            _fatalError = true;
-            break;
-          case MessageType.announce:
-            _stepStates.add(StepState(message.data as String));
-            break;
-          case MessageType.start:
-            final index = _stepStates.indexWhere(
-              (state) => state.status == StepStatus.initial,
-            );
-            _stepStates[index] = _stepStates[index].copyWith(
-              status: StepStatus.running,
-            );
-            break;
-          case MessageType.done:
-            final index = _stepStates.indexWhere(
-              (state) => state.status == StepStatus.running,
-            );
-            _stepStates[index] = _stepStates[index].copyWith(
-              status: StepStatus.done,
-            );
-            break;
-          case MessageType.fail:
-            final data = message.data as List<dynamic>;
-            final reason = data.last as String;
+    // Wait for Daemon to finish.
+    await _daemon?.finished;
 
-            final index = _stepStates.indexWhere(
-              (state) => state.status == StepStatus.running,
-            );
-            _stepStates[index] = _stepStates[index].copyWith(
-              status: StepStatus.failed,
-              failReason: reason,
-            );
-            break;
-          case MessageType.store:
-            final data = message.data as List<dynamic>;
-            final fileName = data.first as String;
-            final fileData = (data.last as List<dynamic>).cast<int>();
+    await quit();
+  }
 
-            final index = _stepStates.indexWhere(
-              (state) => state.status == StepStatus.running,
-            );
-            _stepStates[index] = _stepStates[index].copyWith(
-              files: {..._stepStates[index].files, fileName: fileData},
-            );
-            break;
-        }
+  /// Restart the runner and the driver.
+  Future<void> restart() async {
+    if (_restarting || _daemon == null) return;
+    _restarting = true;
 
-        // Don't do anything past this point if the runner is still announcing.
-        if (message.type == MessageType.announce) return;
-        _stepStateController.add(_stepStates);
+    // Regenerate the test runner.
+    await _generateTestRunner();
 
-        // If it was a fatal message, emit that as an error AFTER we emitted
-        // the step states.
-        if (message.type == MessageType.fatal) {
-          _stepStateController.addError(
-            FatalDriverException(message.data as String),
-          );
-        }
-        _restarting = false;
+    // Tell the daemon to restart the runner.
+    await _application?.restart();
+    _restarting = false;
 
-        // If all steps were done, or if a step failed, stop the process unless
-        // we're in watch mode.
-        if (!watch &&
-            (_stepStates.every((e) => e.status == StepStatus.done) ||
-                _stepStates.any((e) => e.status == StepStatus.failed))) {
-          await quit();
-        }
-      }),
-    );
+    await _executeSteps();
+  }
 
-    // Wait for the process to exit, and then clean up the project.
-    await _process?.exitCode;
-
+  /// Close the runner and it's driver.
+  Future<void> quit() async {
     // Cancel all the subscriptions.
     await Future.wait(_subscriptions.map((e) => e.cancel()));
     _subscriptions.clear();
@@ -236,41 +190,14 @@ class FluttiumDriver {
     // Close the step state controller.
     await _stepStateController.close();
 
-    // Close the message listener.
-    await _listener.close();
+    // Tell the daemon to stop the runner.
+    if (!(_daemon?.isFinished ?? true)) {
+      await _application?.stop();
+    }
+    await _daemon?.dispose();
 
     // Cleanup the generated files.
     await _cleanupGeneratedCode();
-
-    _process?.kill();
-  }
-
-  /// Restart the runner and the driver.
-  Future<void> restart() async {
-    if (_restarting || _process == null) return;
-    _restarting = true;
-
-    // Set the status of all steps to initial, we already know the steps so
-    // there is no need to wait with telling the listener.
-    _stepStateController.add(
-      _stepStates.map((e) => StepState(e.description)).toList(),
-    );
-
-    // Clear all the states after the listener has been notified, it will
-    // automatically be filled up by the runner.
-    _stepStates.clear();
-
-    // Regenerate the test runner.
-    await _generateTestRunner();
-
-    // Tell the runner to restart.
-    _process?.stdin.write('R');
-  }
-
-  /// Quit the runner and it's driver.
-  Future<void> quit() async {
-    // Tell the runner to quit.
-    _process?.stdin.write('q');
   }
 
   Future<void> _setupGeneratedCode() async {
@@ -361,52 +288,122 @@ class FluttiumDriver {
     }
   }
 
-  Progress? _launchingTestRunner;
+  Future<FlutterApplication?> _launchTestRunner() async {
+    _daemon = FlutterDaemon(processManager: _processManager);
 
-  Future<void> _launchTestRunner() async {
-    final commandArgs = [
-      'flutter',
-      'run',
-      _launcherFile.absolute.path,
-      if (configuration.deviceId != null) ...['-d', configuration.deviceId!],
-      if (configuration.flavor != null) ...['--flavor', configuration.flavor!],
-      ...configuration.dartDefines.expand((e) => ['--dart-define', e]),
-    ];
-    _logger.detail('Running command: ${commandArgs.join(' ')}');
+    final launchingTestRunner = _logger.progress('Launching the test runner');
+    try {
+      final application = await _daemon?.run(
+        arguments: [
+          _launcherFile.absolute.path,
+          if (configuration.deviceId != null) ...[
+            '-d',
+            configuration.deviceId!
+          ],
+          if (configuration.flavor != null) ...[
+            '--flavor',
+            configuration.flavor!
+          ],
+          ...configuration.dartDefines.expand((e) => ['--dart-define', e]),
+        ],
+        workingDirectory: projectDirectory.path,
+      );
 
-    _launchingTestRunner = _logger.progress('Launching the test runner');
-    _process = await _processManager.start(
-      commandArgs,
-      runInShell: true,
-      workingDirectory: projectDirectory.path,
-    );
+      launchingTestRunner.complete();
 
-    _listener = Listener(
-      _process!.stdout.map((event) {
-        final regex = RegExp(
-          r'^[I\/]*flutter[\s*\(\s*\d+\)]*: ',
-          multiLine: true,
+      await Future<void>.delayed(const Duration(seconds: 5));
+
+      return application;
+    } catch (err) {
+      await _daemon?.dispose();
+      launchingTestRunner.fail('Failed to start test driver');
+      _logger.err(err.toString());
+      return null;
+    }
+  }
+
+  Future<void> _executeSteps() async {
+    _stepStates
+      ..clear()
+      ..addAll(userFlow.steps.map(UserFlowStepState.new));
+
+    // The service extensions might not be setup yet, so we wait at most 30
+    // seconds and constantly trying half a second to determine if it is setup.
+    AppCallServiceExtensionResponse? readyResponse;
+    final timeout = clock.now().add(const Duration(seconds: 30));
+    while (readyResponse?.result?['ready'] != true) {
+      readyResponse = await _application!.callServiceExtension(
+        'ext.fluttium.ready',
+      );
+
+      if (readyResponse.hasError || readyResponse.result!['ready'] == false) {
+        if (clock.now().isBefore(timeout)) {
+          await Future<void>.delayed(Duration.zero);
+          continue;
+        }
+
+        return _logger.err(
+          '''Failed to get ready: ${readyResponse.error ?? readyResponse.result!['reason'] as String?}''',
         );
-        final data = utf8.decode(event);
-        _logger.detail('driver: $data');
-        return utf8.encode(data.replaceAll(regex, ''));
-      }),
-    );
+      }
+    }
 
-    final errorBuffer = StringBuffer();
-    _subscriptions.add(
-      _process!.stderr.transform(utf8.decoder).listen(
-        errorBuffer.write,
-        onDone: () {
-          // If it exited without correctly attaching to the application, we
-          // output the errors.
-          if (!_didAttach) {
-            _launchingTestRunner?.fail('Failed to start test driver');
-            _logger.err(errorBuffer.toString());
-          }
+    // Get all action descriptions and announce them.
+    for (var i = 0; i < _stepStates.length; i++) {
+      final response = await _application!.callServiceExtension(
+        'ext.fluttium.getActionDescription',
+        params: {
+          'name': _stepStates[i].step.actionName,
+          'arguments': json.encode(_stepStates[i].step.arguments),
         },
-      ),
-    );
+      );
+      if (response.hasError) return _logger.err('Failed: ${response.error}');
+
+      _stepStates[i] = _stepStates[i].copyWith(
+        description: response.result!['description'] as String,
+      );
+    }
+    _stepStateController.add(_stepStates);
+
+    for (var i = 0; i < _stepStates.length; i++) {
+      _stepStates[i] = _stepStates[i].copyWith(status: StepStatus.running);
+      _stepStateController.add(_stepStates);
+      final response = await _application!.callServiceExtension(
+        'ext.fluttium.executeAction',
+        params: {
+          'name': _stepStates[i].step.actionName,
+          'arguments': json.encode(_stepStates[i].step.arguments),
+        },
+      );
+
+      final hasError =
+          response.hasError || response.result!['success'] == false;
+
+      if (hasError) {
+        _stepStates[i] = _stepStates[i].copyWith(
+          status: StepStatus.failed,
+          failReason: response.error ?? response.result!['reason'] as String?,
+        );
+      } else {
+        final files = response.result!['files'] as Map<String, dynamic>;
+        if (files.isNotEmpty) {
+          for (final key in files.keys) {
+            _filesController.add(
+              StoredFile(key, base64.decode(files[key]! as String)),
+            );
+          }
+        }
+        _stepStates[i] = _stepStates[i].copyWith(
+          status: StepStatus.done,
+          // ignore: deprecated_member_use_from_same_package
+          files: files.map((k, v) => MapEntry(k, base64.decode(v as String))),
+        );
+      }
+      _stepStateController.add(_stepStates);
+
+      // We had an error, do not continue.
+      if (hasError) break;
+    }
   }
 
   /// The current Fluttium version constraint that the driver needs to work.

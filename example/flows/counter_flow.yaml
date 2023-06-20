@@ -2,18 +2,23 @@ description: Testing the counter page
 ---
 # Validate that the app page is displayed
 - expectEnvironmentText:
+- takeScreenshot: "screenshots/app_page.png"
 # Go to the counter page
 - pressOn: "Counter"
 # Validate that the counter page is displayed and the counter is 0
 - expectVisible: "Counter"
+- takeScreenshot: "screenshots/counter_page.png"
 - expectVisible: 0
 # Increment and decrement the counter
 - pressOn: "Increment"
+- takeScreenshot: "screenshots/counter_1.png"
 - expectVisible: 1
 - pressOn: "Increment"
 - expectVisible: 2
+- takeScreenshot: "screenshots/counter_2.png"
 - pressOn: "Decrement"
 - expectVisible: 1
+- takeScreenshot: "screenshots/counter_1_again.png"
 # Return to the app page
 - pressOn: "Back"
 - expectEnvironmentText:

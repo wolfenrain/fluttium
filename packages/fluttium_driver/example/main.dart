@@ -18,7 +18,7 @@ Future<void> main() async {
       ),
     },
     projectDirectory: Directory('../../example'),
-    userFlowFile: File('../../example/flows/progress_flow.yaml'),
+    userFlowFile: File('../../example/flows/counter_flow.yaml'),
   );
 
   final stepsSubscription = driver.steps.listen(
@@ -55,6 +55,12 @@ Future<void> main() async {
 
   final processSubscription =
       ProcessSignal.sigint.watch().listen((_) => driver.quit());
+
+  driver.files.listen((file) {
+    File(file.path)
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(file.data);
+  });
 
   await driver.run();
   await stepsSubscription.cancel();

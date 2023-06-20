@@ -4,10 +4,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:fake_async/fake_async.dart';
 import 'package:fluttium_driver/fluttium_driver.dart';
 import 'package:fluttium_driver/src/bundles/bundles.dart';
 import 'package:fluttium_interfaces/fluttium_interfaces.dart';
-import 'package:fluttium_protocol/fluttium_protocol.dart';
 import 'package:mason/mason.dart' hide GitPath;
 import 'package:mocktail/mocktail.dart';
 import 'package:process/process.dart';
@@ -40,7 +40,7 @@ class _MockDirectoryWatcher extends Mock implements DirectoryWatcher {}
 class _MockFileWatcher extends Mock implements FileWatcher {}
 
 void main() {
-  group('FluttiumDriver', () {
+  group('$FluttiumDriver', () {
     late Logger logger;
     late Progress settingUpTestRunner;
     late Progress settingUpLauncher;
@@ -60,17 +60,25 @@ void main() {
     late File pubspecFile;
 
     late ProcessManager processManager;
-    late Process process;
-    late IOSink processSink;
-    late StreamController<List<int>> stdoutController;
+    late Process daemonProcess;
+    late IOSink daemonSink;
+    late StreamController<List<int>> daemonController;
     late StreamController<List<int>> stderrController;
-    late Completer<int> processExitCode;
+    late Completer<int> daemonExitCode;
+
+    late Map<String, String> files;
+    late bool fluttiumReady;
+    late bool failStep;
 
     setUpAll(() {
       registerFallbackValue(_FakeDirectoryGeneratorTarget());
     });
 
     setUp(() {
+      files = {};
+      fluttiumReady = true;
+      failStep = false;
+
       // Setting up logger
       logger = _MockLogger();
       settingUpTestRunner = _MockProgress();
@@ -185,21 +193,54 @@ name: project_name
 
       processManager = _MockProcessManager();
 
-      process = _MockProcess();
-      processExitCode = Completer<int>();
-      when(() => process.exitCode).thenAnswer((_) => processExitCode.future);
+      daemonProcess = _MockProcess();
+      daemonExitCode = Completer<int>();
+      when(() => daemonProcess.exitCode)
+          .thenAnswer((_) => daemonExitCode.future);
 
-      processSink = _MockIOSink();
-      when(() => processSink.write(any(that: equals('q')))).thenAnswer((_) {
-        processExitCode.complete(ExitCode.success.code);
+      daemonSink = _MockIOSink();
+      when(() => daemonSink.writeln(any())).thenAnswer((_) {
+        final requests = json.decode(_.positionalArguments.first as String);
+        final request = (requests as List).first as Map<String, dynamic>;
+        final params = request['params'] as Map<String, dynamic>?;
+
+        final result = switch (request['method']) {
+          'app.restart' => {'code': 0, 'message': ''},
+          'app.stop' => true,
+          'app.callServiceExtension' => <String, dynamic>{
+              ...switch (params!['methodName']) {
+                'ext.fluttium.ready' => <String, dynamic>{
+                    'ready': fluttiumReady,
+                    if (!fluttiumReady) 'reason': 'failedReason',
+                  },
+                'ext.fluttium.getActionDescription' => {
+                    'description': 'Description'
+                  },
+                'ext.fluttium.executeAction' => {
+                    'success': !failStep,
+                    'files': files,
+                  },
+                _ => throw UnimplementedError(params['methodName'] as String)
+              },
+            },
+          _ => throw UnimplementedError(request['method'] as String),
+        };
+
+        daemonController.write(
+          json.encode([
+            {'id': request['id'], 'result': result}
+          ]),
+        );
       });
-      when(() => process.stdin).thenReturn(processSink);
+      when(() => daemonProcess.stdin).thenReturn(daemonSink);
 
-      stdoutController = StreamController<List<int>>();
-      when(() => process.stdout).thenAnswer((_) => stdoutController.stream);
+      daemonController = StreamController<List<int>>();
+      when(() => daemonProcess.stdout)
+          .thenAnswer((_) => daemonController.stream);
       stderrController = StreamController<List<int>>();
-      when(() => process.stderr).thenAnswer((_) => stderrController.stream);
-      when(() => process.kill()).thenReturn(true);
+      when(() => daemonProcess.stderr)
+          .thenAnswer((_) => stderrController.stream);
+      when(() => daemonProcess.kill()).thenReturn(true);
 
       when(
         () => processManager.start(
@@ -207,15 +248,18 @@ name: project_name
             that: containsAllInOrder([
               'flutter',
               'run',
+              '--machine',
               '/project_directory/.fluttium_test_launcher.dart',
               '-d',
-              'deviceId'
+              'deviceId',
+              '--flavor',
+              'development',
             ]),
           ),
           runInShell: any(named: 'runInShell'),
           workingDirectory: any(named: 'workingDirectory'),
         ),
-      ).thenAnswer((_) async => process);
+      ).thenAnswer((_) async => daemonProcess);
     });
 
     FluttiumDriver createDriver({
@@ -228,6 +272,7 @@ name: project_name
         configuration: DriverConfiguration(
           deviceId: 'deviceId',
           dartDefines: dartDefines,
+          flavor: 'development',
         ),
         actions: actions,
         projectDirectory: Directory('/project_directory'),
@@ -291,8 +336,12 @@ name: project_name
     }
 
     test('can run a flow test', () async {
+      files = {
+        'fileName': base64.encode([1, 2, 3]),
+      };
+
       await runWithMocks(() async {
-        var testStepStates = <StepState>[];
+        var testStepStates = <UserFlowStepState>[];
         final driver = createDriver(
           actions: {
             'hosted_action': ActionLocation(
@@ -315,7 +364,13 @@ name: project_name
             ),
             'path_action': ActionLocation(path: './path_action'),
           },
-        )..steps.listen((steps) => testStepStates = steps);
+        )
+          ..steps.listen((steps) => testStepStates = steps)
+          ..files.listen((file) {
+            expect(file.path, equals('fileName'));
+            expect(file.data, equals([1, 2, 3]));
+          });
+
         verify(() => userFlowFile.readAsStringSync()).called(1);
 
         final future = driver.run();
@@ -437,15 +492,6 @@ name: project_name
 
         // Verifying that the launching works correctly.
         verify(
-          () => logger.detail(
-            any(
-              that: equals(
-                'Running command: flutter run /project_directory/.fluttium_test_launcher.dart -d deviceId',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
           () => logger.progress(any(that: equals('Launching the test runner'))),
         ).called(1);
         verify(
@@ -454,9 +500,12 @@ name: project_name
               that: equals([
                 'flutter',
                 'run',
+                '--machine',
                 '/project_directory/.fluttium_test_launcher.dart',
                 '-d',
-                'deviceId'
+                'deviceId',
+                '--flavor',
+                'development',
               ]),
             ),
             runInShell: any(named: 'runInShell', that: isTrue),
@@ -467,23 +516,14 @@ name: project_name
           ),
         ).called(1);
 
-        // Trigger the attach by sending the first announce.
-        stdoutController
-          ..addAll(MessageType.announce.toData('stepName1'))
-          ..addAll(MessageType.announce.toData('stepName2'));
+        // Ensure app start event is emitted.
+        daemonController.appStart();
         await Future<void>.delayed(Duration.zero);
         verify(() => launchingTestRunner.complete()).called(1);
 
-        // Finish the process by starting and finishing a step.
-        stdoutController
-          ..addAll(MessageType.start.toData('stepName1'))
-          ..addAll(MessageType.store.toData('stepName1'))
-          ..addAll(MessageType.done.toData('stepName1'))
-          ..addAll(MessageType.start.toData('stepName2'))
-          ..addAll(MessageType.fail.toData('stepName2'));
-
-        // Wait for the messages to be consumed.
+        // Allow the daemon to consume all the driver calls.
         await Future<void>.delayed(Duration.zero);
+        daemonExitCode.complete(ExitCode.success.code);
 
         // Verify that the code clean is working correctly.
         verify(
@@ -505,20 +545,58 @@ name: project_name
 
         await future;
 
+        // Verify all RCP calls were done correctly
+        verifyInOrder([
+          () => daemonSink.writeln(
+                any(that: isRcpCall('ext.fluttium.ready', {})),
+              ),
+          () => daemonSink.writeln(
+                any(
+                  that: isRcpCall(
+                    'ext.fluttium.getActionDescription',
+                    {'name': 'pressOn', 'arguments': '"Text"'},
+                  ),
+                ),
+              ),
+          () => daemonSink.writeln(
+                any(
+                  that: isRcpCall(
+                    'ext.fluttium.getActionDescription',
+                    {'name': 'expectVisible', 'arguments': '"Text"'},
+                  ),
+                ),
+              ),
+          () => daemonSink.writeln(
+                any(
+                  that: isRcpCall(
+                    'ext.fluttium.executeAction',
+                    {'name': 'pressOn', 'arguments': '"Text"'},
+                  ),
+                ),
+              ),
+          () => daemonSink.writeln(
+                any(
+                  that: isRcpCall(
+                    'ext.fluttium.executeAction',
+                    {'name': 'expectVisible', 'arguments': '"Text"'},
+                  ),
+                ),
+              ),
+          () => daemonSink.writeln(any(that: isMethodCall('app.stop'))),
+        ]);
+
         expect(
           testStepStates,
           equals([
-            StepState(
-              'stepName1',
+            UserFlowStepState(
+              UserFlowStep('pressOn', arguments: 'Text'),
+              description: 'Description',
               status: StepStatus.done,
-              files: const {
-                'fileName': [1, 2, 3]
-              },
             ),
-            StepState(
-              'stepName2',
-              status: StepStatus.failed,
-              failReason: 'reason',
+            UserFlowStepState(
+              UserFlowStep('expectVisible', arguments: 'Text'),
+              description: 'Description',
+              status: StepStatus.done,
             ),
           ]),
         );
@@ -527,10 +605,10 @@ name: project_name
 
     test('fails to start driver if error occurred in building', () async {
       await runWithMocks(() async {
-        var testStepStates = <StepState>[];
+        var testStepStates = <UserFlowStepState>[];
         final driver = createDriver()
           ..steps.listen((steps) => testStepStates = steps);
-        verify(() => userFlowFile.readAsStringSync()).called(1);
+        verify(userFlowFile.readAsStringSync).called(1);
 
         final future = driver.run();
 
@@ -543,10 +621,10 @@ name: project_name
 
         // Close process and stderr controller.
         await stderrController.close();
-        processExitCode.complete(ExitCode.unavailable.code);
+        daemonExitCode.complete(ExitCode.unavailable.code);
 
         await Future<void>.delayed(Duration.zero);
-        verifyNever(() => launchingTestRunner.complete());
+        verifyNever(launchingTestRunner.complete);
         verify(
           () => launchingTestRunner
               .fail(any(that: equals('Failed to start test driver'))),
@@ -559,43 +637,88 @@ name: project_name
       });
     });
 
-    test('propagates fatal exceptions', () async {
+    test('stops early if a step failed', () async {
+      failStep = true;
+
       await runWithMocks(() async {
-        var testStepStates = <StepState>[];
+        var testStepStates = <UserFlowStepState>[];
         final driver = createDriver()
-          ..steps.listen(
-            (steps) => testStepStates = steps,
-            onError: (Object err) {
-              expect(err, isA<FatalDriverException>());
-              expect(
-                '$err',
-                equals(
-                  'A fatal exception happened on the driver: fatal reason',
-                ),
-              );
-            },
-          );
+          ..steps.listen((steps) => testStepStates = steps);
+        verify(userFlowFile.readAsStringSync).called(1);
 
         final future = driver.run();
+
         // Wait for the process to start.
         await Future<void>.delayed(Duration.zero);
 
-        // Trigger the attach by sending the first announce.
-        stdoutController.addAll(MessageType.announce.toData('stepName'));
+        // Ensure app start event is emitted.
+        daemonController.appStart();
+        await Future<void>.delayed(Duration.zero);
+        verify(() => launchingTestRunner.complete()).called(1);
+
+        // Allow the daemon to consume all the driver calls.
         await Future<void>.delayed(Duration.zero);
 
-        // Trigger a fatal exception from the emitter.
-        stdoutController.addAll(MessageType.fatal.toData('stepName'));
-        await Future<void>.delayed(Duration.zero);
+        // Close process.
+        daemonExitCode.complete(ExitCode.unavailable.code);
 
-        // Should be ignored because we had a fatal exception.
-        stdoutController.addAll(MessageType.announce.toData('anotherSTep'));
-        await Future<void>.delayed(Duration.zero);
-
-        processExitCode.complete(ExitCode.success.code);
         await future;
 
-        expect(testStepStates, equals([StepState('stepName')]));
+        expect(
+          testStepStates,
+          equals([
+            UserFlowStepState(
+              UserFlowStep('pressOn', arguments: 'Text'),
+              description: 'Description',
+              status: StepStatus.failed,
+            ),
+            UserFlowStepState(
+              UserFlowStep('expectVisible', arguments: 'Text'),
+              description: 'Description',
+            )
+          ]),
+        );
+      });
+    });
+
+    test('fails early if driver does not get ready', () async {
+      await fakeAsync((async) async {
+        fluttiumReady = false;
+
+        await runWithMocks(() async {
+          var testStepStates = <UserFlowStepState>[];
+          final driver = createDriver()
+            ..steps.listen((steps) => testStepStates = steps);
+          verify(userFlowFile.readAsStringSync).called(1);
+
+          final future = driver.run();
+
+          // Wait for the process to start.
+          await Future<void>.delayed(Duration.zero);
+
+          // Ensure app start event is emitted.
+          daemonController.appStart();
+          await Future<void>.delayed(Duration.zero);
+          verify(() => launchingTestRunner.complete()).called(1);
+
+          // Allow the daemon to consume all the driver calls.
+          await Future<void>.delayed(Duration.zero);
+
+          async.elapse(Duration(seconds: 31));
+
+          // Close process.
+          daemonExitCode.complete(ExitCode.unavailable.code);
+
+          verify(
+            () => logger.err(
+              any(that: equals('Failed to get ready: failedReason')),
+            ),
+          ).called(1);
+
+          await future;
+
+          expect(testStepStates, equals([]));
+        });
       });
     });
 
@@ -619,7 +742,7 @@ name: project_name
 
       test('restart if a project file changes', () async {
         await runWithMocks(() async {
-          var testStepStates = <StepState>[];
+          var testStepStates = <UserFlowStepState>[];
           final driver = createDriver(
             directoryWatcher: directoryWatcher,
             fileWatcher: fileWatcher,
@@ -629,8 +752,12 @@ name: project_name
           // Wait for the process to start.
           await Future<void>.delayed(Duration.zero);
 
-          // Trigger the attach by sending the first announce.
-          stdoutController.addAll(MessageType.announce.toData('stepName'));
+          // Ensure app start event is emitted.
+          daemonController.appStart();
+          await Future<void>.delayed(Duration.zero);
+          verify(launchingTestRunner.complete).called(1);
+
+          // Allow the daemon to consume all the driver calls.
           await Future<void>.delayed(Duration.zero);
 
           // Trigger a file change
@@ -639,18 +766,44 @@ name: project_name
           );
           await Future<void>.delayed(Duration.zero);
 
-          verify(() => process.stdin.write(any(that: equals('R')))).called(1);
+          verify(
+            () => daemonSink.writeln(
+              any(
+                that: isMethodCall('app.restart', {
+                  'fullRestart': null,
+                  'reason': null,
+                  'pause': null,
+                  'debounce': null,
+                }),
+              ),
+            ),
+          ).called(1);
+          await Future<void>.delayed(Duration.zero);
 
-          processExitCode.complete(ExitCode.success.code);
+          daemonExitCode.complete(ExitCode.success.code);
           await future;
 
-          expect(testStepStates, equals([StepState('stepName')]));
+          expect(
+            testStepStates,
+            equals([
+              UserFlowStepState(
+                UserFlowStep('pressOn', arguments: 'Text'),
+                description: 'Description',
+                status: StepStatus.done,
+              ),
+              UserFlowStepState(
+                UserFlowStep('expectVisible', arguments: 'Text'),
+                description: 'Description',
+                status: StepStatus.done,
+              )
+            ]),
+          );
         });
       });
 
       test('logs an error if it temporary cant watch a file', () async {
         await runWithMocks(() async {
-          var testStepStates = <StepState>[];
+          var testStepStates = <UserFlowStepState>[];
           final driver = createDriver(
             directoryWatcher: directoryWatcher,
             fileWatcher: fileWatcher,
@@ -660,9 +813,10 @@ name: project_name
           // Wait for the process to start.
           await Future<void>.delayed(Duration.zero);
 
-          // Trigger the attach by sending the first announce.
-          stdoutController.addAll(MessageType.announce.toData('stepName'));
+          // Ensure app start event is emitted.
+          daemonController.appStart();
           await Future<void>.delayed(Duration.zero);
+          verify(launchingTestRunner.complete).called(1);
 
           // Trigger a file system exception.
           watchEventController.addError(FileSystemException('Failed to watch'));
@@ -677,18 +831,43 @@ name: project_name
               ),
             ),
           ).called(1);
-          verifyNever(() => process.stdin.write(any(that: equals('R'))));
+          verifyNever(
+            () => daemonSink.writeln(
+              any(
+                that: isMethodCall('app.restart', {
+                  'fullRestart': null,
+                  'reason': null,
+                  'pause': null,
+                  'debounce': null,
+                }),
+              ),
+            ),
+          );
 
-          processExitCode.complete(ExitCode.success.code);
+          daemonExitCode.complete(ExitCode.success.code);
           await future;
 
-          expect(testStepStates, equals([]));
+          expect(
+            testStepStates,
+            equals([
+              UserFlowStepState(
+                UserFlowStep('pressOn', arguments: 'Text'),
+                description: 'Description',
+                status: StepStatus.done,
+              ),
+              UserFlowStepState(
+                UserFlowStep('expectVisible', arguments: 'Text'),
+                description: 'Description',
+                status: StepStatus.done,
+              )
+            ]),
+          );
         });
       });
 
       test('regenerate test runner if the flow file change', () async {
         await runWithMocks(() async {
-          var testStepStates = <StepState>[];
+          var testStepStates = <UserFlowStepState>[];
           final driver = createDriver(
             directoryWatcher: directoryWatcher,
             fileWatcher: fileWatcher,
@@ -698,24 +877,51 @@ name: project_name
           // Wait for the process to start.
           await Future<void>.delayed(Duration.zero);
 
-          verify(() => userFlowFile.readAsStringSync()).called(2);
+          verify(userFlowFile.readAsStringSync).called(2);
 
-          // Trigger the attach by sending the first announce.
-          stdoutController.addAll(MessageType.announce.toData('stepName'));
+          // Ensure app start event is emitted.
+          daemonController.appStart();
           await Future<void>.delayed(Duration.zero);
+          verify(launchingTestRunner.complete).called(1);
 
-          verifyNever(() => userFlowFile.readAsStringSync());
+          verifyNever(userFlowFile.readAsStringSync);
           fileWatchEventController.add(
             WatchEvent(ChangeType.MODIFY, 'flow.yaml'),
           );
           await Future<void>.delayed(Duration.zero);
-          verify(() => userFlowFile.readAsStringSync()).called(1);
-          verify(() => process.stdin.write(any(that: equals('R')))).called(1);
 
-          processExitCode.complete(ExitCode.success.code);
+          verify(userFlowFile.readAsStringSync).called(1);
+          verify(
+            () => daemonSink.writeln(
+              any(
+                that: isMethodCall('app.restart', {
+                  'fullRestart': null,
+                  'reason': null,
+                  'pause': null,
+                  'debounce': null,
+                }),
+              ),
+            ),
+          ).called(1);
+
+          daemonExitCode.complete(ExitCode.success.code);
           await future;
 
-          expect(testStepStates, equals([StepState('stepName')]));
+          expect(
+            testStepStates,
+            equals([
+              UserFlowStepState(
+                UserFlowStep('pressOn', arguments: 'Text'),
+                description: 'Description',
+                status: StepStatus.done,
+              ),
+              UserFlowStepState(
+                UserFlowStep('expectVisible', arguments: 'Text'),
+                description: 'Description',
+                status: StepStatus.done,
+              )
+            ]),
+          );
         });
       });
     });
@@ -736,72 +942,50 @@ name: project_name
   });
 }
 
-extension on MessageType {
-  Iterable<List<int>> toData(String stepName) {
-    switch (this) {
-      case MessageType.fatal:
-        return [
-          {'type': 'start'},
-          {
-            'type': 'data',
-            'data': r'"{\"type\":\"fatal\",\"data\":\"\\\"fatal reason\\\"\"}"'
-          },
-          {'type': 'done'}
-        ].map((data) => utf8.encode('${json.encode(data)}\n'));
-      case MessageType.announce:
-        return [
-          {'type': 'start'},
-          {
-            'type': 'data',
-            'data':
-                '"{\\"type\\":\\"announce\\",\\"data\\":\\"\\\\\\"$stepName\\\\\\"\\"}"'
-          },
-          {'type': 'done'}
-        ].map((data) => utf8.encode('${json.encode(data)}\n'));
-      case MessageType.start:
-        return [
-          {'type': 'start'},
-          {
-            'type': 'data',
-            'data':
-                '"{\\"type\\":\\"start\\",\\"data\\":\\"\\\\\\"$stepName\\\\\\"\\"}"'
-          },
-          {'type': 'done'},
-        ].map((data) => utf8.encode('${json.encode(data)}\n'));
-      case MessageType.done:
-        return [
-          {'type': 'start'},
-          {
-            'type': 'data',
-            'data':
-                '"{\\"type\\":\\"done\\",\\"data\\":\\"\\\\\\"$stepName\\\\\\"\\"}"'
-          },
-          {'type': 'done'},
-        ].map((data) => utf8.encode('${json.encode(data)}\n'));
-      case MessageType.fail:
-        return [
-          {'type': 'start'},
-          {
-            'type': 'data',
-            'data':
-                '"{\\"type\\":\\"fail\\",\\"data\\":\\"[\\\\\\"$stepName\\\\\\",\\\\\\"reason\\\\\\"]\\"}"'
-          },
-          {'type': 'done'},
-        ].map((data) => utf8.encode('${json.encode(data)}\n'));
-      case MessageType.store:
-        return [
-          {'type': 'start'},
-          {
-            'type': 'data',
-            'data':
-                r'"{\"type\":\"store\",\"data\":\"[\\\"fileName\\\",[1,2,3]]\"}"'
-          },
-          {'type': 'done'},
-        ].map((data) => utf8.encode('${json.encode(data)}\n'));
-    }
+extension on StreamController<List<int>> {
+  void write(String data) => add(utf8.encode('$data\n'));
+
+  void appStart() {
+    write(
+      json.encode([
+        {
+          'event': 'app.started',
+          'params': {'appId': '0000'}
+        }
+      ]),
+    );
   }
 }
 
-extension on StreamController<List<int>> {
-  void addAll(Iterable<List<int>> data) => data.forEach(add);
+Matcher isRcpCall(
+  String methodName, [
+  Map<String, dynamic> params = const {},
+]) {
+  final data = json.encode([
+    {
+      'method': 'app.callServiceExtension',
+      'params': {
+        'appId': '0000',
+        'methodName': methodName,
+        'params': params,
+      }
+    }
+  ]);
+  return contains(data.substring(2, data.length - 2));
+}
+
+Matcher isMethodCall(
+  String methodName, [
+  Map<String, dynamic> params = const {},
+]) {
+  final data = json.encode([
+    {
+      'method': methodName,
+      'params': {
+        'appId': '0000',
+        ...params,
+      }
+    }
+  ]);
+  return contains(data.substring(2, data.length - 2));
 }
