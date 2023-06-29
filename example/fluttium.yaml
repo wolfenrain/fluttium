@@ -1,5 +1,5 @@
 environment:
-  fluttium: ">=0.1.0-dev.1 <0.1.0"
+  fluttium: ">=0.1.0 <1.0.0"
 
 # driver:
 #   target: lib/main_development.dart

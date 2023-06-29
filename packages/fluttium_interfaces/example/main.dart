@@ -5,7 +5,7 @@ import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 void main() {
   final fluttium = FluttiumYaml(
     environment: FluttiumEnvironment(
-      fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+      fluttium: VersionConstraint.parse('>=0.1.0 <1.0.0'),
     ),
   );
 

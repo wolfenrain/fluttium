@@ -1,3 +1,7 @@
+# 0.1.2
+
+- fix: adjust fluttium version constraints ([#269](https://github.com/wolfenrain/fluttium/issues/269))
+
 # 0.1.1
 
 - fix: use correct fluttium constraints ([#261](https://github.com/wolfenrain/fluttium/issues/261))

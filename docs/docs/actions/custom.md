@@ -12,7 +12,7 @@ You can add custom actions by adding them to the `actions` section in your `flut
 
 ```yaml
 actions:
-  log_action: 0.1.0+1
+  log_action: 0.2.0
 ```
 
 Fluttium will automatically install this action from [pub.dev](https://pub.dev) when testing.

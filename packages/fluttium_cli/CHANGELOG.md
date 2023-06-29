@@ -1,3 +1,16 @@
+# 0.1.1
+
+- fix: use last step that is done for storing files ([#267](https://github.com/wolfenrain/fluttium/issues/267))
+- fix: adjust fluttium version constraints ([#269](https://github.com/wolfenrain/fluttium/issues/269))
+
+# 0.1.0
+
+- chore: bump dart version to 3.0.0 ([#250](https://github.com/wolfenrain/fluttium/issues/250))
+- chore: bump versions ([#256](https://github.com/wolfenrain/fluttium/issues/256))
+- feat: check if installed Flutter version is supported ([#247](https://github.com/wolfenrain/fluttium/issues/247))
+- chore: bump `fluttium_driver` version ([#263](https://github.com/wolfenrain/fluttium/issues/263))
+- fix: use correct `log_action` version in `fluttium.yaml` ([#264](https://github.com/wolfenrain/fluttium/issues/264))
+
 # 0.1.0-dev.19
 
 - chore: bump `pub_updater` from 0.2.4 to 0.3.0 in /packages/fluttium_cli ([#231](https://github.com/wolfenrain/fluttium/issues/231))

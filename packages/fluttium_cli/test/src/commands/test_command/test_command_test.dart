@@ -167,7 +167,7 @@ void main() {
       when(() => fluttiumFile.existsSync()).thenReturn(true);
       when(() => fluttiumFile.readAsStringSync()).thenReturn('''
 environment:
-  fluttium: ">=0.1.0-dev.1 <0.1.0"
+  fluttium: ">=0.1.0 <1.0.0"
 ''');
 
       targetFile = _MockFile();
@@ -746,15 +746,27 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         () async {
           final future = command.run();
 
-          final step = StepState('Storing file: "file.txt"');
+          final step1 = StepState('Expect visible "text"');
+          final fileStep = StepState('Storing file: "file.txt"');
 
-          stepStateController.add([step]);
+          stepStateController.add([step1, fileStep]);
           await Future<void>.delayed(Duration.zero);
 
+          verify(() => logger.info('  🔲  Expect visible "text"')).called(1);
           verify(() => logger.info('  🔲  Storing file: "file.txt"')).called(1);
 
           stepStateController.add([
-            step.copyWith(
+            step1.copyWith(status: StepStatus.done),
+            fileStep,
+          ]);
+          await Future<void>.delayed(Duration.zero);
+
+          verify(() => logger.info('  ✅  Expect visible "text"')).called(1);
+          verify(() => logger.info('  🔲  Storing file: "file.txt"')).called(1);
+
+          stepStateController.add([
+            step1.copyWith(status: StepStatus.done),
+            fileStep.copyWith(
               status: StepStatus.done,
               files: {
                 'file.txt': [1, 2, 3]
@@ -763,9 +775,10 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           ]);
           await Future<void>.delayed(Duration.zero);
 
+          verify(() => logger.info('  ✅  Expect visible "text"')).called(1);
+          verify(() => logger.info('  ✅  Storing file: "file.txt"')).called(1);
           verify(() => logger.detail('Writing 3 bytes to "file.txt"'))
               .called(1);
-          verify(() => logger.info('  ✅  Storing file: "file.txt"')).called(1);
           verify(
             () => receivedFile.createSync(
               recursive: any(named: 'recursive', that: isTrue),
