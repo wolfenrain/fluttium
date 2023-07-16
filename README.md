@@ -18,19 +18,19 @@ Fluttium, the user flow testing tool for Flutter.
 
 ## Packages
 
-| Package                                                                                        | Pub                                                                                                       |
-| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [fluttium](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium) | [![pub package](https://img.shields.io/pub/v/fluttium.svg)](https://pub.dev/packages/fluttium)    |
-| [fluttium_cli](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_cli)       | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_cli)    |
-| [fluttium_driver](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_driver)     | [![pub package](https://img.shields.io/pub/v/fluttium_driver.svg)](https://pub.dev/packages/fluttium_driver)   |
+| Package                                                                                              | Pub                                                                                                                  |
+|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| [fluttium](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium)                       | [![pub package](https://img.shields.io/pub/v/fluttium.svg)](https://pub.dev/packages/fluttium)                       |
+| [fluttium_cli](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_cli)               | [![pub package](https://img.shields.io/pub/v/fluttium_cli.svg)](https://pub.dev/packages/fluttium_cli)               |
+| [fluttium_driver](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_driver)         | [![pub package](https://img.shields.io/pub/v/fluttium_driver.svg)](https://pub.dev/packages/fluttium_driver)         |
 | [fluttium_interfaces](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_interfaces) | [![pub package](https://img.shields.io/pub/v/fluttium_interfaces.svg)](https://pub.dev/packages/fluttium_interfaces) |
-| [fluttium_protocol](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_protocol) | [![pub package](https://img.shields.io/pub/v/fluttium_protocol.svg)](https://pub.dev/packages/fluttium_protocol) |
+| [fluttium_protocol](https://github.com/wolfenrain/fluttium/tree/main/packages/fluttium_protocol)     | [![pub package](https://img.shields.io/pub/v/fluttium_protocol.svg)](https://pub.dev/packages/fluttium_protocol)     |
 
 ## Actions
 
-| Action                                                                                        | Pub                                                                                                       |
-| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [log_action](https://github.com/wolfenrain/fluttium/tree/main/actions/log_action) | [![pub package](https://img.shields.io/pub/v/log_action.svg)](https://pub.dev/packages/log_action)    |
+| Action                                                                            | Pub                                                                                                |
+|-----------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| [log_action](https://github.com/wolfenrain/fluttium/tree/main/actions/log_action) | [![pub package](https://img.shields.io/pub/v/log_action.svg)](https://pub.dev/packages/log_action) |
 
 ## Quick Start
 
@@ -39,10 +39,10 @@ Fluttium, the user flow testing tool for Flutter.
 flutter pub global activate fluttium_cli
 
 # 🖥 Create a test flow file
-fluttium create my_flow.yaml --desc "My cool flow"
+fluttium new flow my_flow.yaml
 
 # 🧪 Run a test flow file
-fluttium test your_flow.yaml
+fluttium test my_flow.yaml
 ```
 
 ## Documentation
