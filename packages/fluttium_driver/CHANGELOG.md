@@ -1,3 +1,8 @@
+# 0.1.3
+
+- chore(deps): bump mocktail from 0.3.0 to 1.0.0 in /packages/fluttium_driver ([#314](https://github.com/wolfenrain/fluttium/issues/314))
+- chore: updated `mason` dependency to v0.1.0-dev.50 ([#305](https://github.com/wolfenrain/fluttium/issues/305))
+
 # 0.1.2
 
 - fix: adjust fluttium version constraints ([#269](https://github.com/wolfenrain/fluttium/issues/269))

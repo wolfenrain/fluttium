@@ -44,6 +44,7 @@ class NewBundleCommand extends Command<int> {
       switch (props.type) {
         case BrickVariableType.enumeration:
         case BrickVariableType.array:
+        case BrickVariableType.list:
           break;
         case BrickVariableType.boolean:
         case BrickVariableType.number:

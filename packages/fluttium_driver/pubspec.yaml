@@ -1,6 +1,6 @@
 name: fluttium_driver
 description: The driver behind Fluttium user flow tests
-version: 0.1.2
+version: 0.1.3
 homepage: https://fluttium.dev
 repository: https://github.com/wolfenrain/fluttium
 issue_tracker: https://github.com/wolfenrain/fluttium/issues
@@ -14,7 +14,7 @@ dependencies:
   equatable: ^2.0.5
   flutter_daemon: ^1.0.0
   fluttium_interfaces: ^0.1.0
-  mason: ^0.1.0-dev.46
+  mason: ^0.1.0-dev.50
   meta: ^1.8.0
   path: ^1.8.3
   process: ^4.2.4
@@ -23,6 +23,6 @@ dependencies:
 
 dev_dependencies:
   fake_async: ^1.3.1
-  mocktail: ^0.3.0
+  mocktail: ">=0.3.0 <2.0.0"
   test: ^1.23.1
   very_good_analysis: ^4.0.0

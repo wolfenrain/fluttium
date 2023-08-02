@@ -1,3 +1,10 @@
+# 0.1.2
+
+- chore: updated `mason` dependency to v0.1.0-dev.50 ([#305](https://github.com/wolfenrain/fluttium/issues/305))
+- chore: bump `fluttium_driver` to 0.1.3 ([#322](https://github.com/wolfenrain/fluttium/issues/322))
+- chore: bump mocktail from 0.3.0 to 1.0.0 in /packages/fluttium_cli ([#318](https://github.com/wolfenrain/fluttium/issues/318))
+- docs: update README ([#323](https://github.com/wolfenrain/fluttium/issues/323))
+
 # 0.1.1
 
 - fix: use last step that is done for storing files ([#267](https://github.com/wolfenrain/fluttium/issues/267))
