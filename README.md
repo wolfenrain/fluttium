@@ -39,7 +39,7 @@ Fluttium, the user flow testing tool for Flutter.
 flutter pub global activate fluttium_cli
 
 # 🖥 Create a test flow file
-fluttium new flow my_flow
+fluttium new flow my_flow --description "My cool flow"
 
 # 🧪 Run a test flow file
 fluttium test my_flow.yaml
