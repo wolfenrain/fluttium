@@ -24,10 +24,10 @@ Fluttium CLI allows developers to run Fluttium Flow tests.
 flutter pub global activate fluttium_cli
 
 # 🖥 Create a test flow file
-fluttium create my_flow.yaml --desc "My cool flow"
+fluttium new flow my_flow --description "My cool flow"
 
 # 🧪 Run a test flow file
-fluttium test your_flow.yaml
+fluttium test my_flow.yaml
 ```
 
 ## Documentation
