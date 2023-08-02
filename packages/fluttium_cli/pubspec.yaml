@@ -15,7 +15,7 @@ dependencies:
   collection: ^1.17.1
   fluttium_driver: ^0.1.2
   fluttium_interfaces: ^0.1.0
-  mason: ^0.1.0-dev.46
+  mason: ^0.1.0-dev.50
   meta: ^1.8.0
   path: ^1.8.3
   process: ^4.2.4
