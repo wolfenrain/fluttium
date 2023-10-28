@@ -298,11 +298,11 @@ class FluttiumDriver {
           _launcherFile.absolute.path,
           if (configuration.deviceId != null) ...[
             '-d',
-            configuration.deviceId!
+            configuration.deviceId!,
           ],
           if (configuration.flavor != null) ...[
             '--flavor',
-            configuration.flavor!
+            configuration.flavor!,
           ],
           ...configuration.dartDefines.expand((e) => ['--dart-define', e]),
         ],

@@ -66,7 +66,7 @@ void main() {
             'url': 'git@git.some.where/some/action.git',
             'ref': 'main',
             'path': 'some/path',
-          }
+          },
         });
 
         expect(location.hosted, isNull);

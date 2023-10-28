@@ -48,16 +48,12 @@ class PrettyReporter extends Reporter {
       switch (step.status) {
         case StepStatus.initial:
           logger.info('  🔲  ${step.description}');
-          break;
         case StepStatus.running:
           logger.info('  ⏳  ${step.description}');
-          break;
         case StepStatus.done:
           logger.info('  ✅  ${step.description}');
-          break;
         case StepStatus.failed:
           logger.info('  ❌  ${step.description}');
-          break;
       }
     }
 

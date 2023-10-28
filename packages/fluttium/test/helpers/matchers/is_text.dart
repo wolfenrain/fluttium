@@ -9,7 +9,7 @@ Matcher isText(String text) {
       TextEditingValue(
         text: text,
         selection: TextSelection.collapsed(offset: text.length),
-      ).toJSON()
+      ).toJSON(),
     ],
   });
 

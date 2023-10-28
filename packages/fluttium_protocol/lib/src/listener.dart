@@ -40,11 +40,9 @@ class Listener {
           switch (chunk['type']) {
             case 'start':
               collectingMessageData = true;
-              break;
             case 'data':
               if (!collectingMessageData) return;
               buffer.write(json.decode(chunk['data'] as String));
-              break;
             case 'done':
               if (!collectingMessageData) return;
               collectingMessageData = false;
@@ -55,7 +53,6 @@ class Listener {
                 ),
               );
               buffer.clear();
-              break;
           }
         } catch (_) {}
       },

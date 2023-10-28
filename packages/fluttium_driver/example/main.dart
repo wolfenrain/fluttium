@@ -30,18 +30,14 @@ Future<void> main() async {
         switch (step.status) {
           case StepStatus.initial:
             stdout.writeln(' ⚪️ ${step.description}');
-            break;
           case StepStatus.running:
             stdout.writeln(' 🟡 ${step.description}');
-            break;
           case StepStatus.done:
             stdout.writeln(' 🟢 ${step.description}');
-            break;
           case StepStatus.failed:
             stdout.writeln(
               ' 🔴 ${step.description} - reason: ${step.failReason}',
             );
-            break;
         }
       }
     },

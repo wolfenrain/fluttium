@@ -39,7 +39,7 @@ class Registry {
         timeout: timeout,
       ),
       aliases: const [
-        Alias(['in'], #within)
+        Alias(['in'], #within),
       ],
     );
     registerAction(
@@ -59,7 +59,7 @@ class Registry {
         timeout: timeout,
       ),
       aliases: const [
-        Alias(['in'], #within)
+        Alias(['in'], #within),
       ],
     );
   }

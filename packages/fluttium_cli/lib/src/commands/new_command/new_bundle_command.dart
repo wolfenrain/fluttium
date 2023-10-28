@@ -54,7 +54,6 @@ class NewBundleCommand extends Command<int> {
             help: props.description,
             defaultsTo: props.defaultValue as String?,
           );
-          break;
       }
     }
   }

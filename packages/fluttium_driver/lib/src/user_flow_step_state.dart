@@ -17,7 +17,7 @@ class UserFlowStepState extends Equatable {
     @Deprecated(
       'Use the FluttiumDriver.files stream to watch for files to store',
     )
-        Map<String, List<int>> files = const {},
+    Map<String, List<int>> files = const {},
     this.failReason,
     // ignore: deprecated_member_use_from_same_package
   }) : files = Map.unmodifiable(files);
@@ -55,7 +55,7 @@ class UserFlowStepState extends Equatable {
     @Deprecated(
       'Use the FluttiumDriver.files stream to watch for files to store',
     )
-        Map<String, List<int>>? files,
+    Map<String, List<int>>? files,
     String? failReason,
   }) {
     return UserFlowStepState(

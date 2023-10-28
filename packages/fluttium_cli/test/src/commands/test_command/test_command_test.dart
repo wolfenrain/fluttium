@@ -786,7 +786,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
-            fileStep.copyWith(status: StepStatus.done)
+            fileStep.copyWith(status: StepStatus.done),
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -865,7 +865,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         stepStateController.add([
           step1.copyWith(status: StepStatus.done),
           step2.copyWith(status: StepStatus.running),
-          step3
+          step3,
         ]);
         await Future<void>.delayed(Duration.zero);
 
@@ -876,7 +876,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         stepStateController.add([
           step1.copyWith(status: StepStatus.done),
           step2.copyWith(status: StepStatus.failed),
-          step3
+          step3,
         ]);
         await Future<void>.delayed(Duration.zero);
 
@@ -951,7 +951,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.running),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -963,7 +963,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.done),
-            step3.copyWith(status: StepStatus.done)
+            step3.copyWith(status: StepStatus.done),
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1019,7 +1019,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.running),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1031,7 +1031,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.failed),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1147,7 +1147,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.running),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1200,7 +1200,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.running),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1211,7 +1211,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.failed),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 

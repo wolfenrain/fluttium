@@ -65,7 +65,7 @@ void main() {
           'action',
           _TestActionWithArguments.new,
           aliases: [
-            Alias(['withKey'], #key)
+            Alias(['withKey'], #key),
           ],
         );
 
@@ -73,7 +73,7 @@ void main() {
         expect(
           registry.actions['action']!.aliases,
           equals([
-            Alias(['withKey'], #key)
+            Alias(['withKey'], #key),
           ]),
         );
       });
@@ -130,7 +130,7 @@ void main() {
           'action',
           _TestActionWithArguments.new,
           aliases: [
-            Alias(['withKey'], #key)
+            Alias(['withKey'], #key),
           ],
         );
 

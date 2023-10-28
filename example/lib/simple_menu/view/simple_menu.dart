@@ -36,7 +36,7 @@ class _SimpleMenuPageState extends State<SimpleMenuPage> {
                   child: Row(
                     children: [Text('Menu Item 1')],
                   ),
-                )
+                ),
               ],
               context: context,
               position: _getRelativeRect(widgetKey),

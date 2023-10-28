@@ -126,7 +126,7 @@ void main() {
         (_) async => [
           GeneratedFile.created(
             path: '/project_directory/.fluttium_test_launcher.dart',
-          )
+          ),
         ],
       );
       launcherGeneratorHooks = _MockGeneratorHooks();
@@ -214,7 +214,7 @@ name: project_name
                     if (!fluttiumReady) 'reason': 'failedReason',
                   },
                 'ext.fluttium.getActionDescription' => {
-                    'description': 'Description'
+                    'description': 'Description',
                   },
                 'ext.fluttium.executeAction' => {
                     'success': !failStep,
@@ -228,7 +228,7 @@ name: project_name
 
         daemonController.write(
           json.encode([
-            {'id': request['id'], 'result': result}
+            {'id': request['id'], 'result': result},
           ]),
         );
       });
@@ -407,11 +407,11 @@ name: project_name
                     'source': '''
 
     hosted: https://pub.dev/packages/hosted_action
-    version: ^1.2.3'''
+    version: ^1.2.3''',
                   },
                   {
                     'name': 'git_action_simple',
-                    'source': 'git@github.com/wolfenrain/git_action_simple'
+                    'source': 'git@github.com/wolfenrain/git_action_simple',
                   },
                   {
                     'name': 'git_action_advanced',
@@ -420,21 +420,21 @@ name: project_name
     git:
       url: git@github.com/wolfenrain/git_action_advanced
       ref: dev
-      path: packages/advanced'''
+      path: packages/advanced''',
                   },
                   {
                     'name': 'path_action',
                     'source': '''
 
-    path: /project_directory/path_action'''
+    path: /project_directory/path_action''',
                   }
                 ],
                 'steps': [
                   {
-                    'step': json.encode({'pressOn': 'Text'})
+                    'step': json.encode({'pressOn': 'Text'}),
                   },
                   {
-                    'step': json.encode({'expectVisible': 'Text'})
+                    'step': json.encode({'expectVisible': 'Text'}),
                   }
                 ],
               }),
@@ -675,7 +675,7 @@ name: project_name
             UserFlowStepState(
               UserFlowStep('expectVisible', arguments: 'Text'),
               description: 'Description',
-            )
+            ),
           ]),
         );
       });
@@ -795,7 +795,7 @@ name: project_name
                 UserFlowStep('expectVisible', arguments: 'Text'),
                 description: 'Description',
                 status: StepStatus.done,
-              )
+              ),
             ]),
           );
         });
@@ -859,7 +859,7 @@ name: project_name
                 UserFlowStep('expectVisible', arguments: 'Text'),
                 description: 'Description',
                 status: StepStatus.done,
-              )
+              ),
             ]),
           );
         });
@@ -919,7 +919,7 @@ name: project_name
                 UserFlowStep('expectVisible', arguments: 'Text'),
                 description: 'Description',
                 status: StepStatus.done,
-              )
+              ),
             ]),
           );
         });
@@ -950,7 +950,7 @@ extension on StreamController<List<int>> {
       json.encode([
         {
           'event': 'app.started',
-          'params': {'appId': '0000'}
+          'params': {'appId': '0000'},
         }
       ]),
     );
@@ -968,7 +968,7 @@ Matcher isRcpCall(
         'appId': '0000',
         'methodName': methodName,
         'params': params,
-      }
+      },
     }
   ]);
   return contains(data.substring(2, data.length - 2));
@@ -984,7 +984,7 @@ Matcher isMethodCall(
       'params': {
         'appId': '0000',
         ...params,
-      }
+      },
     }
   ]);
   return contains(data.substring(2, data.length - 2));

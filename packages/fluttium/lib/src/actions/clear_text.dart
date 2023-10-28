@@ -58,7 +58,7 @@ class ClearText extends Action {
         SystemChannels.textInput.codec.encodeMethodCall(
           const MethodCall('TextInputClient.performSelectors', [
             -1,
-            ['deleteBackward:']
+            ['deleteBackward:'],
           ]),
         ),
       );
