@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 📦 Finding a package to publish
         id: package
@@ -70,7 +70,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
@@ -103,7 +103,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
@@ -136,7 +136,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🎯 Setup Dart
         uses: dart-lang/setup-dart@v1
