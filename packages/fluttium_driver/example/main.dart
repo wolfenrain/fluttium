@@ -5,7 +5,7 @@ import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:mason/mason.dart' hide GitPath;
 
 Future<void> main() async {
-  final driver = FluttiumDriver(
+  final driver = HostDriver(
     logger: Logger(level: Level.verbose),
     configuration: const DriverConfiguration(
       flavor: 'development',

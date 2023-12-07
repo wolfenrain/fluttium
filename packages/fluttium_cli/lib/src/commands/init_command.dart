@@ -60,7 +60,7 @@ class _FluttiumYamlGenerator extends MasonGenerator {
 # The following defines the environment for your Fluttium project. It includes 
 # the version of Fluttium that the project requires.
 environment:
-  fluttium: "${FluttiumDriver.fluttiumVersionConstraint}"
+  fluttium: "${HostDriver.fluttiumVersionConstraint}"
 
 # The driver can be configured with default values. Uncomment the following 
 # lines to automatically run Fluttium using a different flavor and dart-defines.

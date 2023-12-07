@@ -31,7 +31,7 @@ void main() {
     late Logger logger;
     late FluttiumCommandRunner commandRunner;
     late ProcessManager processManager;
-    var flutterVersion = FluttiumDriver.flutterVersionConstraint.min.toString();
+    var flutterVersion = HostDriver.flutterVersionConstraint.min.toString();
 
     setUp(() {
       pubUpdater = MockPubUpdater();
@@ -202,7 +202,7 @@ Tools • Dart 0.0.0 • DevTools 0.0.0
       verify(
         () => logger.err('''
 Version solving failed:
-  The Fluttium CLI uses "${FluttiumDriver.flutterVersionConstraint}" as the version constraint for Flutter.
+  The Fluttium CLI uses "${HostDriver.flutterVersionConstraint}" as the version constraint for Flutter.
   The current Flutter version is "$flutterVersion" which is not supported by Fluttium.
 
 Either update Flutter to a compatible version supported by the CLI or update the CLI to a compatible version of Flutter.'''),

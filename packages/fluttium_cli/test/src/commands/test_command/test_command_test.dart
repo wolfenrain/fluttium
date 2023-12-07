@@ -404,7 +404,7 @@ environment:
                 that: equals(
                   '''
 Version solving failed:
-  The Fluttium CLI uses "${FluttiumDriver.fluttiumVersionConstraint}" as the version constraint.
+  The Fluttium CLI uses "${HostDriver.fluttiumVersionConstraint}" as the version constraint.
   The current project uses ">=999.999.998 <999.999.999" as defined in the fluttium.yaml.
 
 Either adjust the constraint in the Fluttium configuration or update the CLI to a compatible version.''',

@@ -31,7 +31,7 @@ class NewCommand extends Command<int> {
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,
         defaultVars: {
-          'fluttiumVersion': FluttiumDriver.fluttiumVersionConstraint.min,
+          'fluttiumVersion': HostDriver.fluttiumVersionConstraint.min,
         },
       ),
     );

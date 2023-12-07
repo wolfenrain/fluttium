@@ -49,7 +49,7 @@ class TestCommand extends Command<int> {
     FluttiumDriverCreator? driver,
   })  : _logger = logger,
         _process = processManager ?? const LocalProcessManager(),
-        _driver = driver ?? FluttiumDriver.new {
+        _driver = driver ?? HostDriver.new {
     argParser
       ..addFlag(
         'watch',
@@ -257,17 +257,17 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
     } else {
       fluttium = FluttiumYaml(
         environment: FluttiumEnvironment(
-          fluttium: FluttiumDriver.fluttiumVersionConstraint,
+          fluttium: HostDriver.fluttiumVersionConstraint,
         ),
       );
     }
 
     if (!fluttium.environment.fluttium
-        .allowsAny(FluttiumDriver.fluttiumVersionConstraint)) {
+        .allowsAny(HostDriver.fluttiumVersionConstraint)) {
       _logger.err(
         '''
 Version solving failed:
-  The Fluttium CLI uses "${FluttiumDriver.fluttiumVersionConstraint}" as the version constraint.
+  The Fluttium CLI uses "${HostDriver.fluttiumVersionConstraint}" as the version constraint.
   The current project uses "${fluttium.environment.fluttium}" as defined in the fluttium.yaml.
 
 Either adjust the constraint in the Fluttium configuration or update the CLI to a compatible version.''',
