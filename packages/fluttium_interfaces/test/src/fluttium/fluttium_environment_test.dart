@@ -2,7 +2,7 @@ import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('FluttiumEnvironment', () {
+  group('$FluttiumEnvironment', () {
     test('can be instantiated', () {
       final environment = FluttiumEnvironment(
         fluttium: VersionConstraint.parse('>=0.1.0 <1.0.0'),

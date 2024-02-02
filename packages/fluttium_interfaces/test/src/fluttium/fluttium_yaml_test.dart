@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 class _FakeEncoding extends Fake implements Encoding {}
 
 void main() {
-  group('FluttiumYaml', () {
+  group('$FluttiumYaml', () {
     setUpAll(() {
       registerFallbackValue(_FakeEncoding());
     });
@@ -36,14 +36,14 @@ driver:
     - SOME_API_KEY=development
   deviceId: 1234
 
-actions:
-  custom_action: ^0.1.0-dev.1
-  some_other_action: 
-    path: ../some_other_action
-  and_final_action:
+addons:
+  custom_addon: ^0.1.0-dev.1
+  some_other_addon: 
+    path: ../some_other_addon
+  and_final_addon:
     git: 
       url: https://github.com/wolfenrain/fluttium.git
-      path: actions/and_final_action
+      path: addons/and_final_addon
       ref: development
 ''');
 
@@ -69,21 +69,128 @@ actions:
       );
 
       expect(
-        config.actions,
+        config.addons,
         equals({
-          'custom_action': ActionLocation(
+          'custom_addon': AddonLocation(
             hosted: HostedPath(
               url: 'https://pub.dartlang.org',
               version: VersionConstraint.parse('^0.1.0-dev.1'),
             ),
           ),
-          'some_other_action': ActionLocation(
-            path: '../some_other_action',
+          'some_other_addon': AddonLocation(
+            path: '../some_other_addon',
           ),
-          'and_final_action': ActionLocation(
+          'and_final_addon': AddonLocation(
             git: GitPath(
               url: 'https://github.com/wolfenrain/fluttium.git',
-              path: 'actions/and_final_action',
+              path: 'addons/and_final_addon',
+              ref: 'development',
+            ),
+          ),
+        }),
+      );
+    });
+
+    test('can construct from a file without addons', () {
+      final config = FluttiumYaml.fromData('''
+environment:
+  fluttium: ">=0.1.0-dev.1 <0.1.0"
+
+driver:
+  mainEntry: lib/main_development.dart
+  flavor: development
+  dartDefines:
+    - SOME_API_KEY=development
+  deviceId: 1234
+''');
+
+      expect(
+        config.environment,
+        equals(
+          FluttiumEnvironment(
+            fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+          ),
+        ),
+      );
+
+      expect(
+        config.driver,
+        equals(
+          DriverConfiguration(
+            target: 'lib/main_development.dart',
+            flavor: 'development',
+            dartDefines: const ['SOME_API_KEY=development'],
+            deviceId: '1234',
+          ),
+        ),
+      );
+
+      expect(config.addons, isEmpty);
+    });
+
+    test('is backwards compatible', () {
+      final config = FluttiumYaml.fromData('''
+environment:
+  fluttium: ">=0.1.0-dev.1 <0.1.0"
+
+driver:
+  mainEntry: lib/main_development.dart
+  flavor: development
+  dartDefines:
+    - SOME_API_KEY=development
+  deviceId: 1234
+
+actions:
+  custom_addon: ^0.1.0-dev.1
+  some_other_addon: 
+    path: ../some_other_addon
+  and_final_addon:
+    git: 
+      url: https://github.com/wolfenrain/fluttium.git
+      path: addons/and_final_addon
+      ref: development
+''');
+
+      expect(
+        config.environment,
+        equals(
+          FluttiumEnvironment(
+            fluttium: VersionConstraint.parse('>=0.1.0-dev.1 <0.1.0'),
+          ),
+        ),
+      );
+
+      expect(
+        config.driver,
+        equals(
+          DriverConfiguration(
+            target: 'lib/main_development.dart',
+            flavor: 'development',
+            dartDefines: const ['SOME_API_KEY=development'],
+            deviceId: '1234',
+          ),
+        ),
+      );
+
+      // ignore: deprecated_member_use_from_same_package
+      expect(config.actions, equals(config.addons));
+
+      expect(
+        config.addons,
+        equals({
+          'custom_addon': AddonLocation(
+            hosted: HostedPath(
+              url: 'https://pub.dartlang.org',
+              version: VersionConstraint.parse('^0.1.0-dev.1'),
+            ),
+          ),
+          'some_other_addon': AddonLocation(
+            path: '../some_other_addon',
+          ),
+          'and_final_addon': AddonLocation(
+            git: GitPath(
+              url: 'https://github.com/wolfenrain/fluttium.git',
+              path: 'addons/and_final_addon',
               ref: 'development',
             ),
           ),
@@ -112,14 +219,14 @@ actions:
         deviceId: '1234',
       );
 
-      final actions = {
-        'custom_action': ActionLocation(
+      final addons = {
+        'custom_addon': AddonLocation(
           hosted: HostedPath(
             url: 'https://pub.dartlang.org',
             version: VersionConstraint.parse('^0.1.0-dev.1'),
           ),
         ),
-        'some_other_action': ActionLocation(
+        'some_other_addon': AddonLocation(
           hosted: HostedPath(
             url: 'https://pub.dartlang.org',
             version: VersionConstraint.parse('1.2.3'),
@@ -130,15 +237,15 @@ actions:
       final otherConfig = config.copyWith(
         environment: environment,
         driver: driver,
-        actions: actions,
+        addons: addons,
       );
 
       expect(config.environment, isNot(equals(environment)));
       expect(config.driver, isNot(equals(driver)));
-      expect(config.actions, isNot(equals(actions)));
+      expect(config.addons, isNot(equals(addons)));
       expect(otherConfig.environment, equals(environment));
       expect(otherConfig.driver, equals(driver));
-      expect(otherConfig.actions, equals(actions));
+      expect(otherConfig.addons, equals(addons));
     });
 
     test('equality', () {

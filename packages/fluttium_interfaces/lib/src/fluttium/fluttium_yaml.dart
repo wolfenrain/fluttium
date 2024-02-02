@@ -12,7 +12,7 @@ class FluttiumYaml extends Equatable {
   /// {@macro fluttium_yaml}
   const FluttiumYaml({
     required this.environment,
-    this.actions = const {},
+    this.addons = const {},
     this.driver = const DriverConfiguration(),
   });
 
@@ -28,10 +28,12 @@ class FluttiumYaml extends Equatable {
       environment: FluttiumEnvironment.fromJson(
         yaml['environment'] as Map<String, dynamic>? ?? {},
       ),
-      actions: {
-        for (final entry
-            in (yaml['actions'] as Map<String, dynamic>? ?? {}).entries)
-          entry.key: ActionLocation.fromJson(entry.value)
+      addons: {
+        for (final entry in (yaml['addons'] as Map<String, dynamic>? ??
+                yaml['actions'] as Map<String, dynamic>? ??
+                {})
+            .entries)
+          entry.key: AddonLocation.fromJson(entry.value)
       },
       driver: DriverConfiguration.fromJson(
         yaml['driver'] as Map<String, dynamic>? ?? {},
@@ -45,21 +47,26 @@ class FluttiumYaml extends Equatable {
   /// The configuration for the driver.
   final DriverConfiguration driver;
 
-  /// The actions to install to run the flow.
-  final Map<String, ActionLocation> actions;
+  /// The addons to install to run the flow.
+  final Map<String, AddonLocation> addons;
+
+  /// The addons to install to run the flow.
+  @Deprecated('use addons instead')
+  Map<String, AddonLocation> get actions => addons;
 
   @override
-  List<Object?> get props => [environment, driver, actions];
+  List<Object?> get props => [environment, driver, addons];
 
   /// Copy the configuration to a new instance with optional overrides.
   FluttiumYaml copyWith({
     FluttiumEnvironment? environment,
-    Map<String, ActionLocation>? actions,
+    @Deprecated('use addons instead') Map<String, AddonLocation>? actions,
+    Map<String, AddonLocation>? addons,
     DriverConfiguration? driver,
   }) {
     return FluttiumYaml(
       environment: environment ?? this.environment,
-      actions: actions ?? this.actions,
+      addons: addons ?? this.addons,
       driver: driver ?? this.driver,
     );
   }

@@ -1,12 +1,16 @@
 import 'package:equatable/equatable.dart';
 import 'package:fluttium_interfaces/src/fluttium/fluttium.dart';
 
-/// {@template action_location}
 /// The location of an action.
+@Deprecated('use AddonLocation instead')
+typedef ActionLocation = AddonLocation;
+
+/// {@template addon_location}
+/// The location of an addon.
 /// {@endtemplate}
-class ActionLocation extends Equatable {
-  /// {@macro action_location}
-  const ActionLocation({
+class AddonLocation extends Equatable {
+  /// {@macro addon_location}
+  const AddonLocation({
     this.hosted,
     this.git,
     this.path,
@@ -17,12 +21,12 @@ class ActionLocation extends Equatable {
           'Only one of hosted, git, or path can be set.',
         );
 
-  /// {@macro action_location}
+  /// {@macro addon_location}
   ///
-  /// Converts a json map to an [ActionLocation].
-  factory ActionLocation.fromJson(dynamic data) {
+  /// Converts a json map to an [AddonLocation].
+  factory AddonLocation.fromJson(dynamic data) {
     if (data is String) {
-      return ActionLocation(
+      return AddonLocation(
         hosted: HostedPath(
           url: 'https://pub.dartlang.org',
           version: VersionConstraint.parse(data),
@@ -30,7 +34,7 @@ class ActionLocation extends Equatable {
       );
     } else if (data is Map<String, dynamic>) {
       if (data.containsKey('hosted')) {
-        return ActionLocation(
+        return AddonLocation(
           hosted: HostedPath(
             url: data['hosted'] as String,
             version: VersionConstraint.parse(data['version'] as String),
@@ -39,9 +43,9 @@ class ActionLocation extends Equatable {
       } else if (data.containsKey('git')) {
         final dynamic git = data['git'];
         if (git is String) {
-          return ActionLocation(git: GitPath(url: git));
+          return AddonLocation(git: GitPath(url: git));
         } else if (git is Map<String, dynamic>) {
-          return ActionLocation(
+          return AddonLocation(
             git: GitPath(
               url: git['url'] as String,
               ref: git['ref'] as String?,
@@ -50,9 +54,9 @@ class ActionLocation extends Equatable {
           );
         }
       } else if (data.containsKey('path')) {
-        return ActionLocation(path: data['path'] as String);
+        return AddonLocation(path: data['path'] as String);
       }
-      throw UnsupportedError('unknown action dependency setup: $data');
+      throw UnsupportedError('unknown addon dependency setup: $data');
     } else {
       throw ArgumentError.value(
         data,
@@ -62,13 +66,13 @@ class ActionLocation extends Equatable {
     }
   }
 
-  /// The hosted path of the action.
+  /// The hosted path of the addon.
   final HostedPath? hosted;
 
-  /// The git path of the action.
+  /// The git path of the addon.
   final GitPath? git;
 
-  /// The path of the action.
+  /// The path of the addon.
   final String? path;
 
   @override
@@ -76,7 +80,7 @@ class ActionLocation extends Equatable {
 }
 
 /// {@template hosted_path}
-/// The hosted path of an action.
+/// The hosted path of an addon.
 /// {@endtemplate}
 class HostedPath extends Equatable {
   /// {@macro hosted_path}
@@ -88,7 +92,7 @@ class HostedPath extends Equatable {
   /// The hosted url.
   final String url;
 
-  /// The version constraint of the action.
+  /// The version constraint of the addon.
   final VersionConstraint version;
 
   @override
@@ -96,7 +100,7 @@ class HostedPath extends Equatable {
 }
 
 /// {@template git_path}
-/// The git path of an action.
+/// The git path of an addon.
 /// {@endtemplate}
 class GitPath extends Equatable {
   /// {@macro git_path}
@@ -112,7 +116,7 @@ class GitPath extends Equatable {
   /// The ref of the git repository.
   final String? ref;
 
-  /// The path where the action is located in the git repository.
+  /// The path where the addon is located in the git repository.
   final String? path;
 
   @override
