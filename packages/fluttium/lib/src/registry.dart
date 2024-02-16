@@ -8,21 +8,22 @@ import 'package:fluttium/fluttium.dart';
 /// The registry of all the actions a [Tester] can perform.
 /// {@endtemplate}
 class Registry {
-  final Map<String, ActionRegistration> _actions = {
-    'tapOn': ActionRegistration(PressOn.new, shortHand: #text),
-    'inputText': ActionRegistration(WriteText.new, shortHand: #text),
-    // TODO(wolfen): deprecate the above action keys
-
-    'pressOn': ActionRegistration(PressOn.new, shortHand: #text),
-    'longPressOn': ActionRegistration(LongPressOn.new, shortHand: #text),
-    'clearText': ActionRegistration(ClearText.new, shortHand: #characters),
-    'writeText': ActionRegistration(WriteText.new, shortHand: #text),
-    'expectVisible': ActionRegistration(ExpectVisible.new, shortHand: #text),
-    'expectNotVisible':
-        ActionRegistration(ExpectNotVisible.new, shortHand: #text),
-    'takeScreenshot': ActionRegistration(TakeScreenshot.new, shortHand: #path),
-    'wait': ActionRegistration(Wait.new, shortHand: #milliseconds),
-    'scroll': ActionRegistration(
+  /// {@macro registry}
+  Registry() {
+    registerAction('pressOn', PressOn.new, shortHandIs: #text);
+    registerAction('longPressOn', LongPressOn.new, shortHandIs: #text);
+    registerAction('clearText', ClearText.new, shortHandIs: #characters);
+    registerAction('writeText', WriteText.new, shortHandIs: #text);
+    registerAction('expectVisible', ExpectVisible.new, shortHandIs: #text);
+    registerAction(
+      'expectNotVisible',
+      ExpectNotVisible.new,
+      shortHandIs: #text,
+    );
+    registerAction('takeScreenshot', TakeScreenshot.new, shortHandIs: #path);
+    registerAction('wait', Wait.new, shortHandIs: #milliseconds);
+    registerAction(
+      'scroll',
       ({
         required String within,
         required String until,
@@ -38,10 +39,11 @@ class Registry {
         timeout: timeout,
       ),
       aliases: const [
-        Alias(['in'], #within)
+        Alias(['in'], #within),
       ],
-    ),
-    'swipe': ActionRegistration(
+    );
+    registerAction(
+      'swipe',
       ({
         required String within,
         required String until,
@@ -57,10 +59,12 @@ class Registry {
         timeout: timeout,
       ),
       aliases: const [
-        Alias(['in'], #within)
+        Alias(['in'], #within),
       ],
-    ),
-  };
+    );
+  }
+
+  final Map<String, ActionRegistration> _actions = {};
 
   /// Map of all the action that are registered.
   UnmodifiableMapView<String, ActionRegistration> get actions =>

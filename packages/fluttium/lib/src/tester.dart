@@ -1,21 +1,69 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:clock/clock.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Action;
 import 'package:fluttium/fluttium.dart';
-import 'package:fluttium_interfaces/fluttium_interfaces.dart';
-import 'package:fluttium_protocol/fluttium_protocol.dart';
 
 /// {@template tester}
 /// The tester that is used to execute the actions in a flow file.
 /// {@endtemplate}
 class Tester {
   /// {@macro tester}
-  Tester(this._binding, this._registry, {Emitter? emitter})
-      : _emitter = emitter ?? Emitter(),
-        _semanticsHandle = _binding.ensureSemantics();
+  Tester(this._binding, this._registry)
+      : _semanticsHandle = _binding.ensureSemantics() {
+    registerExtension(
+      'ext.fluttium.ready',
+      (method, parameters) async {
+        try {
+          // await ready();
+          return ServiceExtensionResponse.result(
+            json.encode({'ready': true}),
+          );
+        } catch (err) {
+          return ServiceExtensionResponse.result(
+            json.encode({'ready': false, 'reason': err}),
+          );
+        }
+      },
+    );
 
-  final Emitter _emitter;
+    registerExtension(
+      'ext.fluttium.getActionDescription',
+      (method, parameters) async {
+        final action = _registry.getAction(
+          parameters['name']!,
+          json.decode(parameters['arguments']!),
+        );
+        return ServiceExtensionResponse.result(
+          json.encode({'description': action.description()}),
+        );
+      },
+    );
+
+    registerExtension(
+      'ext.fluttium.executeAction',
+      (method, parameters) async {
+        final action = _registry.getAction(
+          parameters['name']!,
+          json.decode(parameters['arguments']!),
+        );
+        try {
+          _storedFiles.clear();
+          final result = await action.execute(this);
+          return ServiceExtensionResponse.result(
+            json.encode({'success': result, 'files': _storedFiles}),
+          );
+        } catch (err) {
+          return ServiceExtensionResponse.result(
+            json.encode({'success': false, 'reason': err}),
+          );
+        }
+      },
+    );
+  }
 
   final WidgetsBinding _binding;
 
@@ -23,45 +71,20 @@ class Tester {
 
   final Registry _registry;
 
+  final Map<String, dynamic> _storedFiles = {};
+
+  /// The files that were stored in the current action.
+  Map<String, dynamic> get storedFiles => Map.unmodifiable(_storedFiles);
+
   SemanticsOwner get _semanticsOwner => _binding.pipelineOwner.semanticsOwner!;
 
   /// The current screen's media query information.
   MediaQueryData get mediaQuery =>
       MediaQueryData.fromView(_binding.platformDispatcher.views.first);
 
-  /// Converts the [steps] into a list of executable actions.
-  Future<List<Future<void> Function()>> convert(
-    List<UserFlowStep> steps,
-  ) async {
-    return Future.wait(
-      steps.map((step) async {
-        try {
-          final action = _registry.getAction(step.actionName, step.arguments);
-          final actionRepresentation = action.description();
-          await _emitter.announce(actionRepresentation);
-
-          return () async {
-            try {
-              await _emitter.start(actionRepresentation);
-              if (await action.execute(this)) {
-                return _emitter.done(actionRepresentation);
-              }
-              return _emitter.fail(actionRepresentation);
-            } catch (err) {
-              return _emitter.fail(actionRepresentation, reason: '$err');
-            }
-          };
-        } catch (err) {
-          await _emitter.fatal('$err');
-          rethrow;
-        }
-      }).toList(),
-    );
-  }
-
   /// Store binary data with the given [fileName].
-  Future<void> storeFile(String fileName, Uint8List bytes) async {
-    await _emitter.store(fileName, bytes);
+  Future<void> storeFile(String fileName, List<int> bytes) async {
+    _storedFiles[fileName] = base64.encode(bytes);
   }
 
   /// Dispatch an event to the targets found by a hit test on its position.
@@ -169,8 +192,7 @@ class Tester {
 
   /// Wait for the semantics tree to be fully build.
   Future<void> ready() async {
-    while (_binding.pipelineOwner.semanticsOwner == null ||
-        _binding.pipelineOwner.semanticsOwner!.rootSemanticsNode == null) {
+    while (_binding.pipelineOwner.semanticsOwner?.rootSemanticsNode == null) {
       await _binding.endOfFrame;
     }
   }

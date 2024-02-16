@@ -54,7 +54,7 @@ sed -i '' "s/version: $package_version/version: $new_version/g" pubspec.yaml
 # Update dart file with new version.
 dart run build_runner build --delete-conflicting-outputs > /dev/null
 
-if grep -q $new_version "CHANGELOG.md"; then
+if grep -q "# $new_version\n" "CHANGELOG.md"; then
     echo "CHANGELOG already contains version $new_version."
     exit 1
 fi

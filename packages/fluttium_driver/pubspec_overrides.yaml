@@ -1,5 +1,3 @@
 dependency_overrides:
   fluttium_interfaces:
     path: ../fluttium_interfaces
-  fluttium_protocol:
-    path: ../fluttium_protocol

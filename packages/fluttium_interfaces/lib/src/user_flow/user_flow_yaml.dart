@@ -28,7 +28,7 @@ class UserFlowYaml extends Equatable {
       description: metaData['description'] as String? ?? '',
       steps: [
         for (final step in stepData.cast<Map<String, dynamic>>())
-          UserFlowStep.fromJson(step)
+          UserFlowStep.fromJson(step),
       ],
     );
   }

@@ -5,7 +5,7 @@ import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 import 'package:mason/mason.dart' hide GitPath;
 
 Future<void> main() async {
-  final driver = FluttiumDriver(
+  final driver = HostDriver(
     logger: Logger(level: Level.verbose),
     configuration: const DriverConfiguration(
       flavor: 'development',
@@ -18,7 +18,7 @@ Future<void> main() async {
       ),
     },
     projectDirectory: Directory('../../example'),
-    userFlowFile: File('../../example/flows/progress_flow.yaml'),
+    userFlowFile: File('../../example/flows/counter_flow.yaml'),
   );
 
   final stepsSubscription = driver.steps.listen(
@@ -30,18 +30,14 @@ Future<void> main() async {
         switch (step.status) {
           case StepStatus.initial:
             stdout.writeln(' ⚪️ ${step.description}');
-            break;
           case StepStatus.running:
             stdout.writeln(' 🟡 ${step.description}');
-            break;
           case StepStatus.done:
             stdout.writeln(' 🟢 ${step.description}');
-            break;
           case StepStatus.failed:
             stdout.writeln(
               ' 🔴 ${step.description} - reason: ${step.failReason}',
             );
-            break;
         }
       }
     },
@@ -55,6 +51,12 @@ Future<void> main() async {
 
   final processSubscription =
       ProcessSignal.sigint.watch().listen((_) => driver.quit());
+
+  driver.files.listen((file) {
+    File(file.path)
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(file.data);
+  });
 
   await driver.run();
   await stepsSubscription.cancel();

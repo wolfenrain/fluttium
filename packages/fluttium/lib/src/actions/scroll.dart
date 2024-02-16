@@ -52,16 +52,12 @@ class Scroll extends Action {
     switch (direction) {
       case AxisDirection.up:
         scrollDelta = Offset(0, -speed);
-        break;
       case AxisDirection.right:
         scrollDelta = Offset(speed, 0);
-        break;
       case AxisDirection.down:
         scrollDelta = Offset(0, speed);
-        break;
       case AxisDirection.left:
         scrollDelta = Offset(-speed, 0);
-        break;
     }
 
     final end = clock.now().add(timeout);

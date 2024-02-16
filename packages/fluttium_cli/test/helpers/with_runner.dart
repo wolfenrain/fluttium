@@ -53,7 +53,7 @@ void Function() withRunner(
         0,
         ExitCode.success.code,
         '''
-Flutter ${FluttiumDriver.flutterVersionConstraint.min} • channel stable • https://github.com/flutter/flutter.git
+Flutter ${HostDriver.flutterVersionConstraint.min} • channel stable • https://github.com/flutter/flutter.git
 Framework • revision AAAAAAAAAA (0 days ago) • 9999-12-31 00:00:00 -0700
 Engine • revision AAAAAAAAAA
 Tools • Dart 0.0.0 • DevTools 0.0.0

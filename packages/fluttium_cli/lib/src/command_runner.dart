@@ -157,11 +157,11 @@ Run ${lightCyan.wrap('$executableName update')} to update''',
       final flutterVersion =
           RegExp('Flutter (.*?) ').firstMatch(result)!.group(1)!;
       if (!Version.parse(flutterVersion)
-          .allowsAny(FluttiumDriver.flutterVersionConstraint)) {
+          .allowsAny(HostDriver.flutterVersionConstraint)) {
         _logger.err(
           '''
 Version solving failed:
-  The Fluttium CLI uses "${FluttiumDriver.flutterVersionConstraint}" as the version constraint for Flutter.
+  The Fluttium CLI uses "${HostDriver.flutterVersionConstraint}" as the version constraint for Flutter.
   The current Flutter version is "$flutterVersion" which is not supported by Fluttium.
 
 Either update Flutter to a compatible version supported by the CLI or update the CLI to a compatible version of Flutter.''',

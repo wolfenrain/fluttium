@@ -11,6 +11,7 @@ description: Testing the progress page
 # Start the progress
 - pressOn: "Start"
 - expectVisible: "Progress: \\d+%"
+- takeScreenshot: "screenshots/progress.png"
 - expectVisible: "Done"
 # Return to the app page
 - pressOn: "Back"

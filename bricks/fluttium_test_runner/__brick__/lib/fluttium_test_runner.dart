@@ -4,18 +4,9 @@ import 'package:fluttium_interfaces/fluttium_interfaces.dart';
 {{#actions}}
 import 'package:{{name.snakeCase()}}/{{name.snakeCase()}}.dart' as {{name.snakeCase()}};{{/actions}}
 
-Future<void> run(WidgetsBinding binding) async {
+Future<Tester> run(WidgetsBinding binding) async {
   final registry = Registry();{{#actions}}
   {{name.snakeCase()}}.register(registry);{{/actions}}
 
-  final tester = Tester(binding, registry);
-  await tester.ready();
-
-  final actions = await tester.convert([{{#steps}}
-    UserFlowStep.fromJson({{{step}}}),{{/steps}}
-  ]);
-
-  for (final action in actions) {
-    await action();
-  }
+  return Tester(binding, registry);
 }

@@ -31,7 +31,7 @@ class FluttiumYaml extends Equatable {
       actions: {
         for (final entry
             in (yaml['actions'] as Map<String, dynamic>? ?? {}).entries)
-          entry.key: ActionLocation.fromJson(entry.value)
+          entry.key: ActionLocation.fromJson(entry.value),
       },
       driver: DriverConfiguration.fromJson(
         yaml['driver'] as Map<String, dynamic>? ?? {},

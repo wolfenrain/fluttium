@@ -19,7 +19,7 @@ void main() {
       final step = UserFlowStep.fromJson(const {
         'expectVisible': {
           'text': 'findByText',
-        }
+        },
       });
 
       expect(step.actionName, equals('expectVisible'));

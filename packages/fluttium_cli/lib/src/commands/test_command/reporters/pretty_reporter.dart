@@ -36,7 +36,7 @@ class PrettyReporter extends Reporter {
   late final bool _lineMode;
 
   @override
-  void report(List<StepState> steps) {
+  void report(List<UserFlowStepState> steps) {
     // Reset the cursor to the top of the screen and clear the screen.
     logger.info('''
 \u001b[0;0H\u001b[0J
@@ -48,16 +48,12 @@ class PrettyReporter extends Reporter {
       switch (step.status) {
         case StepStatus.initial:
           logger.info('  🔲  ${step.description}');
-          break;
         case StepStatus.running:
           logger.info('  ⏳  ${step.description}');
-          break;
         case StepStatus.done:
           logger.info('  ✅  ${step.description}');
-          break;
         case StepStatus.failed:
           logger.info('  ❌  ${step.description}');
-          break;
       }
     }
 

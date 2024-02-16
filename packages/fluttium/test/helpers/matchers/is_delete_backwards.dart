@@ -6,7 +6,7 @@ Matcher get isDeleteBackward {
     'method': 'TextInputClient.performSelectors',
     'args': [
       -1,
-      ['deleteBackward:']
+      ['deleteBackward:'],
     ],
   });
 

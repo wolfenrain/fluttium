@@ -49,7 +49,7 @@ class TestCommand extends Command<int> {
     FluttiumDriverCreator? driver,
   })  : _logger = logger,
         _process = processManager ?? const LocalProcessManager(),
-        _driver = driver ?? FluttiumDriver.new {
+        _driver = driver ?? HostDriver.new {
     argParser
       ..addFlag(
         'watch',
@@ -228,18 +228,6 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
     }).toList();
   }
 
-  List<StepState> _storeFiles(List<StepState> steps) {
-    final step = steps.lastWhereOrNull((e) => e.status == StepStatus.done);
-    if (step == null) return steps;
-    for (final file in step.files.entries) {
-      _logger.detail('Writing ${file.value.length} bytes to "${file.key}"');
-      File(file.key)
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(file.value);
-    }
-    return steps;
-  }
-
   @override
   Future<int> run() async {
     final userFlowFile = _userFlowFile;
@@ -269,17 +257,17 @@ Multiple defines can be passed by repeating "--dart-define" multiple times.''',
     } else {
       fluttium = FluttiumYaml(
         environment: FluttiumEnvironment(
-          fluttium: FluttiumDriver.fluttiumVersionConstraint,
+          fluttium: HostDriver.fluttiumVersionConstraint,
         ),
       );
     }
 
     if (!fluttium.environment.fluttium
-        .allowsAny(FluttiumDriver.fluttiumVersionConstraint)) {
+        .allowsAny(HostDriver.fluttiumVersionConstraint)) {
       _logger.err(
         '''
 Version solving failed:
-  The Fluttium CLI uses "${FluttiumDriver.fluttiumVersionConstraint}" as the version constraint.
+  The Fluttium CLI uses "${HostDriver.fluttiumVersionConstraint}" as the version constraint.
   The current project uses "${fluttium.environment.fluttium}" as defined in the fluttium.yaml.
 
 Either adjust the constraint in the Fluttium configuration or update the CLI to a compatible version.''',
@@ -330,15 +318,19 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       rethrow;
     }
 
-    final steps = <StepState>[];
-    driver.steps
-        .map((s) => (steps..clear())..addAll(s))
-        .map(_storeFiles)
-        .listen(
+    final steps = <UserFlowStepState>[];
+    driver.steps.map((s) => (steps..clear())..addAll(s)).listen(
           reporter.report,
           onDone: reporter.done,
           onError: reporter.error,
         );
+
+    driver.files.listen((file) {
+      _logger.detail('Writing ${file.data.length} bytes to "${file.path}"');
+      File(file.path)
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(file.data);
+    });
 
     await driver.run(watch: watch);
 

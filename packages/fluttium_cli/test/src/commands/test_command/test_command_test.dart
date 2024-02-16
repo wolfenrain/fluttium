@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -15,7 +17,7 @@ import 'package:test/test.dart';
 
 import '../../../helpers/helpers.dart';
 
-const expectedUsage = [
+List<String> expectedUsage = [
   // ignore: no_adjacent_strings_in_list
   'Run a user flow test.\n'
       '\n'
@@ -84,9 +86,9 @@ void main() {
     late File pubspecFile;
     late File fluttiumFile;
     late File targetFile;
-    late StreamController<List<StepState>> stepStateController;
+    late StreamController<List<UserFlowStepState>> stepStateController;
+    late StreamController<StoredFile> fileController;
     late Stdin stdin;
-    late File testFile;
     late Completer<void> runCompleter;
 
     setUpAll(() {
@@ -104,6 +106,9 @@ void main() {
 
       stepStateController = StreamController();
       when(() => driver.steps).thenAnswer((_) => stepStateController.stream);
+
+      fileController = StreamController();
+      when(() => driver.files).thenAnswer((_) => fileController.stream);
 
       logger = _MockLogger();
 
@@ -174,11 +179,6 @@ environment:
       when(() => targetFile.existsSync()).thenReturn(true);
       when(() => targetFile.path).thenReturn('project_directory/lib/main.dart');
 
-      testFile = _MockFile();
-      when(() => testFile.createSync(recursive: any(named: 'recursive')))
-          .thenAnswer((_) {});
-      when(() => testFile.writeAsBytesSync(any())).thenAnswer((_) {});
-
       stdin = _MockStdin();
       when(() => stdin.hasTerminal).thenReturn(true);
       when(() => stdin.echoMode).thenReturn(true);
@@ -214,10 +214,7 @@ environment:
             return fluttiumFile;
           } else if (path.endsWith('main.dart')) {
             return targetFile;
-          } else if (path.endsWith('test_file')) {
-            return testFile;
-          }
-          if (customFiles.containsKey(path)) {
+          } else if (customFiles.containsKey(path)) {
             return customFiles[path]!;
           }
           throw UnimplementedError(path);
@@ -242,8 +239,10 @@ environment:
       await runWithMocks(() async {
         final future = command.run();
 
-        final step =
-            StepState('Expect visible "text"', status: StepStatus.done);
+        final step = UserFlowStepState(
+          UserFlowStep('expectVisible', arguments: 'Text'),
+          status: StepStatus.done,
+        );
         stepStateController.add([step]);
         await Future<void>.delayed(Duration.zero);
 
@@ -266,8 +265,10 @@ environment:
       await runWithMocks(() async {
         final future = command.run();
 
-        final step =
-            StepState('Expect visible "text"', status: StepStatus.done);
+        final step = UserFlowStepState(
+          UserFlowStep('expectVisible', arguments: 'Text'),
+          status: StepStatus.done,
+        );
         stepStateController.add([step]);
         await Future<void>.delayed(Duration.zero);
 
@@ -289,7 +290,9 @@ environment:
       await runWithMocks(() async {
         final future = command.run();
 
-        final step = StepState('Expect visible "text"');
+        final step = UserFlowStepState(
+          UserFlowStep('expectVisible', arguments: 'Text'),
+        );
         stepStateController.add([step]);
         await Future<void>.delayed(Duration.zero);
 
@@ -323,7 +326,9 @@ environment:
       await runWithMocks(() async {
         final future = command.run();
 
-        final step = StepState('Expect visible "text"');
+        final step = UserFlowStepState(
+          UserFlowStep('expectVisible', arguments: 'Text'),
+        );
         stepStateController.add([step]);
         await Future<void>.delayed(Duration.zero);
 
@@ -399,7 +404,7 @@ environment:
                 that: equals(
                   '''
 Version solving failed:
-  The Fluttium CLI uses "${FluttiumDriver.fluttiumVersionConstraint}" as the version constraint.
+  The Fluttium CLI uses "${HostDriver.fluttiumVersionConstraint}" as the version constraint.
   The current project uses ">=999.999.998 <999.999.999" as defined in the fluttium.yaml.
 
 Either adjust the constraint in the Fluttium configuration or update the CLI to a compatible version.''',
@@ -466,12 +471,12 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
     test('validates all platforms', () async {
       for (final platform in [
-        const MapEntry('web', 'web'),
-        const MapEntry('macos', 'darwin'),
-        const MapEntry('android', 'android'),
-        const MapEntry('ios', 'ios'),
-        const MapEntry('windows', 'windows'),
-        const MapEntry('linux', 'linux'),
+        MapEntry('web', 'web'),
+        MapEntry('macos', 'darwin'),
+        MapEntry('android', 'android'),
+        MapEntry('ios', 'ios'),
+        MapEntry('windows', 'windows'),
+        MapEntry('linux', 'linux'),
       ]) {
         flutterDevicesResult = ProcessResult(
           0,
@@ -489,6 +494,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
         // Recreate the controller
         stepStateController = StreamController();
+        fileController = StreamController();
 
         // Recreate the completer.
         runCompleter = Completer();
@@ -504,8 +510,10 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           () async {
             final future = command.run();
 
-            final step =
-                StepState('Expect visible "text"', status: StepStatus.done);
+            final step = UserFlowStepState(
+              UserFlowStep('expectVisible', arguments: 'Text'),
+              status: StepStatus.done,
+            );
             stepStateController.add([step]);
             await Future<void>.delayed(Duration.zero);
 
@@ -563,8 +571,10 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         await runWithMocks(() async {
           final future = command.run();
 
-          final step =
-              StepState('Expect visible "text"', status: StepStatus.done);
+          final step = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'Text'),
+            status: StepStatus.done,
+          );
           stepStateController.add([step]);
           await Future<void>.delayed(Duration.zero);
 
@@ -640,8 +650,10 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
           final future = command.run();
 
-          final step =
-              StepState('Expect visible "text"', status: StepStatus.done);
+          final step = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'Text'),
+            status: StepStatus.done,
+          );
           stepStateController.add([step]);
           await Future<void>.delayed(Duration.zero);
 
@@ -677,8 +689,10 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         await runWithMocks(() async {
           final future = command.run();
 
-          final step =
-              StepState('Expect visible "text"', status: StepStatus.done);
+          final step = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'Text'),
+            status: StepStatus.done,
+          );
           stepStateController.add([step]);
           await Future<void>.delayed(Duration.zero);
 
@@ -746,8 +760,14 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         () async {
           final future = command.run();
 
-          final step1 = StepState('Expect visible "text"');
-          final fileStep = StepState('Storing file: "file.txt"');
+          final step1 = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'text'),
+            description: 'Expect visible "text"',
+          );
+          final fileStep = UserFlowStepState(
+            UserFlowStep('storeFile', arguments: 'file.txt'),
+            description: 'Storing file: "file.txt"',
+          );
 
           stepStateController.add([step1, fileStep]);
           await Future<void>.delayed(Duration.zero);
@@ -766,17 +786,16 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
-            fileStep.copyWith(
-              status: StepStatus.done,
-              files: {
-                'file.txt': [1, 2, 3]
-              },
-            )
+            fileStep.copyWith(status: StepStatus.done),
           ]);
           await Future<void>.delayed(Duration.zero);
 
           verify(() => logger.info('  ✅  Expect visible "text"')).called(1);
           verify(() => logger.info('  ✅  Storing file: "file.txt"')).called(1);
+
+          fileController.add(StoredFile('file.txt', [1, 2, 3]));
+          await Future<void>.delayed(Duration.zero);
+
           verify(() => logger.detail('Writing 3 bytes to "file.txt"'))
               .called(1);
           verify(
@@ -812,9 +831,18 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
       await runWithMocks(() async {
         final future = command.run();
 
-        final step1 = StepState('Expect visible "text"');
-        final step2 = StepState('Expect not visible "text"');
-        final step3 = StepState('Tap on "text"');
+        final step1 = UserFlowStepState(
+          UserFlowStep('expectVisible', arguments: 'text'),
+          description: 'Expect visible "text"',
+        );
+        final step2 = UserFlowStepState(
+          UserFlowStep('expectNotVisible', arguments: 'text'),
+          description: 'Expect not visible "text"',
+        );
+        final step3 = UserFlowStepState(
+          UserFlowStep('tapOn', arguments: 'text'),
+          description: 'Tap on "text"',
+        );
 
         stepStateController.add([step1, step2, step3]);
         await Future<void>.delayed(Duration.zero);
@@ -823,8 +851,11 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         verify(() => logger.info('  🔲  Expect not visible "text"')).called(1);
         verify(() => logger.info('  🔲  Tap on "text"')).called(1);
 
-        stepStateController
-            .add([step1.copyWith(status: StepStatus.running), step2, step3]);
+        stepStateController.add([
+          step1.copyWith(status: StepStatus.running),
+          step2,
+          step3,
+        ]);
         await Future<void>.delayed(Duration.zero);
 
         verify(() => logger.info('  ⏳  Expect visible "text"')).called(1);
@@ -834,7 +865,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         stepStateController.add([
           step1.copyWith(status: StepStatus.done),
           step2.copyWith(status: StepStatus.running),
-          step3
+          step3,
         ]);
         await Future<void>.delayed(Duration.zero);
 
@@ -845,7 +876,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         stepStateController.add([
           step1.copyWith(status: StepStatus.done),
           step2.copyWith(status: StepStatus.failed),
-          step3
+          step3,
         ]);
         await Future<void>.delayed(Duration.zero);
 
@@ -886,9 +917,18 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         await runWithMocks(() async {
           final future = command.run();
 
-          final step1 = StepState('Expect visible "text"');
-          final step2 = StepState('Expect not visible "text"');
-          final step3 = StepState('Tap on "text"');
+          final step1 = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'text'),
+            description: 'Expect visible "text"',
+          );
+          final step2 = UserFlowStepState(
+            UserFlowStep('expectNotVisible', arguments: 'text'),
+            description: 'Expect not visible "text"',
+          );
+          final step3 = UserFlowStepState(
+            UserFlowStep('tapOn', arguments: 'text'),
+            description: 'Tap on "text"',
+          );
 
           stepStateController.add([step1, step2, step3]);
           await Future<void>.delayed(Duration.zero);
@@ -911,7 +951,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.running),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -923,7 +963,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.done),
-            step3.copyWith(status: StepStatus.done)
+            step3.copyWith(status: StepStatus.done),
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -945,9 +985,18 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         await runWithMocks(() async {
           final future = command.run();
 
-          final step1 = StepState('Expect visible "text"');
-          final step2 = StepState('Expect not visible "text"');
-          final step3 = StepState('Tap on "text"');
+          final step1 = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'text'),
+            description: 'Expect visible "text"',
+          );
+          final step2 = UserFlowStepState(
+            UserFlowStep('expectNotVisible', arguments: 'text'),
+            description: 'Expect not visible "text"',
+          );
+          final step3 = UserFlowStepState(
+            UserFlowStep('tapOn', arguments: 'text'),
+            description: 'Tap on "text"',
+          );
 
           stepStateController.add([step1, step2, step3]);
           await Future<void>.delayed(Duration.zero);
@@ -970,7 +1019,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.running),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -982,7 +1031,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.failed),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1006,7 +1055,10 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         await runWithMocks(() async {
           final future = command.run();
 
-          final step = StepState('Expect visible "text"');
+          final step = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'text'),
+            description: 'Expect visible "text"',
+          );
           stepStateController.add([step]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1065,10 +1117,18 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         await runWithMocks(() async {
           final future = command.run();
 
-          final step1 = StepState('Expect visible "text"');
-          final step2 = StepState('Expect not visible "text"');
-          final step3 = StepState('Tap on "text"');
-
+          final step1 = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'text'),
+            description: 'Expect visible "text"',
+          );
+          final step2 = UserFlowStepState(
+            UserFlowStep('expectNotVisible', arguments: 'text'),
+            description: 'Expect not visible "text"',
+          );
+          final step3 = UserFlowStepState(
+            UserFlowStep('tapOn', arguments: 'text'),
+            description: 'Tap on "text"',
+          );
           stepStateController.add([step1, step2, step3]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1087,7 +1147,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.running),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1118,10 +1178,18 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         await runWithMocks(() async {
           final future = command.run();
 
-          final step1 = StepState('Expect visible "text"');
-          final step2 = StepState('Expect not visible "text"');
-          final step3 = StepState('Tap on "text"');
-
+          final step1 = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'text'),
+            description: 'Expect visible "text"',
+          );
+          final step2 = UserFlowStepState(
+            UserFlowStep('expectNotVisible', arguments: 'text'),
+            description: 'Expect not visible "text"',
+          );
+          final step3 = UserFlowStepState(
+            UserFlowStep('tapOn', arguments: 'text'),
+            description: 'Tap on "text"',
+          );
           stepStateController.add([step1, step2, step3]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1132,7 +1200,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.running),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1143,7 +1211,7 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           stepStateController.add([
             step1.copyWith(status: StepStatus.done),
             step2.copyWith(status: StepStatus.failed),
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
 
@@ -1220,9 +1288,18 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
         await runWithMocks(() async {
           final future = command.run();
 
-          final step1 = StepState('Expect visible "text"');
-          final step2 = StepState('Expect not visible "text"');
-          final step3 = StepState('Tap on "text"');
+          final step1 = UserFlowStepState(
+            UserFlowStep('expectVisible', arguments: 'text'),
+            description: 'Expect visible "text"',
+          );
+          final step2 = UserFlowStepState(
+            UserFlowStep('expectNotVisible', arguments: 'text'),
+            description: 'Expect not visible "text"',
+          );
+          final step3 = UserFlowStepState(
+            UserFlowStep('tapOn', arguments: 'text'),
+            description: 'Tap on "text"',
+          );
 
           stepStateController.add([step1, step2, step3]);
           await Future<void>.delayed(Duration.zero);
@@ -1232,26 +1309,11 @@ Either adjust the constraint in the Fluttium configuration or update the CLI to 
           ).called(1);
 
           stepStateController.add([
-            step1.copyWith(
-              status: StepStatus.done,
-              files: {
-                'test_file': [1, 2, 3]
-              },
-            ),
+            step1.copyWith(status: StepStatus.done),
             step2,
-            step3
+            step3,
           ]);
           await Future<void>.delayed(Duration.zero);
-
-          verify(
-            () => testFile.createSync(
-              recursive: any(named: 'recursive', that: isTrue),
-            ),
-          ).called(1);
-
-          verify(
-            () => testFile.writeAsBytesSync(any(that: equals([1, 2, 3]))),
-          ).called(1);
 
           await stepStateController.close();
           runCompleter.complete();

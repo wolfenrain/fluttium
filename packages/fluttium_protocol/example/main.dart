@@ -22,19 +22,19 @@ Stream<List<int>> _fakeData() async* {
     {'type': 'start'},
     {
       'type': 'data',
-      'data': r'"{\"type\":\"announce\",\"data\":\"\\\"stepName\\\"\"}"'
+      'data': r'"{\"type\":\"announce\",\"data\":\"\\\"stepName\\\"\"}"',
     },
     {'type': 'done'},
     {'type': 'start'},
     {
       'type': 'data',
-      'data': r'"{\"type\":\"start\",\"data\":\"\\\"stepName\\\"\"}"'
+      'data': r'"{\"type\":\"start\",\"data\":\"\\\"stepName\\\"\"}"',
     },
     {'type': 'done'},
     {'type': 'start'},
     {
       'type': 'data',
-      'data': r'"{\"type\":\"done\",\"data\":\"\\\"stepName\\\"\"}"'
+      'data': r'"{\"type\":\"done\",\"data\":\"\\\"stepName\\\"\"}"',
     },
     {'type': 'done'},
   ];
