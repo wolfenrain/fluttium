@@ -1,0 +1,229 @@
+name: e2e
+
+on:
+  workflow_call:
+
+defaults:
+  run:
+    working-directory: example
+
+jobs:
+  flows:
+    runs-on: ubuntu-latest
+
+    outputs:
+      flows: ${{ steps.flows.outputs.flows }}
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🕵️ Finding User Flows
+        id: flows
+        run: |
+          flows="["
+          for flow in ./flows/*.yaml; do
+            flows="$flows\"$(basename $flow .yaml)\","
+          done
+
+          # Remove last "," and add the closing bracket
+          if [[ $flows == *, ]]; then
+              flows="${flows%?}"
+          fi
+          flows="$flows]"
+
+          echo "flows=$( echo "$flows" )" >> $GITHUB_OUTPUT
+
+  ios:
+    needs: flows
+
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
+
+    runs-on: macos-latest
+
+    timeout-minutes: 30
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
+
+      - name: 📦 Installing packages
+        run: |
+          flutter pub get
+          cd ios && pod install && cd ..
+
+      - name: 🔧 Setting Up Simulator
+        id: simulator
+        uses: futureware-tech/simulator-action@v2
+        with:
+          model: 'iPhone 11'
+
+      - name: 🧪 Testing
+        run: fluttium test --flavor development --target lib/main_development.dart -d ${{ steps.simulator.outputs.udid }} flows/${{ matrix.flow }}.yaml
+
+  android:
+    if: false # TODO: Currently does not work
+    needs: flows
+
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
+
+    runs-on: macos-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "11"
+
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
+
+      - name: 📦 Installing packages
+        run: flutter pub get
+
+      - name: AVD Cache
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-29
+
+      - name: Cache AVD Snapshot
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          avd-name: android
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: 🧪 Testing
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          avd-name: android
+          working-directory: example
+          script: fluttium test --flavor development --target lib/main_development.dart -d android flows/${{ matrix.flow }}.yaml
+
+  web:
+    needs: flows
+
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
+
+      - name: 📦 Installing packages
+        run: flutter pub get
+
+      - name: 🧪 Testing
+        run: xvfb-run fluttium test --flavor development --target lib/main_development.dart -d chrome flows/${{ matrix.flow }}.yaml
+
+  macos:
+    if: false # TODO: Metal is not supported on macos runners, https://github.com/actions/runner-images/discussions/6138
+    needs: flows
+
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
+
+    runs-on: macos-latest
+
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
+
+      - name: 📦 Installing packages
+        run: |
+          flutter pub get
+          cd macos && pod install && cd ..
+
+      - name: 🧪 Testing
+        run: fluttium test -d macos flows/${{ matrix.flow }}.yaml
+
+  linux:
+    if: false # TODO: tests currently dont work, but locally they do
+    needs: flows
+
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
+
+      - name: 📦 Installing packages
+        run: |
+          flutter pub get
+          sudo apt-get update -y
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: 🧪 Testing
+        run: xvfb-run fluttium test -d linux flows/${{ matrix.flow }}.yaml
+
+  windows:
+    needs: flows
+
+    strategy:
+      matrix:
+        flow: ${{ fromJSON(needs.flows.outputs.flows) }}
+      fail-fast: true
+
+    runs-on: windows-latest
+
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐦 Setup Local Fluttium Environment
+        uses: ./.github/actions/local_fluttium_environment
+
+      - name: 📦 Installing packages
+        run: flutter pub get
+
+      - name: 🧪 Testing
+        run: fluttium test -d windows flows/${{ matrix.flow }}.yaml

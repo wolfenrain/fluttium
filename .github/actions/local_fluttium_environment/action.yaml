@@ -1,0 +1,25 @@
+name: Local Fluttium Environment
+
+runs:
+  using: "composite"
+  steps:
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        cache: true
+    
+    - shell: bash
+      working-directory: tools
+      run: dart pub get
+
+    - shell: bash
+      run: dart tools/setup_local_environment.dart
+
+    - shell: bash
+      run: dart pub global activate mason_cli
+
+    - shell: bash
+      run: tools/bundle_all_bricks.sh
+
+    - shell: bash
+      run: dart pub global activate --source path packages/fluttium_cli

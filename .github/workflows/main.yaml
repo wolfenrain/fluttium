@@ -252,12 +252,7 @@ jobs:
         with:
           working_directory: actions/${{ matrix.brick }}
 
-  # Simply exists to be the final job in the workflow. This is required to
-  # ensure that the workflow fails if any of the needed jobs fail.
-  #
-  # The build and pana job might not spawn but as long as the other jobs
-  # succeed this job will be considered successful through skipping.
-  ci:
+  e2e: 
     needs:
       [
         semantic_pull_request,
@@ -269,6 +264,20 @@ jobs:
         build_packages,
         build_bricks,
         build_actions,
+      ]
+      
+    if: ${{ contains(join(needs.*.result, ','), 'failure') == 'false' }}
+    uses: ./.github/workflows/e2e.yaml
+
+  # Simply exists to be the final job in the workflow. This is required to
+  # ensure that the workflow fails if any of the needed jobs fail.
+  #
+  # The build and pana job might not spawn but as long as the other jobs
+  # succeed this job will be considered successful through skipping.
+  ci:
+    needs:
+      [
+        e2e
       ]
     if: ${{ always() }}
 
